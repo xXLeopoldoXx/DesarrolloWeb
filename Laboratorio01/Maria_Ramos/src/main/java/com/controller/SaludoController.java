@@ -27,13 +27,13 @@ public class SaludoController {
         );
     }
 
-    // Ejercicio 1: Endpoint de versión
+    // Endpoint de versión
     @GetMapping("/version")
     public String obtenerVersion() {
         return "Aplicación Semana 1 - Versión 1.0.0";
     }
 
-    // Ejercicio 2: Endpoint de estado (JSON)
+    //Endpoint de estado (JSON)
     @GetMapping("/estado")
     public EstadoInfo obtenerEstado() {
         return new EstadoInfo("semana1", true, "Backend disponible");

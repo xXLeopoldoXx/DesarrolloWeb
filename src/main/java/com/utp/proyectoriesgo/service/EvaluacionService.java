@@ -29,6 +29,41 @@ public class EvaluacionService {
         return evaluacion;
     }
 
+    public Evaluacion crear(EvaluacionRequest request) {
+        validar(request);
+        Long id = secuencia.getAndIncrement();
+        Evaluacion evaluacion = mapearDesdeRequest(id, request);
+
+        // TODO (lab 4): reemplazar esto por el motor de reglas (RiesgoCalculador)
+        evaluacion.setPuntajeRiesgo(0);
+        evaluacion.setNivelRiesgo("PENDIENTE");
+        evaluacion.setAlertaCritica(false);
+
+        evaluaciones.put(id, evaluacion);
+        return evaluacion;
+    }
+
+    public Evaluacion actualizar(Long id, EvaluacionRequest request) {
+        validar(request);
+        Evaluacion existente = buscarPorId(id);
+
+        Evaluacion actualizada = mapearDesdeRequest(id, request);
+        actualizada.setPuntajeRiesgo(existente.getPuntajeRiesgo());
+        actualizada.setNivelRiesgo(existente.getNivelRiesgo());
+        actualizada.setAlertaCritica(existente.isAlertaCritica());
+        actualizada.setFechaRegistro(existente.getFechaRegistro());
+
+        evaluaciones.put(id, actualizada);
+        return actualizada;
+    }
+
+    public void eliminar(Long id) {
+        Evaluacion eliminada = evaluaciones.remove(id);
+        if (eliminada == null) {
+            throw new EvaluacionNoEncontradaException(id);
+        }
+    }
+
     private Evaluacion mapearDesdeRequest(Long id, EvaluacionRequest request) {
         return new Evaluacion(
                 id,

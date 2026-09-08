@@ -1,5 +1,6 @@
 ﻿package com.utp.proyectoriesgo.service;
 
+import com.utp.proyectoriesgo.dto.EvaluacionRequest;
 import com.utp.proyectoriesgo.exception.EvaluacionNoEncontradaException;
 import com.utp.proyectoriesgo.model.Evaluacion;
 import org.springframework.stereotype.Service;
@@ -26,5 +27,37 @@ public class EvaluacionService {
             throw new EvaluacionNoEncontradaException(id);
         }
         return evaluacion;
+    }
+
+    private Evaluacion mapearDesdeRequest(Long id, EvaluacionRequest request) {
+        return new Evaluacion(
+                id,
+                request.seudonimoVictima(),
+                request.edadVictima(),
+                request.relacionAgresor(),
+                request.amenazaMuerte(),
+                request.violenciaFisicaPrevia(),
+                request.estrangulamientoPrevio(),
+                request.accesoArmas(),
+                request.incumplimientoMedidaProteccion(),
+                request.acosoOPersecucion(),
+                request.separacionReciente(),
+                request.controlExtremo(),
+                request.consumoAlcoholDrogasAgresor(),
+                request.denunciasPrevias(),
+                request.hijosEnComun()
+        );
+    }
+
+    private void validar(EvaluacionRequest request) {
+        if (request.seudonimoVictima() == null || request.seudonimoVictima().isBlank()) {
+            throw new IllegalArgumentException("El seudónimo de la víctima es obligatorio.");
+        }
+        if (request.edadVictima() == null || request.edadVictima() <= 0) {
+            throw new IllegalArgumentException("La edad de la víctima debe ser un valor válido.");
+        }
+        if (request.relacionAgresor() == null || request.relacionAgresor().isBlank()) {
+            throw new IllegalArgumentException("La relación con el agresor es obligatoria.");
+        }
     }
 }

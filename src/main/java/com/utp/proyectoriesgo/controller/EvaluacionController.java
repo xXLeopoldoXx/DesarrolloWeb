@@ -4,6 +4,7 @@ import com.utp.proyectoriesgo.dto.ActualizarFactoresRequest;
 import com.utp.proyectoriesgo.dto.EvaluacionRequest;
 import com.utp.proyectoriesgo.model.Evaluacion;
 import com.utp.proyectoriesgo.service.EvaluacionService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,21 +37,28 @@ public class EvaluacionController {
     }
 
     @PostMapping
-    public ResponseEntity<Evaluacion> crear(@RequestBody EvaluacionRequest request) {
+    public ResponseEntity<Evaluacion> crear(
+            @Valid @RequestBody EvaluacionRequest request) {
+
         Evaluacion creada = service.crear(request);
         URI location = URI.create("/api/evaluaciones/" + creada.getId());
+
         return ResponseEntity.created(location).body(creada);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Evaluacion> actualizar(
-            @PathVariable Long id, @RequestBody EvaluacionRequest request) {
+            @PathVariable Long id,
+            @Valid @RequestBody EvaluacionRequest request) {
+
         return ResponseEntity.ok(service.actualizar(id, request));
     }
 
     @PatchMapping("/{id}/factores")
     public ResponseEntity<Evaluacion> actualizarFactores(
-            @PathVariable Long id, @RequestBody ActualizarFactoresRequest request) {
+            @PathVariable Long id,
+            @RequestBody ActualizarFactoresRequest request) {
+
         return ResponseEntity.ok(service.actualizarFactores(id, request));
     }
 

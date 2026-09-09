@@ -1,4 +1,4 @@
-package com.utp.proyecto_riesgo.dto;
+package com.utp.proyectoriesgo.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -46,4 +46,34 @@ class EvaluacionServiceTest {
         assertThatThrownBy(() -> service.buscarPorId(999L))
                 .isInstanceOf(EvaluacionNoEncontradaException.class);
     }
+
+    @Test
+    void actualizar_debeMantenerFechaOriginalYRecalcularRiesgo() {
+        Evaluacion creada = service.crear(requestValido());
+
+        EvaluacionRequest requestActualizado = new EvaluacionRequest(
+                "Caso-Test", 30, "Pareja",
+                false, false, false, false, false, false, false, false, false, false, false
+        );
+        Evaluacion actualizada = service.actualizar(creada.getId(), requestActualizado);
+
+        assertThat(actualizada.getEdadVictima()).isEqualTo(30);
+        assertThat(actualizada.getNivelRiesgo()).isEqualTo("BAJO");
+        assertThat(actualizada.getFechaRegistro()).isEqualTo(creada.getFechaRegistro());
+    }
+
+    @Test
+    void eliminar_debeQuitarloDeLaLista() {
+        Evaluacion creada = service.crear(requestValido());
+
+        service.eliminar(creada.getId());
+
+        assertThat(service.listar()).isEmpty();
+    }
+
+    @Test
+    void eliminar_cuandoNoExiste_debeLanzarExcepcion() {
+        assertThatThrownBy(() -> service.eliminar(999L))
+                .isInstanceOf(EvaluacionNoEncontradaException.class);
+    }
 }

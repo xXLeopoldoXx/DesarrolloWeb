@@ -40,4 +40,10 @@ class EvaluacionServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("El seudónimo de la víctima es obligatorio.");
     }
+
+    @Test
+    void buscarPorId_cuandoNoExiste_debeLanzarExcepcion() {
+        assertThatThrownBy(() -> service.buscarPorId(999L))
+                .isInstanceOf(EvaluacionNoEncontradaException.class);
+    }
 }

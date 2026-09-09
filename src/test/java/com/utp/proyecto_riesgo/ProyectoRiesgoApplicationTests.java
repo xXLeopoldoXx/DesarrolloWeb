@@ -1,4 +1,4 @@
-package com.utp.proyecto_riesgo;
+package com.utp.proyectoriesgo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

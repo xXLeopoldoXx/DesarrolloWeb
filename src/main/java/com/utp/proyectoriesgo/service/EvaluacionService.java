@@ -34,6 +34,14 @@ public class EvaluacionService {
         return evaluacion;
     }
 
+    public List<Evaluacion> buscarPorTexto(String texto) {
+        String busqueda = texto.toLowerCase();
+        return evaluaciones.values().stream()
+                .filter(e -> e.getSeudonimoVictima().toLowerCase().contains(busqueda)
+                        || e.getRelacionAgresor().toLowerCase().contains(busqueda))
+                .toList();
+    }
+
     public void eliminar(Long id) {
         Evaluacion eliminada = evaluaciones.remove(id);
         if (eliminada == null) {

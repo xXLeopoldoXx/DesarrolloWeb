@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.utp.proyectoriesgo.dto.ActualizarFactoresRequest;
+
 @Service
 public class EvaluacionService {
 
@@ -92,6 +94,25 @@ public class EvaluacionService {
                 request.hijosEnComun()
         );
     }
+
+    public Evaluacion actualizarFactores(Long id, ActualizarFactoresRequest request) {
+    Evaluacion existente = buscarPorId(id);
+
+    existente.setAmenazaMuerte(request.amenazaMuerte());
+    existente.setViolenciaFisicaPrevia(request.violenciaFisicaPrevia());
+    existente.setEstrangulamientoPrevio(request.estrangulamientoPrevio());
+    existente.setAccesoArmas(request.accesoArmas());
+    existente.setIncumplimientoMedidaProteccion(request.incumplimientoMedidaProteccion());
+    existente.setAcosoOPersecucion(request.acosoOPersecucion());
+    existente.setSeparacionReciente(request.separacionReciente());
+    existente.setControlExtremo(request.controlExtremo());
+    existente.setConsumoAlcoholDrogasAgresor(request.consumoAlcoholDrogasAgresor());
+    existente.setDenunciasPrevias(request.denunciasPrevias());
+    existente.setHijosEnComun(request.hijosEnComun());
+
+    riesgoCalculador.calcular(existente);
+    return existente;
+}
 
     private void validar(EvaluacionRequest request) {
         if (request.seudonimoVictima() == null || request.seudonimoVictima().isBlank()) {

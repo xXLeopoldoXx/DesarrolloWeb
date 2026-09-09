@@ -1,5 +1,6 @@
 package com.utp.proyectoriesgo.controller;
 
+import com.utp.proyectoriesgo.dto.ActualizarFactoresRequest;
 import com.utp.proyectoriesgo.dto.EvaluacionRequest;
 import com.utp.proyectoriesgo.model.Evaluacion;
 import com.utp.proyectoriesgo.service.EvaluacionService;
@@ -20,13 +21,18 @@ public class EvaluacionController {
     }
 
     @GetMapping
-    public List<Evaluacion> listar() {
-        return service.listar();
+    public ResponseEntity<List<Evaluacion>> listar() {
+        return ResponseEntity.ok(service.listar());
     }
 
     @GetMapping("/{id}")
-    public Evaluacion buscarPorId(@PathVariable Long id) {
-        return service.buscarPorId(id);
+    public ResponseEntity<Evaluacion> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.buscarPorId(id));
+    }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Evaluacion>> buscarPorTexto(@RequestParam String texto) {
+        return ResponseEntity.ok(service.buscarPorTexto(texto));
     }
 
     @PostMapping
@@ -37,8 +43,15 @@ public class EvaluacionController {
     }
 
     @PutMapping("/{id}")
-    public Evaluacion actualizar(@PathVariable Long id, @RequestBody EvaluacionRequest request) {
-        return service.actualizar(id, request);
+    public ResponseEntity<Evaluacion> actualizar(
+            @PathVariable Long id, @RequestBody EvaluacionRequest request) {
+        return ResponseEntity.ok(service.actualizar(id, request));
+    }
+
+    @PatchMapping("/{id}/factores")
+    public ResponseEntity<Evaluacion> actualizarFactores(
+            @PathVariable Long id, @RequestBody ActualizarFactoresRequest request) {
+        return ResponseEntity.ok(service.actualizarFactores(id, request));
     }
 
     @DeleteMapping("/{id}")

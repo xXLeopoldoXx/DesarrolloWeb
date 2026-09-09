@@ -1,4 +1,4 @@
-package com.utp.proyectoriesgo.service;
+﻿package com.utp.proyectoriesgo.service;
 
 import com.utp.proyectoriesgo.dto.EvaluacionRequest;
 import com.utp.proyectoriesgo.exception.EvaluacionNoEncontradaException;
@@ -16,6 +16,11 @@ public class EvaluacionService {
 
     private final Map<Long, Evaluacion> evaluaciones = new ConcurrentHashMap<>();
     private final AtomicLong secuencia = new AtomicLong(1);
+    private final RiesgoCalculador riesgoCalculador;
+
+    public EvaluacionService(RiesgoCalculador riesgoCalculador) {
+        this.riesgoCalculador = riesgoCalculador;
+    }
 
     public List<Evaluacion> listar() {
         return new ArrayList<>(evaluaciones.values());
@@ -29,15 +34,20 @@ public class EvaluacionService {
         return evaluacion;
     }
 
+    public List<Evaluacion> buscarPorTexto(String texto) {
+        String busqueda = texto.toLowerCase();
+        return evaluaciones.values().stream()
+                .filter(e -> e.getSeudonimoVictima().toLowerCase().contains(busqueda)
+                        || e.getRelacionAgresor().toLowerCase().contains(busqueda))
+                .toList();
+    }
+
     public Evaluacion crear(EvaluacionRequest request) {
         validar(request);
         Long id = secuencia.getAndIncrement();
         Evaluacion evaluacion = mapearDesdeRequest(id, request);
 
-        // TODO (lab 4): reemplazar esto por el motor de reglas (RiesgoCalculador)
-        evaluacion.setPuntajeRiesgo(0);
-        evaluacion.setNivelRiesgo("PENDIENTE");
-        evaluacion.setAlertaCritica(false);
+        riesgoCalculador.calcular(evaluacion);
 
         evaluaciones.put(id, evaluacion);
         return evaluacion;
@@ -48,10 +58,9 @@ public class EvaluacionService {
         Evaluacion existente = buscarPorId(id);
 
         Evaluacion actualizada = mapearDesdeRequest(id, request);
-        actualizada.setPuntajeRiesgo(existente.getPuntajeRiesgo());
-        actualizada.setNivelRiesgo(existente.getNivelRiesgo());
-        actualizada.setAlertaCritica(existente.isAlertaCritica());
         actualizada.setFechaRegistro(existente.getFechaRegistro());
+
+        riesgoCalculador.calcular(actualizada);
 
         evaluaciones.put(id, actualizada);
         return actualizada;

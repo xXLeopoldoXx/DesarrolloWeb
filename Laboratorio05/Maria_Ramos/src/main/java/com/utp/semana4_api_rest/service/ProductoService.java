@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+
 import org.springframework.stereotype.Service;
+
 import com.utp.semana4.dto.ActualizarStockRequest;
 import com.utp.semana4.dto.ProductoRequest;
 import com.utp.semana4.exception.ProductoNoEncontradoException;
@@ -13,6 +15,7 @@ import com.utp.semana4.model.Producto;
 
 @Service
 public class ProductoService {
+
     private final Map<Long, Producto> productos = new ConcurrentHashMap<>();
     private final AtomicLong secuencia = new AtomicLong(1);
 
@@ -33,49 +36,133 @@ public class ProductoService {
 
     public Producto buscarPorId(Long id) {
         Producto producto = productos.get(id);
+
         if (producto == null) {
             throw new ProductoNoEncontradoException(id);
         }
+
         return producto;
     }
 
     public Producto crear(ProductoRequest request) {
         Long id = secuencia.getAndIncrement();
+
         Producto producto = new Producto(
                 id,
                 request.getNombre(),
                 request.getCategoria(),
                 request.getPrecio(),
-                request.getStock()
-        );
+                request.getStock());
+
         productos.put(id, producto);
+
+        return producto;
+    }
+
+    public Producto crear(Producto producto) {
+        validar(producto);
+
+        Long id = secuencia.getAndIncrement();
+
+        producto.setId(id);
+        productos.put(id, producto);
+
         return producto;
     }
 
     public Producto actualizar(Long id, ProductoRequest request) {
         Producto producto = buscarPorId(id);
+
         producto.setNombre(request.getNombre());
         producto.setCategoria(request.getCategoria());
         producto.setPrecio(request.getPrecio());
         producto.setStock(request.getStock());
+
         return producto;
     }
 
-    public Producto actualizarStock(Long id, ActualizarStockRequest request) {
+    public Producto actualizarStock(
+            Long id,
+            ActualizarStockRequest request) {
+
         Producto producto = buscarPorId(id);
+
         producto.setStock(request.getStock());
+
         return producto;
+    }
+
+    public Producto actualizarPrecio(Long id, double precio) {
+
+        if (precio <= 0) {
+            throw new IllegalArgumentException(
+                    "El precio debe ser mayor que cero");
+        }
+
+        Producto producto = buscarPorId(id);
+
+        producto.setPrecio(precio);
+
+        return producto;
+    }
+
+    public List<Producto> buscarPorNombre(String nombre) {
+
+        return productos.values()
+                .stream()
+                .filter(producto -> producto.getNombre()
+                        .toLowerCase()
+                        .contains(nombre.toLowerCase()))
+                .sorted(Comparator.comparing(Producto::getId))
+                .toList();
     }
 
     public void eliminar(Long id) {
+
         Producto eliminado = productos.remove(id);
+
         if (eliminado == null) {
             throw new ProductoNoEncontradoException(id);
         }
     }
 
-    private void registrarInicial(String nombre, String categoria, double precio, int stock) {
+    private void validar(Producto producto) {
+
+        if (producto.getNombre() == null
+                || producto.getNombre().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "El nombre es obligatorio");
+        }
+
+        if (producto.getPrecio() <= 0) {
+
+            throw new IllegalArgumentException(
+                    "El precio debe ser mayor que cero");
+        }
+
+        if (producto.getStock() < 0) {
+
+            throw new IllegalArgumentException(
+                    "El stock no puede ser negativo");
+        }
+    }
+
+    private void registrarInicial(
+            String nombre,
+            String categoria,
+            double precio,
+            int stock) {
+
         Long id = secuencia.getAndIncrement();
-        productos.put(id, new Producto(id, nombre, categoria, precio, stock));
+
+        productos.put(
+                id,
+                new Producto(
+                        id,
+                        nombre,
+                        categoria,
+                        precio,
+                        stock));
     }
 }

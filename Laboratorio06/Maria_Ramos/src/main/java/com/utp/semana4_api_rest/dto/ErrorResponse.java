@@ -1,8 +1,9 @@
-package com.utp.semana4.dto;
+package com.utp.semana4_api_rest.dto;
 
 import java.time.LocalDateTime;
 
 public class ErrorResponse {
+
     private int estado;
     private String mensaje;
     private String ruta;

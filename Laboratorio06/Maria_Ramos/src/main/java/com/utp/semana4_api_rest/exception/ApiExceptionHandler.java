@@ -1,4 +1,4 @@
-package com.utp.semana4.exception;
+package com.utp.semana4_api_rest.exception;
 
 import java.util.stream.Collectors;
 
@@ -8,7 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.utp.semana4.dto.ErrorResponse;
+import com.utp.semana4_api_rest.dto.ErrorResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
 

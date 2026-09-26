@@ -1,4 +1,4 @@
-package com.utp.semana4.controller;
+package com.utp.semana4_api_rest.controller;
 
 import java.net.URI;
 import java.util.List;
@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.utp.semana4.dto.ActualizarStockRequest;
-import com.utp.semana4.dto.ProductoRequest;
-import com.utp.semana4.model.Producto;
-import com.utp.semana4.service.ProductoService;
+import com.utp.semana4_api_rest.dto.ActualizarStockRequest;
+import com.utp.semana4_api_rest.dto.ProductoRequest;
+import com.utp.semana4_api_rest.model.Producto;
+import com.utp.semana4_api_rest.service.ProductoService;
 
 import jakarta.validation.Valid;
 

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pruebas Lab 09 - JWT</title>
+  <style>
+    body { font-family: sans-serif; margin: 30px; background-color: #f4f6f8; color: #333; }
+    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; max-width: 700px; }
+    h2, h3 { margin-top: 0; }
+    input, button { padding: 8px 12px; margin: 5px 0; font-size: 14px; }
+    button { cursor: pointer; background: #0066cc; color: white; border: none; border-radius: 4px; }
+    button:hover { background: #004c99; }
+    button.alt { background: #555; }
+    pre { background: #222; color: #00ff66; padding: 12px; border-radius: 6px; overflow-x: auto; max-height: 200px; }
+    .status { font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h1>Panel de Pruebas JWT - Tienda API</h1>
+
+  <!-- 1. LOGIN -->
+  <div class="card">
+    <h2>1. Iniciar Sesión (Obtener JWT)</h2>
+    <div>
+      <button class="alt" onclick="cargarCredenciales('usuario', 'Usuario123*')">Cargar 'usuario'</button>
+      <button class="alt" onclick="cargarCredenciales('admin', 'Admin123*')">Cargar 'admin'</button>
+    </div>
+    <br>
+    <label>Usuario: </label><br>
+    <input type="text" id="username" value="usuario"><br>
+    <label>Contraseña: </label><br>
+    <input type="password" id="password" value="Usuario123*"><br><br>
+    <button onclick="login()">Iniciar Sesión</button>
+
+    <h3>Token actual en memoria:</h3>
+    <textarea id="tokenVisual" rows="3" style="width: 100%; font-family: monospace;" readonly placeholder="Sin token..."></textarea>
+  </div>
+
+  <!-- 2. ENDPOINTS -->
+  <div class="card">
+    <h2>2. Probar Endpoints</h2>
+    <button onclick="probarPublico()">1. GET Público (/api/publico/estado)</button>
+    <button onclick="consultarProductos()">2. GET Productos (/api/productos)</button>
+    <button onclick="crearProducto()">3. POST Crear Producto (/api/productos)</button>
+    <button onclick="verPerfil()">4. GET Mi Perfil (/api/auth/me)</button>
+    <button class="alt" onclick="alterarToken()">5. Dañar Token (Probar 401)</button>
+  </div>
+
+  <!-- 3. RESULTADO -->
+  <div class="card">
+    <h2>3. Respuesta del Servidor</h2>
+    <p>Estado HTTP: <span id="statusHttp" class="status">-</span></p>
+    <pre id="resultado">Esperando peticiones...</pre>
+  </div>
+
+  <script>
+    let tokenJwt = "";
+
+    function cargarCredenciales(u, p) {
+      document.getElementById('username').value = u;
+      document.getElementById('password').value = p;
+    }
+
+    async function login() {
+      const u = document.getElementById('username').value;
+      const p = document.getElementById('password').value;
+
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, password: p })
+      });
+
+      mostrarRespuesta(res);
+      if (res.ok) {
+        const data = await res.json();
+        tokenJwt = data.accessToken;
+        document.getElementById('tokenVisual').value = tokenJwt;
+        document.getElementById('resultado').innerText = JSON.stringify(data, null, 2);
+      }
+    }
+
+    async function probarPublico() {
+      const res = await fetch('/api/publico/estado');
+      mostrarRespuesta(res);
+    }
+
+    async function consultarProductos() {
+      const res = await fetch('/api/productos', {
+        headers: { 'Authorization': tokenJwt ? `Bearer ${tokenJwt}` : '' }
+      });
+      mostrarRespuesta(res);
+    }
+
+    async function crearProducto() {
+      const nuevo = {
+        nombre: "Audífonos Web",
+        categoria: "Tecnologia",
+        precio: 150.00,
+        stock: 5
+      };
+
+      const res = await fetch('/api/productos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': tokenJwt ? `Bearer ${tokenJwt}` : ''
+        },
+        body: JSON.stringify(nuevo)
+      });
+      mostrarRespuesta(res);
+    }
+
+    async function verPerfil() {
+      const res = await fetch('/api/auth/me', {
+        headers: { 'Authorization': tokenJwt ? `Bearer ${tokenJwt}` : '' }
+      });
+      mostrarRespuesta(res);
+    }
+
+    function alterarToken() {
+      if (!tokenJwt) {
+        alert("Primero genera un token haciendo login");
+        return;
+      }
+      tokenJwt = tokenJwt.slice(0, -6) + "XXXXXX";
+      document.getElementById('tokenVisual').value = tokenJwt;
+      alert("Firma del token modificada intencionalmente. Ahora prueba 'GET Productos' o 'POST Crear Producto' para ver el 401.");
+    }
+
+    async function mostrarRespuesta(res) {
+      const statusSpan = document.getElementById('statusHttp');
+      statusSpan.innerText = `${res.status} ${res.statusText}`;
+
+      if (res.status === 200 || res.status === 201) {
+        statusSpan.style.color = "green";
+      } else if (res.status === 401 || res.status === 403) {
+        statusSpan.style.color = "red";
+      } else {
+        statusSpan.style.color = "orange";
+      }
+
+      try {
+        const json = await res.json();
+        document.getElementById('resultado').innerText = JSON.stringify(json, null, 2);
+      } catch {
+        const text = await res.text();
+        document.getElementById('resultado').innerText = text || "(Respuesta sin cuerpo)";
+      }
+    }
+  </script>
+</body>
+</html>

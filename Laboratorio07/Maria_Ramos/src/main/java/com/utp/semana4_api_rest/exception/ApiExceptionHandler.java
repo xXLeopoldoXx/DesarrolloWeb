@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
+    // ERROR 404: PRODUCTO NO ENCONTRADO
     @ExceptionHandler(ProductoNoEncontradoException.class)
     public ResponseEntity<ErrorResponse> manejarProductoNoEncontrado(
             ProductoNoEncontradoException ex,
@@ -30,6 +31,7 @@ public class ApiExceptionHandler {
                 .body(error);
     }
 
+    // ERROR 400: VALIDACIONES DE LOS DTO
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> manejarValidaciones(
             MethodArgumentNotValidException ex,
@@ -53,6 +55,7 @@ public class ApiExceptionHandler {
                 .body(error);
     }
 
+    // ERROR 400: REGLAS DE NEGOCIO
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> manejarIllegalArgument(
             IllegalArgumentException ex,
@@ -65,6 +68,22 @@ public class ApiExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
+                .body(error);
+    }
+
+    // ERROR 500: ERROR SIMULADO PARA ROLLBACK
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> manejarIllegalState(
+            IllegalStateException ex,
+            HttpServletRequest request) {
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                ex.getMessage(),
+                request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(error);
     }
 }

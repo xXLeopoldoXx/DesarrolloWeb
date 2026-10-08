@@ -30,13 +30,8 @@ public class Producto {
     public Producto() {
     }
 
-    public Producto(
-            Long id,
-            String nombre,
-            String categoria,
-            double precio,
-            int stock) {
-
+    public Producto(Long id, String nombre, String categoria,
+                    double precio, int stock) {
         this.id = id;
         this.nombre = nombre;
         this.categoria = categoria;

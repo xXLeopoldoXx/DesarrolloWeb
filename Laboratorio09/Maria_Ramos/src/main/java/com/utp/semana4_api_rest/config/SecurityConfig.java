@@ -3,80 +3,151 @@ package com.utp.semana4_api_rest.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
 
+    // CIFRAR Y VERIFICAR CONTRASEÑAS
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // AUTENTICAR USUARIOS REGISTRADOS EN LA BASE DE DATOS
+    @Bean
+    public AuthenticationManager authenticationManager(
+            UserDetailsService users,
+            PasswordEncoder passwords) {
+
+        DaoAuthenticationProvider provider =
+                new DaoAuthenticationProvider(users);
+
+        provider.setPasswordEncoder(passwords);
+
+        return new ProviderManager(provider);
+    }
+
+    // CONVERTIR LOS ROLES DEL JWT EN PERMISOS DE SPRING SECURITY
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+
+        JwtGrantedAuthoritiesConverter authorities =
+                new JwtGrantedAuthoritiesConverter();
+
+        authorities.setAuthoritiesClaimName("roles");
+        authorities.setAuthorityPrefix("");
+
+        JwtAuthenticationConverter converter =
+                new JwtAuthenticationConverter();
+
+        converter.setJwtGrantedAuthoritiesConverter(authorities);
+
+        return converter;
+    }
+
+    // CONFIGURAR LA SEGURIDAD DE LOS ENDPOINTS
     @Bean
     public SecurityFilterChain securityFilterChain(
-            HttpSecurity http) throws Exception {
+            HttpSecurity http,
+            JwtAuthenticationConverter converter) throws Exception {
 
         http
-            .csrf(csrf -> csrf.disable())
+                // DESACTIVAR CSRF, HTTP BASIC Y FORMULARIO DE LOGIN
+                .csrf(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
 
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // API SIN SESIONES
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS))
 
-            .authorizeHttpRequests(auth -> auth
+                // CONFIGURAR PERMISOS
+                .authorizeHttpRequests(auth -> auth
 
-                // ENDPOINT PUBLICO
-                .requestMatchers(
-                    HttpMethod.GET, "/api/publico/**")
-                    .permitAll()
+                        // LOGIN PUBLICO
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/auth/login")
+                        .permitAll()
 
-                // INVENTARIO - LAB 08
-                // Solo ADMIN puede realizar ajustes
-                .requestMatchers(
-                    HttpMethod.POST, "/api/inventario/ajustes")
-                    .hasRole("ADMIN")
+                        // ENDPOINTS PUBLICOS
+                        .requestMatchers("/api/publico/**")
+                        .permitAll()
 
-                // USER y ADMIN pueden consultar inventario
-                .requestMatchers(
-                    HttpMethod.GET, "/api/inventario/**")
-                    .hasAnyRole("USER", "ADMIN")
+                        // REPORTES EXCLUSIVOS DEL ADMINISTRADOR
+                        .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
 
-                // PRODUCTOS - LAB 06 Y 07
-                // USER y ADMIN pueden consultar
-                .requestMatchers(
-                    HttpMethod.GET, "/api/productos/**")
-                    .hasAnyRole("USER", "ADMIN")
+                        // AJUSTES DE INVENTARIO: SOLO ADMIN
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/inventario/ajustes")
+                        .hasRole("ADMIN")
 
-                // Solo ADMIN puede crear
-                .requestMatchers(
-                    HttpMethod.POST, "/api/productos/**")
-                    .hasRole("ADMIN")
+                        // CONSULTAR INVENTARIO: USER Y ADMIN
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/inventario/**")
+                        .hasAnyRole("USER", "ADMIN")
 
-                // Solo ADMIN puede actualizar
-                .requestMatchers(
-                    HttpMethod.PUT, "/api/productos/**")
-                    .hasRole("ADMIN")
+                        // CONSULTAR PRODUCTOS: USER Y ADMIN
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/api/productos/**")
+                        .hasAnyRole("USER", "ADMIN")
 
-                // Solo ADMIN puede modificar stock y precio
-                .requestMatchers(
-                    HttpMethod.PATCH, "/api/productos/**")
-                    .hasRole("ADMIN")
+                        // CREAR PRODUCTOS: SOLO ADMIN
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/productos/**")
+                        .hasRole("ADMIN")
 
-                // Solo ADMIN puede eliminar
-                .requestMatchers(
-                    HttpMethod.DELETE, "/api/productos/**")
-                    .hasRole("ADMIN")
+                        // ACTUALIZAR PRODUCTOS: SOLO ADMIN
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/productos/**")
+                        .hasRole("ADMIN")
 
-                // Otros endpoints requieren autenticacion
-                .anyRequest().authenticated()
-            )
+                        // MODIFICAR STOCK Y PRECIO: SOLO ADMIN
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/api/productos/**")
+                        .hasRole("ADMIN")
 
-            .httpBasic(Customizer.withDefaults());
+                        // ELIMINAR PRODUCTOS: SOLO ADMIN
+                        .requestMatchers(
+                                HttpMethod.DELETE,
+                                "/api/productos/**")
+                        .hasRole("ADMIN")
+
+                        // LOS DEMAS ENDPOINTS REQUIEREN AUTENTICACION
+                        .anyRequest()
+                        .authenticated()
+                )
+
+                // HABILITAR AUTENTICACION MEDIANTE JWT
+                .oauth2ResourceServer(oauth2 ->
+                        oauth2.jwt(jwt ->
+                                jwt.jwtAuthenticationConverter(converter))
+                );
 
         return http.build();
     }

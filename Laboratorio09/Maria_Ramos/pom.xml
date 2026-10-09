@@ -18,7 +18,7 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <name>semana4-api-rest</name>
-    <description>API REST con Spring Boot, JPA, PostgreSQL y Spring Security</description>
+    <description>API REST con Spring Boot, JPA, PostgreSQL y seguridad JWT</description>
 
     <properties>
         <java.version>25</java.version>
@@ -55,6 +55,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- Laboratorio 09: OAuth2 Resource Server y JWT -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security-oauth2-resource-server</artifactId>
         </dependency>
 
         <!-- Pruebas generales -->

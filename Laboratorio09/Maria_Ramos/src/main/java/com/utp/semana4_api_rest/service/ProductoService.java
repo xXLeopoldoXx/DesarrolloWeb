@@ -239,6 +239,13 @@ public class ProductoService {
         repository.deleteById(id);
     }
 
+    // LABORATORIO 09: CONTAR PRODUCTOS REGISTRADOS
+    @Transactional(readOnly = true)
+    public long contarProductos() {
+
+        return repository.count();
+    }
+
     // VALIDAR MOVIMIENTOS DE INVENTARIO
     private void validarMovimiento(
             Producto producto,

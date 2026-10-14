@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import com.utp.proyectoriesgo.dto.ReporteResponse;
+import java.util.List;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -135,5 +137,18 @@ class EvaluacionServiceTest {
 
         assertThatThrownBy(() -> service.simularErrorSeguimiento(1L, "Nota de prueba"))
                 .isInstanceOf(IllegalStateException.class);
+    }
+
+        @Test
+    void generarReporte_cuentaTotalYPorNivel() {
+        when(repository.count()).thenReturn(5L);
+        when(repository.buscarPorNivelRiesgo("BAJO")).thenReturn(List.of(new Evaluacion()));
+
+        ReporteResponse reporte = service.generarReporte();
+
+        assertThat(reporte.totalEvaluaciones()).isEqualTo(5L);
+        assertThat(reporte.porNivel().get("BAJO")).isEqualTo(1L);
+        assertThat(reporte.porNivel().get("MUY_ALTO")).isEqualTo(0L);
+        assertThat(reporte.fechaServidor()).isNotNull();
     }
 }

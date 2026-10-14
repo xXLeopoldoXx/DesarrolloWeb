@@ -12,6 +12,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import com.utp.proyectoriesgo.model.Seguimiento;
+import java.time.LocalDateTime;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -115,5 +118,25 @@ class EvaluacionControllerTest {
     void eliminar_debeRetornar204() throws Exception {
         mockMvc.perform(delete("/api/evaluaciones/1"))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void registrarSeguimiento_debeRetornar201() throws Exception {
+        Seguimiento seguimiento = new Seguimiento(evaluacionEjemplo(), "Nueva amenaza", LocalDateTime.now());
+        when(service.registrarSeguimiento(eq(1L), any())).thenReturn(seguimiento);
+
+        mockMvc.perform(post("/api/evaluaciones/1/seguimientos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nota\": \"Nueva amenaza\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.nota").value("Nueva amenaza"));
+    }
+
+    @Test
+    void registrarSeguimiento_conNotaVacia_debeRetornar400() throws Exception {
+        mockMvc.perform(post("/api/evaluaciones/1/seguimientos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nota\": \"\"}"))
+                .andExpect(status().isBadRequest());
     }
 }

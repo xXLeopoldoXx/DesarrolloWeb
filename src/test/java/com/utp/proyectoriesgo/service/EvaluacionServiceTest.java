@@ -79,4 +79,17 @@ class EvaluacionServiceTest {
         assertThatThrownBy(() -> service.eliminar(999L))
                 .isInstanceOf(EvaluacionNoEncontradaException.class);
     }
+
+    @Test
+    void generarReporte_cuentaTotalYPorNivel() {
+        when(evaluacionRepository.count()).thenReturn(5L);
+        when(evaluacionRepository.buscarPorNivelRiesgo("BAJO")).thenReturn(List.of(new Evaluacion()));
+
+        ReporteResponse reporte = evaluacionService.generarReporte();
+
+        assertEquals(5L, reporte.totalEvaluaciones());
+        assertEquals(1L, reporte.porNivel().get("BAJO"));
+        assertEquals(0L, reporte.porNivel().get("MUY_ALTO"));
+        assertNotNull(reporte.fechaServidor());
+    }
 }

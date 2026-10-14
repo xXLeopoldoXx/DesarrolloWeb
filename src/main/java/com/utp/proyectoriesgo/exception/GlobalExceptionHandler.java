@@ -24,6 +24,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    @ExceptionHandler(ReglaNegocioException.class)
+    public ResponseEntity<ErrorResponse> manejarReglaNegocio(
+            ReglaNegocioException ex, HttpServletRequest request) {
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(), HttpStatus.BAD_REQUEST.value(),
+                "Bad Request", ex.getMessage(), request.getRequestURI()
+        );
+        return ResponseEntity.badRequest().body(error);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> manejarSolicitudIncorrecta(
             IllegalArgumentException ex, HttpServletRequest request) {

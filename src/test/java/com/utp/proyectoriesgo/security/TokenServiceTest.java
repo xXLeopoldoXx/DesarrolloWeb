@@ -39,7 +39,7 @@ class TokenServiceTest {
         Jwt decoded = decoder.decode(token);
 
         assertEquals("admin", decoded.getSubject());
-        assertEquals("riesgo-api", decoded.getIssuer().toString());
+        assertEquals("riesgo-api", decoded.getClaimAsString("iss"));
         assertTrue(decoded.getClaimAsStringList("roles").contains("ROLE_ADMIN"));
         assertNotNull(decoded.getExpiresAt());
     }

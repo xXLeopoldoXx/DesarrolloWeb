@@ -3,12 +3,16 @@ package com.utp.proyectoriesgo.controller;
 import com.utp.proyectoriesgo.exception.EvaluacionNoEncontradaException;
 import com.utp.proyectoriesgo.model.Evaluacion;
 import com.utp.proyectoriesgo.service.EvaluacionService;
+import com.utp.proyectoriesgo.config.SecurityConfig;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.Wit;
 
 import java.util.List;
 
@@ -20,6 +24,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(EvaluacionController.class)
+@Import(SecurityConfig.class)
+@WithMockUser(roles = "ADMIN")
 class EvaluacionControllerTest {
 
     @Autowired

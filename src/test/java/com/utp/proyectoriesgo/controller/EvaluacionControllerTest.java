@@ -13,6 +13,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.Wit;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import java.util.List;
 
@@ -33,6 +35,12 @@ class EvaluacionControllerTest {
 
     @MockitoBean
     private EvaluacionService service;
+
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
+
+    @MockitoBean
+    private UserDetailsService userDetailsService
 
     private Evaluacion evaluacionEjemplo() {
         Evaluacion e = new Evaluacion();

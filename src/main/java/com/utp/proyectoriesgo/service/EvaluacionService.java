@@ -1,6 +1,6 @@
 package com.utp.proyectoriesgo.service;
 
-import com.utp.proyectoriesgo.dto.ActualizarFactoresRequest;
+import com.utp.proyectoriesgo.dto.*;
 import com.utp.proyectoriesgo.dto.EvaluacionRequest;
 import com.utp.proyectoriesgo.exception.EvaluacionNoEncontradaException;
 import com.utp.proyectoriesgo.exception.ReglaNegocioException;
@@ -10,10 +10,10 @@ import com.utp.proyectoriesgo.repository.EvaluacionRepository;
 import com.utp.proyectoriesgo.repository.SeguimientoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.utp.proyectoriesgo.dto.ReporteResponse;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class EvaluacionService {
@@ -81,6 +81,15 @@ public class EvaluacionService {
     public List<Seguimiento> listarSeguimientos(Long evaluacionId) {
         buscarPorId(evaluacionId); // lanza 404 si el caso no existe
         return seguimientoRepository.findByEvaluacionIdOrderByFechaDesc(evaluacionId);
+    }
+
+    @Transactional(readOnly = true)
+    public ReporteResponse generarReporte() {
+        Map<String, Long> porNivel = new LinkedHashMap<>();
+        for (String nivel : List.of("BAJO", "MEDIO", "ALTO", "MUY_ALTO")) {
+            porNivel.put(nivel, (long) repository.buscarPorNivelRiesgo(nivel).size());
+        }
+        return new ReporteResponse(LocalDateTime.now(), repository.count(), porNivel);
     }
 
     // ---------- Escrituras (transaccionales) ----------

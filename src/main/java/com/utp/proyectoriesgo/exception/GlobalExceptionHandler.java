@@ -17,21 +17,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EvaluacionNoEncontradaException.class)
     public ResponseEntity<ErrorResponse> manejarNoEncontrada(
             EvaluacionNoEncontradaException ex, HttpServletRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(), HttpStatus.NOT_FOUND.value(),
-                "Not Found", ex.getMessage(), request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return construir(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
+    @ExceptionHandler({IllegalArgumentException.class, ReglaNegocioException.class})
     public ResponseEntity<ErrorResponse> manejarSolicitudIncorrecta(
-            IllegalArgumentException ex, HttpServletRequest request) {
-        ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(), HttpStatus.BAD_REQUEST.value(),
-                "Bad Request", ex.getMessage(), request.getRequestURI()
-        );
-        return ResponseEntity.badRequest().body(error);
+            RuntimeException ex, HttpServletRequest request) {
+        return construir(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -40,11 +32,21 @@ public class GlobalExceptionHandler {
         String mensaje = ex.getBindingResult().getFieldErrors().stream()
                 .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
                 .collect(Collectors.joining("; "));
+        return construir(HttpStatus.BAD_REQUEST, mensaje, request);
+    }
 
+    // Se usa para el endpoint simular-error (demuestra el rollback).
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> manejarErrorSimulado(
+            IllegalStateException ex, HttpServletRequest request) {
+        return construir(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request);
+    }
+
+    private ResponseEntity<ErrorResponse> construir(
+            HttpStatus status, String mensaje, HttpServletRequest request) {
         ErrorResponse error = new ErrorResponse(
-                LocalDateTime.now(), HttpStatus.BAD_REQUEST.value(),
-                "Bad Request", mensaje, request.getRequestURI()
-        );
-        return ResponseEntity.badRequest().body(error);
+                LocalDateTime.now(), status.value(), status.getReasonPhrase(),
+                mensaje, request.getRequestURI());
+        return ResponseEntity.status(status).body(error);
     }
 }

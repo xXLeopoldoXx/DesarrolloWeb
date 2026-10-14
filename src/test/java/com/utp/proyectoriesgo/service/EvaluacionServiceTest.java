@@ -2,15 +2,18 @@ package com.utp.proyectoriesgo.service;
 
 import com.utp.proyectoriesgo.dto.EvaluacionRequest;
 import com.utp.proyectoriesgo.exception.EvaluacionNoEncontradaException;
+import com.utp.proyectoriesgo.exception.ReglaNegocioException;
 import com.utp.proyectoriesgo.model.Evaluacion;
+import com.utp.proyectoriesgo.model.Seguimiento;
 import com.utp.proyectoriesgo.repository.EvaluacionRepository;
+import com.utp.proyectoriesgo.repository.SeguimientoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,8 +27,15 @@ class EvaluacionServiceTest {
     @Mock
     private EvaluacionRepository repository;
 
-    @InjectMocks
+    @Mock
+    private SeguimientoRepository seguimientoRepository;
+
     private EvaluacionService service;
+
+    @BeforeEach
+    void setUp() {
+        service = new EvaluacionService(repository, seguimientoRepository, new RiesgoCalculador());
+    }
 
     private EvaluacionRequest requestValido() {
         return new EvaluacionRequest(
@@ -34,15 +44,17 @@ class EvaluacionServiceTest {
         );
     }
 
-    @BeforeEach
-    void setUp() {
-        service = new EvaluacionService(repository, new RiesgoCalculador());
+    private Evaluacion evaluacionExistente() {
+        return new Evaluacion(1L, "Caso-Test", 28, "Pareja",
+                false, false, false, false, false, false, false, false, false, false, false);
     }
+
+    // ----- Lab 6 -----
 
     @Test
     void crear_debeGuardarYCalcularRiesgo() {
-        when(repository.save(any(Evaluacion.class))).thenAnswer(invocation -> {
-            Evaluacion e = invocation.getArgument(0);
+        when(repository.save(any(Evaluacion.class))).thenAnswer(inv -> {
+            Evaluacion e = inv.getArgument(0);
             e.setId(1L);
             return e;
         });
@@ -78,5 +90,50 @@ class EvaluacionServiceTest {
 
         assertThatThrownBy(() -> service.eliminar(999L))
                 .isInstanceOf(EvaluacionNoEncontradaException.class);
+    }
+
+    // ----- Lab 7 -----
+
+    @Test
+    void buscarPorNivelRiesgo_conNivelInvalido_debeLanzarReglaNegocio() {
+        assertThatThrownBy(() -> service.buscarPorNivelRiesgo("EXTREMO"))
+                .isInstanceOf(ReglaNegocioException.class);
+    }
+
+    @Test
+    void buscarPorRangoFecha_conRangoInvertido_debeLanzarReglaNegocio() {
+        LocalDateTime desde = LocalDateTime.now();
+        LocalDateTime hasta = desde.minusDays(1);
+
+        assertThatThrownBy(() -> service.buscarPorRangoFecha(desde, hasta))
+                .isInstanceOf(ReglaNegocioException.class);
+    }
+
+    @Test
+    void registrarSeguimiento_conNotaVacia_debeLanzarReglaNegocio() {
+        assertThatThrownBy(() -> service.registrarSeguimiento(1L, "   "))
+                .isInstanceOf(ReglaNegocioException.class);
+    }
+
+    @Test
+    void registrarSeguimiento_valido_debeGuardarYActualizarFechaDelCaso() {
+        Evaluacion evaluacion = evaluacionExistente();
+        when(repository.findById(1L)).thenReturn(Optional.of(evaluacion));
+        when(seguimientoRepository.save(any(Seguimiento.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Seguimiento s = service.registrarSeguimiento(1L, "Nueva amenaza por mensaje");
+
+        assertThat(s.getNota()).isEqualTo("Nueva amenaza por mensaje");
+        assertThat(evaluacion.getFechaUltimoSeguimiento()).isNotNull();
+    }
+
+    @Test
+    void simularErrorSeguimiento_debeLanzarIllegalStateException() {
+        Evaluacion evaluacion = evaluacionExistente();
+        when(repository.findById(1L)).thenReturn(Optional.of(evaluacion));
+        when(seguimientoRepository.save(any(Seguimiento.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        assertThatThrownBy(() -> service.simularErrorSeguimiento(1L, "Nota de prueba"))
+                .isInstanceOf(IllegalStateException.class);
     }
 }

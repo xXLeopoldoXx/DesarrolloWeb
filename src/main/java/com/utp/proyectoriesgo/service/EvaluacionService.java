@@ -1,79 +1,166 @@
 package com.utp.proyectoriesgo.service;
 
+import com.utp.proyectoriesgo.dto.ActualizarFactoresRequest;
 import com.utp.proyectoriesgo.dto.EvaluacionRequest;
 import com.utp.proyectoriesgo.exception.EvaluacionNoEncontradaException;
+import com.utp.proyectoriesgo.exception.ReglaNegocioException;
 import com.utp.proyectoriesgo.model.Evaluacion;
+import com.utp.proyectoriesgo.model.Seguimiento;
+import com.utp.proyectoriesgo.repository.EvaluacionRepository;
+import com.utp.proyectoriesgo.repository.SeguimientoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-
-import com.utp.proyectoriesgo.dto.ActualizarFactoresRequest;
+import java.util.Set;
 
 @Service
 public class EvaluacionService {
 
-    private final Map<Long, Evaluacion> evaluaciones = new ConcurrentHashMap<>();
-    private final AtomicLong secuencia = new AtomicLong(1);
+    private static final Set<String> NIVELES_VALIDOS = Set.of("BAJO", "MEDIO", "ALTO", "MUY_ALTO");
+
+    private final EvaluacionRepository repository;
+    private final SeguimientoRepository seguimientoRepository;
     private final RiesgoCalculador riesgoCalculador;
 
-    public EvaluacionService(RiesgoCalculador riesgoCalculador) {
+    public EvaluacionService(EvaluacionRepository repository,
+            SeguimientoRepository seguimientoRepository,
+            RiesgoCalculador riesgoCalculador) {
+        this.repository = repository;
+        this.seguimientoRepository = seguimientoRepository;
         this.riesgoCalculador = riesgoCalculador;
     }
 
+    // ---------- Consultas (solo lectura) ----------
+
+    @Transactional(readOnly = true)
     public List<Evaluacion> listar() {
-        return new ArrayList<>(evaluaciones.values());
+        return repository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Evaluacion buscarPorId(Long id) {
-        Evaluacion evaluacion = evaluaciones.get(id);
-        if (evaluacion == null) {
-            throw new EvaluacionNoEncontradaException(id);
-        }
-        return evaluacion;
+        return repository.findById(id)
+                .orElseThrow(() -> new EvaluacionNoEncontradaException(id));
     }
 
+    @Transactional(readOnly = true)
     public List<Evaluacion> buscarPorTexto(String texto) {
-        String busqueda = texto.toLowerCase();
-        return evaluaciones.values().stream()
-                .filter(e -> e.getSeudonimoVictima().toLowerCase().contains(busqueda)
-                        || e.getRelacionAgresor().toLowerCase().contains(busqueda))
-                .toList();
+        if (texto == null || texto.isBlank()) {
+            throw new ReglaNegocioException("El texto de búsqueda no puede estar vacío");
+        }
+        return repository.buscarPorTexto(texto.trim());
     }
 
+    @Transactional(readOnly = true)
+    public List<Evaluacion> buscarPorNivelRiesgo(String nivel) {
+        String normalizado = nivel == null ? "" : nivel.trim().toUpperCase();
+        if (!NIVELES_VALIDOS.contains(normalizado)) {
+            throw new ReglaNegocioException(
+                    "Nivel inválido. Use: BAJO, MEDIO, ALTO o MUY_ALTO");
+        }
+        return repository.buscarPorNivelRiesgo(normalizado);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Evaluacion> buscarPorRangoFecha(LocalDateTime desde, LocalDateTime hasta) {
+        if (desde.isAfter(hasta)) {
+            throw new ReglaNegocioException(
+                    "La fecha 'desde' no puede ser posterior a 'hasta'");
+        }
+        return repository.buscarPorRangoFecha(desde, hasta);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Seguimiento> listarSeguimientos(Long evaluacionId) {
+        buscarPorId(evaluacionId); // lanza 404 si el caso no existe
+        return seguimientoRepository.findByEvaluacionIdOrderByFechaDesc(evaluacionId);
+    }
+
+    // ---------- Escrituras (transaccionales) ----------
+
+    @Transactional
     public Evaluacion crear(EvaluacionRequest request) {
         validar(request);
-        Long id = secuencia.getAndIncrement();
-        Evaluacion evaluacion = mapearDesdeRequest(id, request);
-
+        Evaluacion evaluacion = mapearDesdeRequest(null, request);
         riesgoCalculador.calcular(evaluacion);
-
-        evaluaciones.put(id, evaluacion);
-        return evaluacion;
+        return repository.save(evaluacion);
     }
 
+    @Transactional
     public Evaluacion actualizar(Long id, EvaluacionRequest request) {
         validar(request);
         Evaluacion existente = buscarPorId(id);
 
         Evaluacion actualizada = mapearDesdeRequest(id, request);
         actualizada.setFechaRegistro(existente.getFechaRegistro());
-
+        actualizada.setFechaUltimoSeguimiento(existente.getFechaUltimoSeguimiento());
         riesgoCalculador.calcular(actualizada);
 
-        evaluaciones.put(id, actualizada);
-        return actualizada;
+        return repository.save(actualizada);
     }
 
+    @Transactional
+    public Evaluacion actualizarFactores(Long id, ActualizarFactoresRequest request) {
+        Evaluacion existente = buscarPorId(id);
+
+        existente.setAmenazaMuerte(request.amenazaMuerte());
+        existente.setViolenciaFisicaPrevia(request.violenciaFisicaPrevia());
+        existente.setEstrangulamientoPrevio(request.estrangulamientoPrevio());
+        existente.setAccesoArmas(request.accesoArmas());
+        existente.setIncumplimientoMedidaProteccion(request.incumplimientoMedidaProteccion());
+        existente.setAcosoOPersecucion(request.acosoOPersecucion());
+        existente.setSeparacionReciente(request.separacionReciente());
+        existente.setControlExtremo(request.controlExtremo());
+        existente.setConsumoAlcoholDrogasAgresor(request.consumoAlcoholDrogasAgresor());
+        existente.setDenunciasPrevias(request.denunciasPrevias());
+        existente.setHijosEnComun(request.hijosEnComun());
+
+        riesgoCalculador.calcular(existente);
+        return repository.save(existente);
+    }
+
+    @Transactional
     public void eliminar(Long id) {
-        Evaluacion eliminada = evaluaciones.remove(id);
-        if (eliminada == null) {
+        if (!repository.existsById(id)) {
             throw new EvaluacionNoEncontradaException(id);
         }
+        seguimientoRepository.deleteByEvaluacionId(id); // primero los hijos (clave foránea)
+        repository.deleteById(id);
     }
+
+    /**
+     * Transacción con DOS escrituras: guarda el seguimiento y actualiza el caso.
+     * Si algo falla, se revierten las dos juntas (atomicidad).
+     */
+    @Transactional
+    public Seguimiento registrarSeguimiento(Long evaluacionId, String nota) {
+        validarNota(nota);
+        Evaluacion evaluacion = buscarPorId(evaluacionId);
+        LocalDateTime ahora = LocalDateTime.now();
+
+        // Escritura 1: el caso queda administrado, Hibernate hace el UPDATE al
+        // confirmar (dirty checking).
+        evaluacion.setFechaUltimoSeguimiento(ahora);
+
+        // Escritura 2: se inserta el seguimiento.
+        return seguimientoRepository.save(new Seguimiento(evaluacion, nota.trim(), ahora));
+    }
+
+    /**
+     * Hace exactamente lo mismo que registrarSeguimiento y luego lanza una
+     * RuntimeException.
+     * Resultado esperado: NADA queda guardado (ni el seguimiento ni el cambio en el
+     * caso).
+     */
+    @Transactional
+    public void simularErrorSeguimiento(Long evaluacionId, String nota) {
+        registrarSeguimiento(evaluacionId, nota);
+        throw new IllegalStateException("Error simulado: la transacción debe hacer rollback");
+    }
+
+    // ---------- Auxiliares ----------
 
     private Evaluacion mapearDesdeRequest(Long id, EvaluacionRequest request) {
         return new Evaluacion(
@@ -91,28 +178,8 @@ public class EvaluacionService {
                 request.controlExtremo(),
                 request.consumoAlcoholDrogasAgresor(),
                 request.denunciasPrevias(),
-                request.hijosEnComun()
-        );
+                request.hijosEnComun());
     }
-
-    public Evaluacion actualizarFactores(Long id, ActualizarFactoresRequest request) {
-    Evaluacion existente = buscarPorId(id);
-
-    existente.setAmenazaMuerte(request.amenazaMuerte());
-    existente.setViolenciaFisicaPrevia(request.violenciaFisicaPrevia());
-    existente.setEstrangulamientoPrevio(request.estrangulamientoPrevio());
-    existente.setAccesoArmas(request.accesoArmas());
-    existente.setIncumplimientoMedidaProteccion(request.incumplimientoMedidaProteccion());
-    existente.setAcosoOPersecucion(request.acosoOPersecucion());
-    existente.setSeparacionReciente(request.separacionReciente());
-    existente.setControlExtremo(request.controlExtremo());
-    existente.setConsumoAlcoholDrogasAgresor(request.consumoAlcoholDrogasAgresor());
-    existente.setDenunciasPrevias(request.denunciasPrevias());
-    existente.setHijosEnComun(request.hijosEnComun());
-
-    riesgoCalculador.calcular(existente);
-    return existente;
-}
 
     private void validar(EvaluacionRequest request) {
         if (request.seudonimoVictima() == null || request.seudonimoVictima().isBlank()) {
@@ -123,6 +190,15 @@ public class EvaluacionService {
         }
         if (request.relacionAgresor() == null || request.relacionAgresor().isBlank()) {
             throw new IllegalArgumentException("La relación con el agresor es obligatoria.");
+        }
+    }
+
+    private void validarNota(String nota) {
+        if (nota == null || nota.isBlank()) {
+            throw new ReglaNegocioException("La nota del seguimiento es obligatoria");
+        }
+        if (nota.length() > 500) {
+            throw new ReglaNegocioException("La nota no puede superar 500 caracteres");
         }
     }
 }

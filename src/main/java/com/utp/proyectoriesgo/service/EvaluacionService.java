@@ -32,6 +32,11 @@ public class EvaluacionService {
         this.riesgoCalculador = riesgoCalculador;
     }
 
+    public EvaluacionService(EvaluacionRepository repository,
+            RiesgoCalculador riesgoCalculador) {
+        this(repository, null, riesgoCalculador);
+    }
+
     // ---------- Consultas (solo lectura) ----------
 
     @Transactional(readOnly = true)

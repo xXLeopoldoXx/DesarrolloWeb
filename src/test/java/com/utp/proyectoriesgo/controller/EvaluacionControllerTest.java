@@ -12,7 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.test.context.support.Wit;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
@@ -43,7 +43,7 @@ class EvaluacionControllerTest {
     private JwtDecoder jwtDecoder;
 
     @MockitoBean
-    private UserDetailsService userDetailsService
+    private UserDetailsService userDetailsService;
 
     private Evaluacion evaluacionEjemplo() {
         Evaluacion e = new Evaluacion();

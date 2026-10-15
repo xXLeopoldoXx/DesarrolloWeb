@@ -30,7 +30,7 @@ class SeguridadEvaluacionTest {
     private JwtDecoder jwtDecoder;
 
     @MockitoBean
-    private UserDetailsService userDetailsService
+    private UserDetailsService userDetailsService;
 
     @Test
     void estadoPublico_sinLogin_responde200() throws Exception {

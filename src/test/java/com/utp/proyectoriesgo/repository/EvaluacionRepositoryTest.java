@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class EvaluacionRepositoryTest {
 
     @Autowired

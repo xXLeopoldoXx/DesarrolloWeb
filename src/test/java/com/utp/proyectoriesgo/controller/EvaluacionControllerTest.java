@@ -3,14 +3,23 @@ package com.utp.proyectoriesgo.controller;
 import com.utp.proyectoriesgo.exception.EvaluacionNoEncontradaException;
 import com.utp.proyectoriesgo.model.Evaluacion;
 import com.utp.proyectoriesgo.service.EvaluacionService;
+import com.utp.proyectoriesgo.config.SecurityConfig;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 
 import java.util.List;
+
+import com.utp.proyectoriesgo.model.Seguimiento;
+import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -20,6 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(EvaluacionController.class)
+@Import(SecurityConfig.class)
+@WithMockUser(roles = "ADMIN")
 class EvaluacionControllerTest {
 
     @Autowired
@@ -27,6 +38,12 @@ class EvaluacionControllerTest {
 
     @MockitoBean
     private EvaluacionService service;
+
+    @MockitoBean
+    private JwtDecoder jwtDecoder;
+
+    @MockitoBean
+    private UserDetailsService userDetailsService;
 
     private Evaluacion evaluacionEjemplo() {
         Evaluacion e = new Evaluacion();
@@ -115,5 +132,25 @@ class EvaluacionControllerTest {
     void eliminar_debeRetornar204() throws Exception {
         mockMvc.perform(delete("/api/evaluaciones/1"))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void registrarSeguimiento_debeRetornar201() throws Exception {
+        Seguimiento seguimiento = new Seguimiento(evaluacionEjemplo(), "Nueva amenaza", LocalDateTime.now());
+        when(service.registrarSeguimiento(eq(1L), any())).thenReturn(seguimiento);
+
+        mockMvc.perform(post("/api/evaluaciones/1/seguimientos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nota\": \"Nueva amenaza\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.nota").value("Nueva amenaza"));
+    }
+
+    @Test
+    void registrarSeguimiento_conNotaVacia_debeRetornar400() throws Exception {
+        mockMvc.perform(post("/api/evaluaciones/1/seguimientos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nota\": \"\"}"))
+                .andExpect(status().isBadRequest());
     }
 }

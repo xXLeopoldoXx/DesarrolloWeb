@@ -15,7 +15,7 @@ public class InfoController {
         return Map.of(
             "proyecto", "Sistema de Apoyo y Evaluación de Riesgo",
             "curso", "Desarrollo Web Integrado",
-            "semana", "Semana 2",
+            "semana", "Semana 9",
             "integrantes", List.of("Anheli", "Naty", "Eduardo", "Mari", "Leopoldo")
         );
     }

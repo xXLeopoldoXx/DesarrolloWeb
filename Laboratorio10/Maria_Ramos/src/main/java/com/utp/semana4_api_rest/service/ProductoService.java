@@ -149,10 +149,12 @@ public class ProductoService {
 
         if (min > max) {
             throw new IllegalArgumentException(
-                    "El precio mínimo no puede superar al máximo");
+                "El precio mínimo no puede superar al máximo");
         }
 
-        return repository.buscarPorRangoPrecio(min, max);
+        return repository.buscarPorRangoPrecio(
+            java.math.BigDecimal.valueOf(min),
+            java.math.BigDecimal.valueOf(max));
     }
 
     // JPQL: BUSCAR PRODUCTOS CON STOCK BAJO

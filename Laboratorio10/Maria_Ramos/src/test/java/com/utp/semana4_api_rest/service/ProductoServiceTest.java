@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.utp.semana4_api_rest.exception.ProductoNoEncontradoException;
+import com.utp.semana4_api_rest.exception.StockInsuficienteException;
 import com.utp.semana4_api_rest.model.Producto;
 import com.utp.semana4_api_rest.repository.MovimientoStockRepository;
 import com.utp.semana4_api_rest.repository.ProductoRepository;
@@ -84,10 +85,27 @@ class ProductoServiceTest {
                 .thenReturn(Optional.of(producto));
 
         assertThrows(
-                IllegalArgumentException.class,
+                StockInsuficienteException.class,
                 () -> service.registrarSalida(1L, 15));
 
         assertEquals(10, producto.getStock());
         verify(movimientoRepository, never()).save(any());
+    }
+
+    @Test
+    void debeLanzarErrorAlSimularSalidaParaRollback() {
+        when(repository.findById(1L))
+                .thenReturn(Optional.of(producto));
+
+        IllegalStateException excepcion = assertThrows(
+                IllegalStateException.class,
+                () -> service.simularSalidaConError(1L, 3));
+
+        assertEquals(
+                "Error simulado: la transacción debe hacer rollback",
+                excepcion.getMessage());
+
+        assertEquals(7, producto.getStock());
+        verify(movimientoRepository).save(any());
     }
 }

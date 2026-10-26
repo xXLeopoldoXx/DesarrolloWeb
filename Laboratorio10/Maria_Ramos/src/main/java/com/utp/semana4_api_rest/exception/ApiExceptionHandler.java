@@ -55,7 +55,7 @@ public class ApiExceptionHandler {
                 .body(error);
     }
 
-    // ERROR 400: REGLAS DE NEGOCIO
+    // ERROR 400: ARGUMENTOS INVALIDOS Y REGLAS DE NEGOCIO
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> manejarIllegalArgument(
             IllegalArgumentException ex,
@@ -71,7 +71,23 @@ public class ApiExceptionHandler {
                 .body(error);
     }
 
-    // ERROR 500: ERROR SIMULADO PARA ROLLBACK
+    // ERROR 409: STOCK INSUFICIENTE
+    @ExceptionHandler(StockInsuficienteException.class)
+    public ResponseEntity<ErrorResponse> manejarStockInsuficiente(
+            StockInsuficienteException ex,
+            HttpServletRequest request) {
+
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                ex.getMessage(),
+                request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(error);
+    }
+
+    // ERROR 500: ERROR SIMULADO PARA COMPROBAR ROLLBACK
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponse> manejarIllegalState(
             IllegalStateException ex,

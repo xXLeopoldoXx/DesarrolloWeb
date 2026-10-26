@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.utp.semana4_api_rest.dto.ActualizarStockRequest;
 import com.utp.semana4_api_rest.dto.ProductoRequest;
 import com.utp.semana4_api_rest.exception.ProductoNoEncontradoException;
+import com.utp.semana4_api_rest.exception.StockInsuficienteException;
 import com.utp.semana4_api_rest.model.MovimientoStock;
 import com.utp.semana4_api_rest.model.Producto;
 import com.utp.semana4_api_rest.repository.MovimientoStockRepository;
@@ -149,12 +150,12 @@ public class ProductoService {
 
         if (min > max) {
             throw new IllegalArgumentException(
-                "El precio mínimo no puede superar al máximo");
+                    "El precio mínimo no puede superar al máximo");
         }
 
         return repository.buscarPorRangoPrecio(
-            java.math.BigDecimal.valueOf(min),
-            java.math.BigDecimal.valueOf(max));
+                java.math.BigDecimal.valueOf(min),
+                java.math.BigDecimal.valueOf(max));
     }
 
     // JPQL: BUSCAR PRODUCTOS CON STOCK BAJO
@@ -260,12 +261,15 @@ public class ProductoService {
         }
 
         if (!entrada && producto.getStock() < cantidad) {
-            throw new IllegalArgumentException(
+            throw new StockInsuficienteException(
                     "Stock insuficiente. Disponible: "
-                            + producto.getStock());
+                            + producto.getStock()
+                            + ", cantidad solicitada: "
+                            + cantidad);
         }
 
-        if (entrada && cantidad > Integer.MAX_VALUE - producto.getStock()) {
+        if (entrada
+                && cantidad > Integer.MAX_VALUE - producto.getStock()) {
             throw new IllegalArgumentException(
                     "La cantidad supera el stock máximo permitido");
         }
@@ -292,3 +296,4 @@ public class ProductoService {
         }
     }
 }
+

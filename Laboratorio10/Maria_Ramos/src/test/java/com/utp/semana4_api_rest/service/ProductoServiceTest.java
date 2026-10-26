@@ -1,68 +1,93 @@
-package com.utp.semana4.service;
+package com.utp.semana4_api_rest.service;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.utp.semana4.model.Producto;
-import com.utp.semana4.exception.ProductoNoEncontradoException;
+import com.utp.semana4_api_rest.exception.ProductoNoEncontradoException;
+import com.utp.semana4_api_rest.model.Producto;
+import com.utp.semana4_api_rest.repository.MovimientoStockRepository;
+import com.utp.semana4_api_rest.repository.ProductoRepository;
 
+@ExtendWith(MockitoExtension.class)
 class ProductoServiceTest {
 
+    @Mock
+    private ProductoRepository repository;
+
+    @Mock
+    private MovimientoStockRepository movimientoRepository;
+
+    @InjectMocks
     private ProductoService service;
+
+    private Producto producto;
 
     @BeforeEach
     void setUp() {
-        service = new ProductoService();
+        producto = new Producto(
+                1L, "Laptop", "Tecnologia", 3500.0, 10);
     }
 
     @Test
-    void debeCrearProductoYAsignarId() {
-        Producto nuevo = new Producto(
-                null,
-                "Laptop",
-                "Tecnologia",
-                3500.0,
-                10
-        );
+    void debeBuscarProductoPorId() {
+        when(repository.findById(1L))
+                .thenReturn(Optional.of(producto));
 
-        Producto creado = service.crear(nuevo);
+        Producto encontrado = service.buscarPorId(1L);
 
-        assertNotNull(creado.getId());
-        assertEquals("Laptop", creado.getNombre());
-        assertEquals(3500.0, creado.getPrecio());
+        assertEquals("Laptop", encontrado.getNombre());
     }
 
     @Test
-void debeBuscarProductoPorId() {
-    Producto creado = service.crear(
-            new Producto(null, "Mouse", "Tecnologia", 80.0, 20));
+    void debeLanzarExcepcionCuandoProductoNoExiste() {
+        when(repository.findById(99L))
+                .thenReturn(Optional.empty());
 
-    Producto encontrado = service.buscarPorId(creado.getId());
+        assertThrows(
+                ProductoNoEncontradoException.class,
+                () -> service.buscarPorId(99L));
+    }
 
-    assertEquals("Mouse", encontrado.getNombre());
-}
+    @Test
+    void debeRechazarPrecioInvalido() {
+        Producto invalido = new Producto(
+                null, "Monitor", "Tecnologia", 0.0, 5);
 
-@Test
-void debeRechazarPrecioInvalido() {
-    Producto invalido = new Producto(
-            null, "Monitor", "Tecnologia", 0.0, 5);
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.crear(invalido));
+    }
 
-    assertThrows(
-            IllegalArgumentException.class,
-            () -> service.crear(invalido));
-}
+    @Test
+    void debeRegistrarSalidaYGuardarMovimiento() {
+        when(repository.findById(1L))
+                .thenReturn(Optional.of(producto));
 
-@Test
-void debeEliminarProducto() {
-    Producto creado = service.crear(
-            new Producto(null, "Teclado", "Tecnologia", 120.0, 8));
+        Producto resultado = service.registrarSalida(1L, 3);
 
-    service.eliminar(creado.getId());
+        assertEquals(7, resultado.getStock());
+        verify(movimientoRepository).save(any());
+    }
 
-    assertThrows(
-            ProductoNoEncontradoException.class,
-            () -> service.buscarPorId(creado.getId()));
-}
+    @Test
+    void debeRechazarSalidaConStockInsuficiente() {
+        when(repository.findById(1L))
+                .thenReturn(Optional.of(producto));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> service.registrarSalida(1L, 15));
+
+        assertEquals(10, producto.getStock());
+        verify(movimientoRepository, never()).save(any());
+    }
 }

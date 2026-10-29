@@ -1,5 +1,7 @@
+ <app-header />
+
 <main class="page">
-  <header class="hero">
+  <section class="hero">
     <p class="eyebrow">Desarrollo Web · Laboratorio 11</p>
     <h1>{{ titulo }}</h1>
     <p>Catálogo de productos desarrollado con Angular.</p>
@@ -7,7 +9,13 @@
     <button type="button" (click)="alternarStock()">
       {{ mostrarStock() ? 'Ocultar stock' : 'Mostrar stock' }}
     </button>
-  </header>
+  </section>
+
+  <app-summary-panel
+    [totalProductos]="productos.length"
+    [productosDisponibles]="productosDisponibles"
+    [productosAgotados]="productosAgotados"
+  />
 
   <section class="grid">
     @for (producto of productos; track producto.id) {
@@ -34,5 +42,7 @@
     }
   </section>
 </main>
+
+<app-footer />
 
 

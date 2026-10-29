@@ -1,1 +1,16 @@
-<p>summary-panel works!</p>
+<section class="summary">
+  <article class="summary__card">
+    <span class="summary__label">Total de productos</span>
+    <strong>{{ totalProductos }}</strong>
+  </article>
+
+  <article class="summary__card summary__card--available">
+    <span class="summary__label">Disponibles</span>
+    <strong>{{ productosDisponibles }}</strong>
+  </article>
+
+  <article class="summary__card summary__card--out">
+    <span class="summary__label">Agotados</span>
+    <strong>{{ productosAgotados }}</strong>
+  </article>
+</section>

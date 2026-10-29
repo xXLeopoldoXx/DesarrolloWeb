@@ -1,4 +1,7 @@
 import { Component, signal } from '@angular/core';
+import { AppHeader } from './shared/app-header/app-header';
+import { AppFooter } from './shared/app-footer/app-footer';
+import { SummaryPanel } from './features/summary-panel/summary-panel';
 
 interface Producto {
   id: number;
@@ -10,7 +13,7 @@ interface Producto {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [],
+  imports: [AppHeader, AppFooter, SummaryPanel],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -25,8 +28,17 @@ export class App {
     { id: 3, nombre: 'Monitor de 27 pulgadas', precio: 980, stock: 4 }
   ];
 
+  protected get productosDisponibles(): number {
+    return this.productos.filter(producto => producto.stock > 0).length;
+  }
+
+  protected get productosAgotados(): number {
+    return this.productos.filter(producto => producto.stock === 0).length;
+  }
+
   protected alternarStock(): void {
     this.mostrarStock.update(valor => !valor);
   }
 }
+
 

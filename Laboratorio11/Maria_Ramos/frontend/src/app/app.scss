@@ -1,4 +1,10 @@
 
+/* ==================================================
+   1. VARIABLES DE COLORES
+   Centralizan los colores para reutilizarlos
+   en diferentes partes del diseño.
+   ================================================== */
+
 $navy: #172554;
 $blue: #2563eb;
 $teal: #0f766e;
@@ -7,9 +13,23 @@ $background: #f1f5f9;
 $text: #334155;
 $danger: #b91c1c;
 
+
+/* ==================================================
+   2. MIXIN
+   Reutiliza la misma sombra en los elementos
+   sin tener que repetir todas sus propiedades.
+   ================================================== */
+
 @mixin card-shadow {
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 }
+
+
+/* ==================================================
+   3. ESTILOS GENERALES
+   Define el fondo, el color del texto,
+   la fuente y la altura mínima de la aplicación.
+   ================================================== */
 
 :host {
   display: block;
@@ -19,11 +39,25 @@ $danger: #b91c1c;
   font-family: Arial, sans-serif;
 }
 
+
+/* ==================================================
+   4. CONTENEDOR PRINCIPAL
+   Centra el contenido y limita su ancho
+   para mantener una presentación ordenada.
+   ================================================== */
+
 .page {
   width: min(1100px, 92%);
   margin: 0 auto;
   padding: 40px 0;
 }
+
+
+/* ==================================================
+   5. ENCABEZADO PRINCIPAL
+   Estiliza el título, el texto descriptivo,
+   la etiqueta superior y el botón de stock.
+   ================================================== */
 
 .hero {
   padding: 36px;
@@ -59,11 +93,70 @@ $danger: #b91c1c;
   }
 }
 
+
+/* ==================================================
+   6. BUSCADOR DE PRODUCTOS
+   Organiza la etiqueta y el campo de búsqueda.
+   Incluye un efecto visual cuando se selecciona
+   el campo para escribir.
+   ================================================== */
+
+.search {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 420px;
+  margin: 20px 0;
+  text-align: left;
+
+  label {
+    color: $surface;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background: $surface;
+    color: $text;
+    font: inherit;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+
+    &::placeholder {
+      color: #94a3b8;
+    }
+
+    &:focus {
+      border-color: $blue;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+  }
+}
+
+
+/* ==================================================
+   7. CUADRÍCULA DE PRODUCTOS
+   Distribuye las tarjetas en columnas.
+   Se adapta automáticamente al ancho disponible.
+   ================================================== */
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 22px;
 }
+
+
+/* ==================================================
+   8. TARJETAS DE PRODUCTOS
+   Define el fondo, los bordes, la sombra,
+   el nombre, el precio y el estado del stock.
+   ================================================== */
 
 .product-card {
   padding: 24px;
@@ -106,3 +199,4 @@ $danger: #b91c1c;
     color: $danger;
   }
 }
+

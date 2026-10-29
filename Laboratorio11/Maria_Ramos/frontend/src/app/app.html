@@ -1,10 +1,20 @@
- <app-header />
+<app-header />
 
 <main class="page">
   <section class="hero">
     <p class="eyebrow">Desarrollo Web · Laboratorio 11</p>
     <h1>{{ titulo }}</h1>
     <p>Catálogo de productos desarrollado con Angular.</p>
+
+    <div class="search">
+      <label for="busqueda">Buscar producto:</label>
+      <input
+        id="busqueda"
+        type="text"
+        [(ngModel)]="busqueda"
+        placeholder="Escribe el nombre de un producto"
+      />
+    </div>
 
     <button type="button" (click)="alternarStock()">
       {{ mostrarStock() ? 'Ocultar stock' : 'Mostrar stock' }}
@@ -18,7 +28,12 @@
   />
 
   <section class="grid">
-    @for (producto of productos; track producto.id) {
+    @for (
+      producto of productos.filter(p =>
+        p.nombre.toLowerCase().includes(busqueda.trim().toLowerCase())
+      );
+      track producto.id
+    ) {
       <article
         class="product-card"
         [class.out-of-stock]="producto.stock === 0"
@@ -38,11 +53,12 @@
         }
       </article>
     } @empty {
-      <p>No hay productos registrados.</p>
+      <p>No se encontraron productos.</p>
     }
   </section>
 </main>
 
 <app-footer />
+
 
 

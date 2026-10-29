@@ -1,4 +1,6 @@
+
 import { Component, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { AppHeader } from './shared/app-header/app-header';
 import { AppFooter } from './shared/app-footer/app-footer';
 import { SummaryPanel } from './features/summary-panel/summary-panel';
@@ -13,12 +15,14 @@ interface Producto {
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [AppHeader, AppFooter, SummaryPanel],
+  imports: [AppHeader, AppFooter, SummaryPanel, FormsModule],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
 export class App {
   protected readonly titulo = 'Catálogo de productos';
+
+  protected busqueda = '';
 
   protected readonly mostrarStock = signal(true);
 
@@ -40,5 +44,6 @@ export class App {
     this.mostrarStock.update(valor => !valor);
   }
 }
+
 
 

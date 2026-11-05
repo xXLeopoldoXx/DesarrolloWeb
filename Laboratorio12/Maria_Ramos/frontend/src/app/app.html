@@ -1,64 +1,28 @@
-<app-header />
+<header class="header">
+  <div class="contenedor">
+    <h1>DevStore</h1>
 
-<main class="page">
-  <section class="hero">
-    <p class="eyebrow">Desarrollo Web · Laboratorio 11</p>
-    <h1>{{ titulo }}</h1>
-    <p>Catálogo de productos desarrollado con Angular.</p>
+    <nav>
+      <a
+        routerLink="/"
+        routerLinkActive="activo"
+        [routerLinkActiveOptions]="{ exact: true }">
+        Inicio
+      </a>
 
-    <div class="search">
-      <label for="busqueda">Buscar producto:</label>
-      <input
-        id="busqueda"
-        type="text"
-        [(ngModel)]="busqueda"
-        placeholder="Escribe el nombre de un producto"
-      />
-    </div>
+      <a
+        routerLink="/productos"
+        routerLinkActive="activo">
+        Productos
+      </a>
+    </nav>
+  </div>
+</header>
 
-    <button type="button" (click)="alternarStock()">
-      {{ mostrarStock() ? 'Ocultar stock' : 'Mostrar stock' }}
-    </button>
-  </section>
-
-  <app-summary-panel
-    [totalProductos]="productos.length"
-    [productosDisponibles]="productosDisponibles"
-    [productosAgotados]="productosAgotados"
-  />
-
-  <section class="grid">
-    @for (
-      producto of productos.filter(p =>
-        p.nombre.toLowerCase().includes(busqueda.trim().toLowerCase())
-      );
-      track producto.id
-    ) {
-      <article
-        class="product-card"
-        [class.out-of-stock]="producto.stock === 0"
-      >
-        <span class="product-card__id">Producto #{{ producto.id }}</span>
-        <h2>{{ producto.nombre }}</h2>
-        <p class="price">S/ {{ producto.precio }}</p>
-
-        @if (mostrarStock()) {
-          @if (producto.stock > 0) {
-            <p class="stock ok">
-              Stock disponible: {{ producto.stock }}
-            </p>
-          } @else {
-            <p class="stock danger">Sin stock</p>
-          }
-        }
-      </article>
-    } @empty {
-      <p>No se encontraron productos.</p>
-    }
-  </section>
+<main class="contenedor contenido">
+  <router-outlet />
 </main>
 
 <app-footer />
-
 
 

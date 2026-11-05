@@ -1,1 +1,21 @@
-<p>productos works!</p>
+<section class="catalogo">
+  <div class="encabezado">
+    <h1>Catálogo de productos</h1>
+    <p>Explora nuestros productos disponibles.</p>
+  </div>
+
+  <div class="resumen">
+    <span>Total de productos: {{ productos().length }}</span>
+    <span>Favoritos registrados: {{ favoritos() }}</span>
+  </div>
+
+  <div class="grid">
+    @for (producto of productos(); track producto.id) {
+      <app-producto-card
+        [producto]="producto"
+        (verDetalle)="irDetalle($event)"
+        (favoritoSeleccionado)="registrarFavorito($event)"
+      />
+    }
+  </div>
+</section>

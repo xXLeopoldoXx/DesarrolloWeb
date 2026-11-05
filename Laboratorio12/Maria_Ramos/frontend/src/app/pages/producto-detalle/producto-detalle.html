@@ -1,1 +1,31 @@
-<p>producto-detalle works!</p>
+<section class="detalle">
+  @if (producto) {
+    <span class="categoria">{{ producto.categoria }}</span>
+
+    <h1>{{ producto.nombre }}</h1>
+
+    <p class="descripcion">
+      {{ producto.descripcion }}
+    </p>
+
+    <p class="precio">
+      {{ producto.precio | currency:'PEN':'S/ ' }}
+    </p>
+
+    <p class="codigo">
+      Código del producto: #{{ producto.id }}
+    </p>
+
+    <a routerLink="/productos" class="btn-volver">
+      Volver al catálogo
+    </a>
+  } @else {
+    <h1>Producto no encontrado</h1>
+
+    <p>El producto que buscas no existe en nuestro catálogo.</p>
+
+    <a routerLink="/productos" class="btn-volver">
+      Volver al catálogo
+    </a>
+  }
+</section>

@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-no-encontrado',
-  imports: [],
+  standalone: true,
+  imports: [RouterLink],
   templateUrl: './no-encontrado.html',
-  styleUrl: './no-encontrado.scss',
+  styleUrl: './no-encontrado.scss'
 })
-export class NoEncontrado {}
+export class NoEncontrado {
+}

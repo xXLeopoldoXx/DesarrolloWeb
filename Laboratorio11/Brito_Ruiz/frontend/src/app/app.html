@@ -1,0 +1,61 @@
+<app-header></app-header>
+
+<main class="page">
+  <header class="hero">
+    <p class="eyebrow">Desarrollo Web Integrado · Semana 11</p>
+    <h1>{{ titulo }}</h1>
+    <p>Primera interfaz desarrollada con Angular 22.</p>
+
+    <button type="button" (click)="alternarStock()">
+      {{ mostrarStock() ? 'Ocultar stock' : 'Mostrar stock' }}
+    </button>
+  </header>
+
+  <app-summary-panel></app-summary-panel>
+
+  <section class="metricas">
+    <div class="metrica">
+      <span class="metrica__valor">{{ totalProductos }}</span>
+      <span class="metrica__etiqueta">Total de productos</span>
+    </div>
+    <div class="metrica metrica--alerta">
+      <span class="metrica__valor">{{ totalSinStock }}</span>
+      <span class="metrica__etiqueta">Sin stock</span>
+    </div>
+  </section>
+
+  <section class="buscador">
+    <label>
+      Buscar:
+      <input [(ngModel)]="busqueda" placeholder="Escribe un nombre" />
+    </label>
+    <p>Texto ingresado: {{ busqueda }}</p>
+  </section>
+
+  <section class="grid">
+    @for (producto of productosFiltrados; track producto.id) {
+      <article class="product-card" [class.out-of-stock]="producto.stock === 0">
+        <span class="product-card__id">#{{ producto.id }}</span>
+        @if (producto.stock > 0) {
+          <span class="etiqueta etiqueta--ok">Disponible</span>
+        } @else {
+          <span class="etiqueta etiqueta--agotado">Agotado</span>
+        }
+        <h2>{{ producto.nombre }}</h2>
+        <p class="price">S/ {{ producto.precio }}</p>
+
+        @if (mostrarStock()) {
+          @if (producto.stock > 0) {
+            <p class="stock ok">Stock disponible: {{ producto.stock }}</p>
+          } @else {
+            <p class="stock danger">Sin stock</p>
+          }
+        }
+      </article>
+    } @empty {
+      <p>No hay productos registrados.</p>
+    }
+  </section>
+</main>
+
+<app-footer></app-footer>

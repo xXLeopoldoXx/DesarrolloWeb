@@ -1,0 +1,21 @@
+@use '../../../styles/tokens' as t;
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: min(1100px, 92%);
+  margin: 16px auto 0;
+  padding: 14px 24px;
+  border-radius: 14px;
+  color: white;
+  background: t.$navy;
+
+  strong {
+    font-size: 1.1rem;
+  }
+
+  span {
+    opacity: 0.8;
+  }
+}

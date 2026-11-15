@@ -1,0 +1,15 @@
+<section class="page-heading">
+  <p class="eyebrow">CATÁLOGO</p>
+  <h1>Categorías</h1>
+</section>
+
+<ul class="lista">
+  @for (categoria of categorias; track categoria.nombre) {
+    <li class="categoria">
+      <strong>{{ categoria.nombre }}</strong>
+      <span>{{ categoria.cantidad }} producto(s)</span>
+    </li>
+  } @empty {
+    <li>No hay categorías registradas.</li>
+  }
+</ul>

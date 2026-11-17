@@ -1,0 +1,35 @@
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 22px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+
+    strong {
+      color: #172554;
+      font-size: 2rem;
+    }
+
+    &--available strong {
+      color: #0f766e;
+    }
+
+    &--out strong {
+      color: #b91c1c;
+    }
+  }
+
+  &__label {
+    color: #64748b;
+    font-size: 0.9rem;
+  }
+}

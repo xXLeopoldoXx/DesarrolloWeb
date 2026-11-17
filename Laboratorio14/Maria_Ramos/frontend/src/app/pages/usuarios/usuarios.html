@@ -1,0 +1,152 @@
+ <section class="usuarios">
+  <div class="encabezado">
+    <div>
+      <h2>Gestión de usuarios</h2>
+      <p>Administra los usuarios registrados en DevStore.</p>
+    </div>
+
+    <button type="button" class="btn-recargar" (click)="obtenerUsuarios()">
+      Actualizar lista
+    </button>
+  </div>
+
+  @if (mensaje()) {
+    <div class="alerta exito">
+      {{ mensaje() }}
+    </div>
+  }
+
+  @if (error()) {
+    <div class="alerta error">
+      {{ error() }}
+    </div>
+  }
+
+  <div class="panel">
+    <h3>{{ usuarioEditando() === null ? 'Registrar usuario' : 'Editar usuario' }}</h3>
+
+    <form [formGroup]="formulario" (ngSubmit)="guardarUsuario()">
+      <div class="formulario-grid">
+        <div class="campo">
+          <label for="name">Nombre completo</label>
+          <input id="name" type="text" formControlName="name"
+            placeholder="Ingrese el nombre">
+          @if (formulario.controls.name.touched && formulario.controls.name.invalid) {
+            <small>El nombre es obligatorio.</small>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="username">Nombre de usuario</label>
+          <input id="username" type="text" formControlName="username"
+            placeholder="Ingrese el usuario">
+          @if (formulario.controls.username.touched && formulario.controls.username.invalid) {
+            <small>El nombre de usuario es obligatorio.</small>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="email">Correo electrónico</label>
+          <input id="email" type="email" formControlName="email"
+            placeholder="ejemplo@correo.com">
+          @if (formulario.controls.email.touched && formulario.controls.email.invalid) {
+            <small>Ingrese un correo electrónico válido.</small>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="phone">Teléfono</label>
+          <input id="phone" type="text" formControlName="phone"
+            placeholder="Ingrese el teléfono">
+        </div>
+
+        <div class="campo">
+          <label for="website">Sitio web</label>
+          <input id="website" type="text" formControlName="website"
+            placeholder="www.ejemplo.com">
+        </div>
+      </div>
+
+      <div class="acciones">
+        <button type="submit" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando...' : (usuarioEditando() === null ? 'Registrar usuario' : 'Guardar cambios') }}
+        </button>
+
+        <button type="button" class="btn-cancelar" (click)="limpiarFormulario()">
+          Limpiar
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="panel">
+    <h3>Listado de usuarios</h3>
+
+    <!-- Buscador por nombre o correo -->
+    <div class="buscador">
+      <label for="buscarUsuario">Buscar usuarios</label>
+      <input
+        id="buscarUsuario"
+        type="text"
+        placeholder="Ingrese un nombre o correo electrónico..."
+        [value]="busqueda()"
+        (input)="busqueda.set($any($event.target).value)">
+    </div>
+
+    @if (cargando()) {
+      <p class="estado">Cargando usuarios...</p>
+    } @else {
+      <div class="tabla-contenedor">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Usuario</th>
+              <th>Correo</th>
+              <th>Teléfono</th>
+              <th>Sitio web</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (usuario of usuariosFiltrados(); track usuario.id) {
+              <tr>
+                <td>{{ usuario.id }}</td>
+                <td>{{ usuario.name }}</td>
+                <td>{{ usuario.username }}</td>
+                <td>{{ usuario.email }}</td>
+                <td>{{ usuario.phone }}</td>
+                <td>{{ usuario.website }}</td>
+                <td class="acciones-tabla">
+                  <button type="button" class="btn-editar"
+                    (click)="editarUsuario(usuario)">
+                    Editar
+                  </button>
+
+                  <button type="button" class="btn-parcial"
+                    (click)="cambiarCorreo(usuario)">
+                    Cambiar correo
+                  </button>
+
+                  <button type="button" class="btn-eliminar"
+                    (click)="eliminarUsuario(usuario)">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7">No hay usuarios para mostrar.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</section>
+
+
+

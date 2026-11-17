@@ -1,0 +1,13 @@
+@use '../../../styles/tokens' as t;
+
+.footer {
+  padding: 20px;
+  text-align: center;
+  color: t.$blue;
+  border-top: 1px solid rgba(t.$navy, 0.12);
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}

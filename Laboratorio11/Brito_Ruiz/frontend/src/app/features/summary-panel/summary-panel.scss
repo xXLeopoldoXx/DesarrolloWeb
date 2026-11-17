@@ -1,0 +1,15 @@
+@use '../../../styles/tokens' as t;
+
+.summary {
+  margin-top: 20px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  background: rgba(t.$teal, 0.12);
+  border: 1px solid t.$teal;
+
+  p {
+    margin: 0;
+    color: t.$teal;
+    font-weight: 700;
+  }
+}

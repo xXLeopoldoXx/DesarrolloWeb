@@ -1,0 +1,162 @@
+<section class="formulario">
+  <div class="formulario__encabezado">
+    <h2>Formulario de contacto</h2>
+    <p>Completa los siguientes campos para enviarnos tu mensaje.</p>
+  </div>
+
+  <form #formulario="ngForm" (ngSubmit)="enviarFormulario(formulario)">
+
+    <!-- Nombre -->
+    <div class="campo">
+      <label for="nombre">Nombre completo</label>
+
+      <input
+        type="text"
+        id="nombre"
+        name="nombre"
+        [(ngModel)]="contacto.nombre"
+        #nombre="ngModel"
+        required
+        minlength="3"
+        maxlength="60"
+        placeholder="Ingresa tu nombre">
+
+      @if (nombre.invalid && (nombre.touched || enviado)) {
+        <small class="error">
+          @if (nombre.errors?.['required']) {
+            El nombre es obligatorio.
+          }
+          @if (nombre.errors?.['minlength']) {
+            Debe tener al menos 3 caracteres.
+          }
+          @if (nombre.errors?.['maxlength']) {
+            No debe superar los 60 caracteres.
+          }
+        </small>
+      }
+    </div>
+
+    <!-- Correo -->
+    <div class="campo">
+      <label for="correo">Correo electrónico</label>
+
+      <input
+        type="email"
+        id="correo"
+        name="correo"
+        [(ngModel)]="contacto.correo"
+        #correo="ngModel"
+        required
+        email
+        placeholder="ejemplo@correo.com">
+
+      @if (correo.invalid && (correo.touched || enviado)) {
+        <small class="error">
+          @if (correo.errors?.['required']) {
+            El correo es obligatorio.
+          }
+          @if (correo.errors?.['email']) {
+            Ingresa un correo electrónico válido.
+          }
+        </small>
+      }
+    </div>
+
+    <!-- Tipo -->
+    <div class="campo">
+      <label for="tipo">Tipo de mensaje</label>
+
+      <select
+        id="tipo"
+        name="tipo"
+        [(ngModel)]="contacto.tipo"
+        required>
+
+        <option value="consulta">Consulta</option>
+        <option value="sugerencia">Sugerencia</option>
+        <option value="reclamo">Reclamo</option>
+      </select>
+    </div>
+
+    <!-- Mensaje -->
+    <div class="campo">
+      <label for="mensaje">Mensaje</label>
+
+      <textarea
+        id="mensaje"
+        name="mensaje"
+        [(ngModel)]="contacto.mensaje"
+        #mensaje="ngModel"
+        required
+        minlength="10"
+        maxlength="300"
+        rows="5"
+        placeholder="Escribe tu mensaje aquí...">
+      </textarea>
+
+      @if (mensaje.invalid && (mensaje.touched || enviado)) {
+        <small class="error">
+          @if (mensaje.errors?.['required']) {
+            El mensaje es obligatorio.
+          }
+          @if (mensaje.errors?.['minlength']) {
+            Debe tener al menos 10 caracteres.
+          }
+          @if (mensaje.errors?.['maxlength']) {
+            No debe superar los 300 caracteres.
+          }
+        </small>
+      }
+    </div>
+
+    <!-- Aceptación -->
+    <div class="campo campo--checkbox">
+      <label>
+        <input
+          type="checkbox"
+          name="acepta"
+          [(ngModel)]="contacto.acepta"
+          #acepta="ngModel"
+          required>
+
+        Acepto los términos y condiciones.
+      </label>
+
+      @if (acepta.invalid && (acepta.touched || enviado)) {
+        <small class="error">
+          Debes aceptar los términos y condiciones.
+        </small>
+      }
+    </div>
+
+    <!-- Botones -->
+    <div class="acciones">
+      <button type="submit">Enviar mensaje</button>
+
+      <button
+        type="button"
+        class="btn-limpiar"
+        (click)="limpiarFormulario(formulario)">
+        Limpiar
+      </button>
+    </div>
+
+    @if (mensajeExito) {
+      <p class="exito">{{ mensajeExito }}</p>
+    }
+
+  </form>
+
+  <!-- Información de depuración -->
+  <div class="depuracion">
+    <h3>Estado del formulario</h3>
+
+    <p>Válido: {{ formulario.valid }}</p>
+    <p>Modificado: {{ formulario.dirty }}</p>
+    <p>Tocado: {{ formulario.touched }}</p>
+
+    <h3>Datos ingresados</h3>
+    <pre>{{ contacto | json }}</pre>
+  </div>
+</section>
+

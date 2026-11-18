@@ -1,0 +1,33 @@
+.catalogo {
+  .encabezado {
+    margin-bottom: 25px;
+
+    h1 {
+      color: #172554;
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: #64748b;
+    }
+  }
+
+  .resumen {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 16px;
+    margin-bottom: 25px;
+    background: #ffffff;
+    border-radius: 10px;
+    color: #334155;
+    font-weight: bold;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 22px;
+  }
+}

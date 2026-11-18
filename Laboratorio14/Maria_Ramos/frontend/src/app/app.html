@@ -1,0 +1,46 @@
+<header class="header">
+  <div class="contenedor">
+    <h1>DevStore</h1>
+
+    <nav>
+      <a
+        routerLink="/"
+        routerLinkActive="activo"
+        [routerLinkActiveOptions]="{ exact: true }">
+        Inicio
+      </a>
+
+      <a
+        routerLink="/productos"
+        routerLinkActive="activo">
+        Productos
+      </a>
+
+      <a
+        routerLink="/plantilla"
+        routerLinkActive="activo">
+        Formulario plantilla
+      </a>
+
+      <a
+        routerLink="/reactivo"
+        routerLinkActive="activo">
+        Formulario reactivo
+      </a>
+
+      <a
+        routerLink="/usuarios"
+        routerLinkActive="activo">
+        Usuarios
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main class="contenedor contenido">
+  <router-outlet />
+</main>
+
+<app-footer />
+
+

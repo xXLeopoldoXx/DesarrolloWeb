@@ -1,0 +1,220 @@
+<section class="formulario">
+  <div class="formulario__encabezado">
+    <h2>Formulario de registro</h2>
+    <p>Completa tus datos para crear una cuenta en DevStore.</p>
+  </div>
+
+  <form [formGroup]="formulario" (ngSubmit)="enviarFormulario()">
+
+    <!-- Nombre -->
+    <div class="campo">
+      <label for="nombre">Nombre completo</label>
+      <input
+        id="nombre"
+        type="text"
+        formControlName="nombre"
+        placeholder="Ingresa tu nombre">
+
+      @if (formulario.get('nombre')?.invalid && formulario.get('nombre')?.touched) {
+        <small class="error">
+          @if (formulario.get('nombre')?.errors?.['required']) {
+            El nombre es obligatorio.
+          }
+          @if (formulario.get('nombre')?.errors?.['minlength']) {
+            Debe tener al menos 3 caracteres.
+          }
+          @if (formulario.get('nombre')?.errors?.['maxlength']) {
+            No debe superar los 60 caracteres.
+          }
+        </small>
+      }
+    </div>
+
+    <!-- Correo -->
+    <div class="campo">
+      <label for="correo">Correo electrónico</label>
+      <input
+        id="correo"
+        type="email"
+        formControlName="correo"
+        placeholder="ejemplo@correo.com">
+
+      @if (formulario.get('correo')?.invalid && formulario.get('correo')?.touched) {
+        <small class="error">
+          @if (formulario.get('correo')?.errors?.['required']) {
+            El correo es obligatorio.
+          }
+          @if (formulario.get('correo')?.errors?.['email']) {
+            Ingresa un correo válido.
+          }
+        </small>
+      }
+    </div>
+
+    <!-- Edad -->
+    <div class="campo">
+      <label for="edad">Edad</label>
+      <input
+        id="edad"
+        type="number"
+        formControlName="edad"
+        placeholder="Ingresa tu edad">
+
+      @if (formulario.get('edad')?.invalid && formulario.get('edad')?.touched) {
+        <small class="error">
+          @if (formulario.get('edad')?.errors?.['required']) {
+            La edad es obligatoria.
+          }
+          @if (formulario.get('edad')?.errors?.['edadMinima']) {
+            Debes tener al menos 18 años.
+          }
+        </small>
+      }
+    </div>
+
+    <!-- Teléfono -->
+    <div class="campo">
+      <label for="telefono">Teléfono (opcional)</label>
+      <input
+        id="telefono"
+        type="tel"
+        formControlName="telefono"
+        placeholder="987654321">
+
+      @if (formulario.get('telefono')?.invalid && formulario.get('telefono')?.touched) {
+        <small class="error">
+          El teléfono debe tener exactamente 9 dígitos.
+        </small>
+      }
+    </div>
+
+    <!-- Contraseña -->
+    <div class="campo">
+      <label for="password">Contraseña</label>
+      <input
+        id="password"
+        type="password"
+        formControlName="password"
+        placeholder="Ingresa tu contraseña">
+
+      @if (formulario.get('password')?.invalid && formulario.get('password')?.touched) {
+        <small class="error">
+          @if (formulario.get('password')?.errors?.['required']) {
+            La contraseña es obligatoria.
+          }
+          @if (formulario.get('password')?.errors?.['minlength']) {
+            Debe tener al menos 8 caracteres.
+          }
+          @if (formulario.get('password')?.errors?.['pattern']) {
+            Debe incluir al menos una mayúscula y un número.
+          }
+        </small>
+      }
+    </div>
+
+    <!-- Confirmar contraseña -->
+    <div class="campo">
+      <label for="confirmarPassword">Confirmar contraseña</label>
+      <input
+        id="confirmarPassword"
+        type="password"
+        formControlName="confirmarPassword"
+        placeholder="Repite tu contraseña">
+
+      @if (formulario.get('confirmarPassword')?.invalid && formulario.get('confirmarPassword')?.touched) {
+        <small class="error">
+          Debes confirmar tu contraseña.
+        </small>
+      }
+
+      @if (formulario.errors?.['passwordsNoCoinciden'] && formulario.get('confirmarPassword')?.touched) {
+        <small class="error">
+          Las contraseñas no coinciden.
+        </small>
+      }
+    </div>
+
+    <!-- Habilidades dinámicas -->
+    <div class="campo">
+      <label>Habilidades</label>
+
+      <div formArrayName="habilidades">
+        @for (habilidad of habilidades.controls; track $index; let i = $index) {
+          <div class="habilidad">
+            <input
+              type="text"
+              [formControlName]="i"
+              placeholder="Ejemplo: Angular">
+
+            <button
+              type="button"
+              class="btn-eliminar"
+              (click)="eliminarHabilidad(i)"
+              [disabled]="habilidades.length === 1">
+              Eliminar
+            </button>
+          </div>
+
+          @if (habilidad.invalid && habilidad.touched) {
+            <small class="error">
+              La habilidad es obligatoria y debe tener al menos 2 caracteres.
+            </small>
+          }
+        }
+      </div>
+
+      <button
+        type="button"
+        class="btn-agregar"
+        (click)="agregarHabilidad()">
+        + Agregar habilidad
+      </button>
+    </div>
+
+    <!-- Términos -->
+    <div class="campo campo--checkbox">
+      <label>
+        <input
+          type="checkbox"
+          formControlName="aceptaTerminos">
+
+        Acepto los términos y condiciones.
+      </label>
+
+      @if (formulario.get('aceptaTerminos')?.invalid && formulario.get('aceptaTerminos')?.touched) {
+        <small class="error">
+          Debes aceptar los términos y condiciones.
+        </small>
+      }
+    </div>
+
+    <!-- Botones -->
+    <div class="acciones">
+      <button type="submit">Registrar</button>
+
+      <button
+        type="button"
+        class="btn-limpiar"
+        (click)="limpiarFormulario()">
+        Limpiar
+      </button>
+    </div>
+
+    @if (mensajeExito) {
+      <p class="exito">{{ mensajeExito }}</p>
+    }
+
+  </form>
+
+  <!-- Depuración -->
+  <div class="depuracion">
+    <h3>Estado del formulario</h3>
+    <p>Válido: {{ formulario.valid }}</p>
+    <p>Modificado: {{ formulario.dirty }}</p>
+    <p>Tocado: {{ formulario.touched }}</p>
+
+    <h3>Datos ingresados</h3>
+    <pre>{{ formulario.value | json }}</pre>
+  </div>
+</section>
+

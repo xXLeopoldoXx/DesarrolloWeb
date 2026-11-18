@@ -1,0 +1,50 @@
+.bienvenida {
+  padding: 65px 30px;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+
+  .etiqueta {
+    color: #2563eb;
+    font-size: 0.85rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+  }
+
+  h1 {
+    color: #172554;
+    font-size: 2.5rem;
+    margin: 20px 0;
+  }
+
+  .descripcion {
+    color: #64748b;
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+  }
+
+  .btn-productos {
+    display: inline-block;
+    padding: 13px 22px;
+    background: #2563eb;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+
+    &:hover {
+      background: #1d4ed8;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .bienvenida {
+    padding: 40px 20px;
+
+    h1 {
+      font-size: 1.8rem;
+    }
+  }
+}

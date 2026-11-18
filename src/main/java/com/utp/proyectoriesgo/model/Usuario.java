@@ -23,6 +23,11 @@ public class Usuario {
     @Column(nullable = false)
     private boolean activo = true;
 
+    // Nombre con el que se muestra la usuaria. Nullable: las cuentas anteriores no lo tienen
+    // (con ddl-auto=update no se puede agregar una columna NOT NULL a una tabla con filas).
+    @Column(length = 40)
+    private String seudonimo;
+
     // EAGER: los roles se necesitan siempre al autenticar.
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "usuarios_roles", joinColumns = @JoinColumn(name = "usuario_id"), inverseJoinColumns = @JoinColumn(name = "rol_id"))
@@ -55,6 +60,14 @@ public class Usuario {
 
     public Set<Rol> getRoles() {
         return roles;
+    }
+
+    public String getSeudonimo() {
+        return seudonimo;
+    }
+
+    public void setSeudonimo(String seudonimo) {
+        this.seudonimo = seudonimo;
     }
 
     public void setUsername(String username) {

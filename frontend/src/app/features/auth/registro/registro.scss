@@ -1,0 +1,33 @@
+.boton--bloque {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.campo--check {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.6rem;
+
+  input {
+    width: auto;
+    margin-top: 0.3rem;
+  }
+
+  label {
+    font-weight: 400;
+    font-size: 0.9rem;
+  }
+}
+
+.error--check {
+  display: block;
+  margin: -0.5rem 0 0.75rem;
+  color: var(--coral-600);
+  font-size: 0.875rem;
+}
+
+.pie {
+  margin: 1.25rem 0 0;
+  text-align: center;
+  color: var(--texto-suave);
+}

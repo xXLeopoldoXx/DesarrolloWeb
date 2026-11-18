@@ -1,0 +1,138 @@
+.hero {
+  padding: 2rem;
+  border-radius: var(--radio-l);
+  color: #fff;
+  background: linear-gradient(135deg, var(--teal-700), var(--teal-500) 70%, #7cc6bb);
+  box-shadow: var(--sombra-fuerte);
+
+  h1 {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+  }
+
+  p {
+    max-width: 56ch;
+  }
+}
+
+.hero__etiqueta {
+  margin: 0 0 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.hero__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+
+  .boton:not(.boton--peligro) {
+    background: #fff;
+    color: var(--teal-700);
+
+    &:hover {
+      background: var(--teal-50);
+    }
+  }
+}
+
+.urgente {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radio-m);
+  background: var(--coral-50);
+  border: 1px solid var(--coral-100);
+  color: #8f2b21;
+
+  p {
+    margin: 0;
+  }
+
+  a {
+    color: inherit;
+    font-weight: 700;
+  }
+}
+
+.titulo-seccion {
+  margin: 2rem 0 0.9rem;
+  font-size: 1.25rem;
+}
+
+.accesos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.acceso {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: var(--texto);
+  text-decoration: none;
+  border-top: 5px solid var(--teal-500);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--sombra-fuerte);
+  }
+
+  &--lila {
+    border-top-color: var(--lila-600);
+
+    .acceso__icono {
+      background: var(--lila-100);
+      color: var(--lila-600);
+    }
+  }
+
+  &--coral {
+    border-top-color: var(--coral-500);
+
+    .acceso__icono {
+      background: var(--coral-100);
+      color: var(--coral-600);
+    }
+  }
+}
+
+.acceso__icono {
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.6rem;
+  border-radius: 14px;
+  background: var(--teal-100);
+  color: var(--teal-700);
+}
+
+.acceso__desc {
+  color: var(--texto-suave);
+  font-size: 0.9rem;
+}
+
+.recomendaciones {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 1.25rem;
+  list-style: none;
+
+  li {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+  }
+
+  app-icono {
+    margin-top: 0.1rem;
+    color: var(--teal-600);
+  }
+}

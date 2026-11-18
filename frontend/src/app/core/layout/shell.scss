@@ -1,0 +1,183 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.cabecera {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 1.25rem;
+  color: #fff;
+  background: linear-gradient(120deg, var(--teal-700), var(--teal-500));
+  box-shadow: 0 4px 16px rgba(31, 111, 101, 0.25);
+}
+
+.cabecera__marca {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: inherit;
+  text-decoration: none;
+
+  strong,
+  small {
+    display: block;
+  }
+
+  small {
+    opacity: 0.85;
+  }
+}
+
+.cabecera__logo {
+  display: inline-flex;
+  padding: 0.5rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.cabecera__acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.cabecera__cerrar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 999px;
+  background: transparent;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+}
+
+// ---------- Escritorio: menú lateral ----------
+.cuerpo {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: calc(100vh - 64px);
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.25rem 0.9rem;
+  background: var(--superficie);
+  border-right: 1px solid var(--borde);
+}
+
+.menu__enlace {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radio-s);
+  color: var(--texto-suave);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover {
+    background: var(--teal-50);
+    color: var(--teal-700);
+  }
+
+  &.activo {
+    background: var(--teal-100);
+    color: var(--teal-700);
+  }
+}
+
+.contenido {
+  min-width: 0;
+  padding: 1.75rem;
+  max-width: 1100px;
+  width: 100%;
+}
+
+// ---------- Asistente flotante ----------
+.asistente {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: 999px;
+  background: var(--lila-600);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--sombra-fuerte);
+
+  &:hover {
+    background: #66519f;
+  }
+}
+
+// ---------- Móvil: menú inferior ----------
+@media (max-width: 899px) {
+  .cuerpo {
+    display: block;
+    padding-bottom: 76px;
+  }
+
+  .menu {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 25;
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 0;
+    padding: 0.35rem 0.25rem calc(0.35rem + env(safe-area-inset-bottom));
+    border-right: 0;
+    border-top: 1px solid var(--borde);
+    box-shadow: 0 -6px 18px rgba(31, 79, 100, 0.08);
+  }
+
+  .menu__enlace {
+    flex: 1;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.4rem 0.2rem;
+    font-size: 0.68rem;
+    text-align: center;
+  }
+
+  .contenido {
+    padding: 1.1rem;
+  }
+
+  .cabecera__cerrar span {
+    display: none;
+  }
+
+  .cabecera__marca small {
+    display: none;
+  }
+
+  .asistente {
+    bottom: 5.4rem;
+    padding: 0.8rem;
+  }
+
+  .asistente__texto {
+    display: none;
+  }
+}

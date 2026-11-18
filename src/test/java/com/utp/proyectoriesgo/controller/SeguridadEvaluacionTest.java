@@ -44,9 +44,25 @@ class SeguridadEvaluacionTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    // Las evaluaciones del modelo profesional mezclan datos de varias personas:
+    // una usuaria común NO debe poder leerlas.
     @Test
     @WithMockUser(roles = "USER")
-    void listarComoUser_responde200() throws Exception {
+    void listarComoUser_responde403() throws Exception {
+        mockMvc.perform(get("/api/evaluaciones"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void buscarPorIdComoUser_responde403() throws Exception {
+        mockMvc.perform(get("/api/evaluaciones/1"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void listarComoAdmin_responde200() throws Exception {
         mockMvc.perform(get("/api/evaluaciones"))
                 .andExpect(status().isOk());
     }

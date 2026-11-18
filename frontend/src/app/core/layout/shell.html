@@ -1,0 +1,42 @@
+<header class="cabecera">
+  <a class="cabecera__marca" routerLink="/inicio" aria-label="Mi espacio seguro, ir a Inicio">
+    <span class="cabecera__logo"><app-icono nombre="shield" [tamano]="22" /></span>
+    <span>
+      <strong>Mi espacio seguro</strong>
+      <small>Hola, {{ auth.nombreVisible() || 'bienvenida' }}</small>
+    </span>
+  </a>
+
+  <div class="cabecera__acciones">
+    <app-salida-rapida />
+    <button type="button" class="cabecera__cerrar" (click)="auth.cerrarSesion()">
+      <app-icono nombre="salir" [tamano]="18" />
+      <span>Cerrar sesión</span>
+    </button>
+  </div>
+</header>
+
+<div class="cuerpo">
+  <nav class="menu" aria-label="Menú principal">
+    @for (item of items(); track item.ruta) {
+      <a
+        class="menu__enlace"
+        [routerLink]="item.ruta"
+        routerLinkActive="activo"
+        ariaCurrentWhenActive="page"
+      >
+        <app-icono [nombre]="item.icono" [tamano]="22" />
+        <span>{{ item.etiqueta }}</span>
+      </a>
+    }
+  </nav>
+
+  <main class="contenido" id="contenido">
+    <router-outlet />
+  </main>
+</div>
+
+<a class="asistente" routerLink="/asistente" routerLinkActive="activo" aria-label="Abrir el asistente de orientación">
+  <app-icono nombre="chat" [tamano]="26" />
+  <span class="asistente__texto">Asistente</span>
+</a>

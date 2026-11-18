@@ -20,6 +20,18 @@ public class GlobalExceptionHandler {
         return construir(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(RecursoNoEncontradoException.class)
+    public ResponseEntity<ErrorResponse> manejarRecursoNoEncontrado(
+            RecursoNoEncontradoException ex, HttpServletRequest request) {
+        return construir(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(UsuarioExistenteException.class)
+    public ResponseEntity<ErrorResponse> manejarUsuarioExistente(
+            UsuarioExistenteException ex, HttpServletRequest request) {
+        return construir(HttpStatus.CONFLICT, ex.getMessage(), request);
+    }
+
     @ExceptionHandler({IllegalArgumentException.class, ReglaNegocioException.class})
     public ResponseEntity<ErrorResponse> manejarSolicitudIncorrecta(
             RuntimeException ex, HttpServletRequest request) {

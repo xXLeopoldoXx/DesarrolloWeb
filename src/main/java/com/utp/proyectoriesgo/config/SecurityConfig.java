@@ -1,8 +1,15 @@
 package com.utp.proyectoriesgo.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -45,32 +52,43 @@ public class SecurityConfig {
         return converter;
     }
 
+    // Permite que el frontend Angular (otro origen, puerto 4200) llame a la API desde el navegador.
+    @Bean
+    CorsConfigurationSource corsConfigurationSource(
+            @Value("${app.cors.allowed-origins:http://localhost:4200}") List<String> origenes) {
+        var cors = new CorsConfiguration();
+        cors.setAllowedOrigins(origenes);
+        cors.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        cors.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        cors.setMaxAge(3600L);
+
+        var fuente = new UrlBasedCorsConfigurationSource();
+        fuente.registerCorsConfiguration("/api/**", cors);
+        return fuente;
+    }
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http,
                                             JwtAuthenticationConverter converter) throws Exception {
         http
+                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // El ORDEN importa: primero lo más específico, al final lo general
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/registro").permitAll()
                         .requestMatchers("/api/publico/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/saludo", "/api/info").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/evaluaciones/*/seguimientos/simular-error")
-                        .hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/evaluaciones/**")
-                        .hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/evaluaciones/**")
-                        .hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/evaluaciones/**")
-                        .hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/evaluaciones/**")
-                        .hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/evaluaciones/**")
-                        .hasRole("ADMIN")
+                        // Evaluaciones del modelo profesional: mezclan datos de varias personas,
+                        // por eso solo ADMIN. La usuaria usa sus propios endpoints bajo /api/mi/**.
+                        .requestMatchers("/api/evaluaciones/**").hasRole("ADMIN")
+                        // Todo lo que pertenece a la usuaria autenticada (cada módulo filtra por dueña)
+                        .requestMatchers("/api/mi/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/comunidad/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/asistente/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated())
                 // Valida el "Authorization: Bearer <token>" antes de llegar al controller
                 .oauth2ResourceServer(oauth2 -> oauth2

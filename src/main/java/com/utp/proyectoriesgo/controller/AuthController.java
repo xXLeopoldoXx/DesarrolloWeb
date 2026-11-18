@@ -1,8 +1,10 @@
 package com.utp.proyectoriesgo.controller;
 
 import com.utp.proyectoriesgo.dto.LoginRequest;
+import com.utp.proyectoriesgo.dto.RegistroRequest;
 import com.utp.proyectoriesgo.dto.TokenResponse;
 import com.utp.proyectoriesgo.security.TokenService;
+import com.utp.proyectoriesgo.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,10 +28,27 @@ public class AuthController {
 
     private final AuthenticationManager manager;
     private final TokenService tokens;
+    private final UsuarioService usuarioService;
 
-    public AuthController(AuthenticationManager manager, TokenService tokens) {
+    public AuthController(AuthenticationManager manager, TokenService tokens,
+                          UsuarioService usuarioService) {
         this.manager = manager;
         this.tokens = tokens;
+        this.usuarioService = usuarioService;
+    }
+
+    // Crea la cuenta (ROLE_USER) e inicia sesión de una vez: devuelve el mismo token que el login.
+    @PostMapping("/registro")
+    public ResponseEntity<TokenResponse> registro(@Valid @RequestBody RegistroRequest request) {
+        usuarioService.registrar(request);
+
+        Authentication autenticacion = manager.authenticate(
+                UsernamePasswordAuthenticationToken.unauthenticated(
+                        request.username().trim(), request.password()));
+
+        String jwt = tokens.crearToken(autenticacion);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new TokenResponse("Bearer", jwt, tokens.expiresInSeconds()));
     }
 
     @PostMapping("/login")

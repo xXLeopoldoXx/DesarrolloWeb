@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 import { PaginaPendiente } from '../../shared/pagina-pendiente/pagina-pendiente';
 
-// TODO(Leo y Natty): reemplazar esta página por la real de "Asistente de orientación".
+// TODO(Leo): reemplazar esta página por la real de "Asistente de orientación".
 @Component({
   selector: 'app-asistente',
   imports: [PaginaPendiente],
@@ -10,7 +10,7 @@ import { PaginaPendiente } from '../../shared/pagina-pendiente/pagina-pendiente'
     <app-pagina-pendiente
       titulo="Asistente de orientación"
       descripcion="Chat con IA (Gemini) que responde dudas generales. Nunca recibe tus datos personales."
-      responsable="Leo y Natty"
+      responsable="Leo"
       icono="chat" />
   `
 })

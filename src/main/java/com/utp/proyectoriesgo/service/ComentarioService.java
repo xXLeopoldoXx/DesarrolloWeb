@@ -1,6 +1,7 @@
 
 package com.utp.proyectoriesgo.service;
 
+import com.utp.proyectoriesgo.exception.RecursoNoEncontradoException;
 import com.utp.proyectoriesgo.model.Comentario;
 import com.utp.proyectoriesgo.model.Publicacion;
 import com.utp.proyectoriesgo.model.Usuario;
@@ -31,14 +32,10 @@ public class ComentarioService {
 
         Publicacion publicacion = publicacionRepository
                 .findById(publicacionId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "La publicación no existe"
-                ));
+                .orElseThrow(() -> new RecursoNoEncontradoException("La publicación no existe"));
 
         if (publicacion.isOculta()) {
-            throw new IllegalArgumentException(
-                    "La publicación no está disponible"
-            );
+            throw new RecursoNoEncontradoException("La publicación no está disponible");
         }
 
         return comentarioRepository
@@ -75,9 +72,7 @@ public class ComentarioService {
 
         Publicacion publicacion = publicacionRepository
                 .findById(publicacionId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "La publicación no existe"
-                ));
+                .orElseThrow(() -> new RecursoNoEncontradoException("La publicación no existe"));
 
         if (publicacion.isOculta()) {
             throw new IllegalArgumentException(

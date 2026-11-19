@@ -1,6 +1,7 @@
 
 package com.utp.proyectoriesgo.service;
 
+import com.utp.proyectoriesgo.exception.RecursoNoEncontradoException;
 import com.utp.proyectoriesgo.model.Publicacion;
 import com.utp.proyectoriesgo.model.Reporte;
 import com.utp.proyectoriesgo.model.Usuario;
@@ -55,8 +56,7 @@ public class ReporteService {
         Publicacion publicacion = publicacionRepository
                 .findById(publicacionId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "La publicación no existe"));
+                        new RecursoNoEncontradoException("La publicación no existe"));
 
         // 4. Comprobar si está oculta
         if (publicacion.isOculta()) {
@@ -84,10 +84,10 @@ public class ReporteService {
         return reporteRepository.save(reporte);
     }
 
-    // Listar todos los reportes para moderación
+    // Reportes pendientes para moderación (los de publicaciones ya ocultas no se muestran)
     @Transactional(readOnly = true)
     public List<Reporte> listarReportes() {
-        return reporteRepository.findAllByOrderByFechaDesc();
+        return reporteRepository.findByPublicacionOcultaFalseOrderByFechaDesc();
     }
 
 }

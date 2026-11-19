@@ -3,6 +3,9 @@ package com.utp.proyectoriesgo.repository;
 
 import com.utp.proyectoriesgo.model.Reporte;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.EntityGraph;
 
 import java.util.List;
@@ -20,5 +23,11 @@ public interface ReporteRepository
         "publicacion.autor",
         "autor"
     })
-    List<Reporte> findAllByOrderByFechaDesc();
+    List<Reporte> findByPublicacionOcultaFalseOrderByFechaDesc();
+
+    /** Borra los reportes hechos por la usuaria y los recibidos por sus publicaciones. */
+    @Modifying
+    @Query("delete from Reporte r where r.autor.id = :usuarioId "
+            + "or r.publicacion.id in (select p.id from Publicacion p where p.autor.id = :usuarioId)")
+    void eliminarDeUsuaria(@Param("usuarioId") Long usuarioId);
 }

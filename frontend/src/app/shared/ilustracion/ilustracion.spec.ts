@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { Ilustracion } from './ilustracion';
 
 describe('Ilustracion', () => {
-  function crear(nombre: 'apoyo' | 'flor' | 'hojas', etiqueta = '') {
+  function crear(nombre: 'flor' | 'hojas', etiqueta = '') {
     const fixture = TestBed.createComponent(Ilustracion);
     fixture.componentRef.setInput('nombre', nombre);
     fixture.componentRef.setInput('etiqueta', etiqueta);
@@ -13,20 +13,20 @@ describe('Ilustracion', () => {
   }
 
   it('dibuja cada ilustración como SVG', () => {
-    for (const nombre of ['apoyo', 'flor', 'hojas'] as const) {
+    for (const nombre of ['flor', 'hojas'] as const) {
       expect(crear(nombre).querySelector('svg')).not.toBeNull();
     }
   });
 
   it('es decorativa (oculta a lectores de pantalla) si no tiene etiqueta', () => {
-    const svg = crear('apoyo').querySelector('svg') as SVGElement;
+    const svg = crear('flor').querySelector('svg') as SVGElement;
 
     expect(svg.getAttribute('aria-hidden')).toBe('true');
     expect(svg.getAttribute('role')).toBeNull();
   });
 
   it('se anuncia como imagen cuando tiene etiqueta', () => {
-    const svg = crear('apoyo', 'Dos mujeres abrazadas').querySelector('svg') as SVGElement;
+    const svg = crear('flor', 'Dos mujeres abrazadas').querySelector('svg') as SVGElement;
 
     expect(svg.getAttribute('role')).toBe('img');
     expect(svg.getAttribute('aria-label')).toBe('Dos mujeres abrazadas');

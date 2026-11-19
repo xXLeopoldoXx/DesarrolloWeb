@@ -2,17 +2,28 @@
   --relleno: clamp(1.5rem, 4vw, 2.5rem);
   position: relative;
   display: grid;
-  grid-template-columns: 1fr;
   align-items: center;
-  gap: 1rem;
+  min-height: clamp(300px, 42vw, 400px);
   padding: var(--relleno);
   overflow: hidden;
   border-radius: var(--radio-l);
   color: #fff;
-  background:
-    radial-gradient(520px 320px at 85% 20%, rgba(255, 214, 160, 0.28), transparent 70%),
-    linear-gradient(135deg, var(--teal-800), var(--teal-700) 55%, var(--ciruela-700));
+  background: var(--teal-800);
   box-shadow: var(--sombra-fuerte);
+
+  // Velo de color: el texto siempre se lee, aunque la foto sea clara
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      100deg,
+      rgba(25, 92, 84, 0.96) 0%,
+      rgba(31, 111, 101, 0.88) 38%,
+      rgba(94, 42, 92, 0.35) 72%,
+      rgba(94, 42, 92, 0.1) 100%
+    );
+  }
 
   h1 {
     font-size: clamp(1.8rem, 4vw, 2.7rem);
@@ -20,33 +31,34 @@
   }
 
   p {
-    max-width: 52ch;
+    max-width: 50ch;
   }
 }
 
 .hero__texto {
   position: relative;
   z-index: 1;
+  max-width: 560px;
 }
 
-// La ilustración «se apoya» en el borde inferior de la tarjeta (las colinas llegan hasta el borde)
-.hero__arte {
-  align-self: end;
-  justify-self: center;
-  width: min(calc(100% + 2 * var(--relleno)), 520px);
-  margin-block-end: calc(var(--relleno) * -1);
+// Foto real de fondo (decorativa): se ve a la derecha y se funde con el velo
+.hero__foto {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 72% 50%;
 }
 
-@media (min-width: 820px) {
-  .hero {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  }
-
-  .hero__arte {
-    width: calc(100% + var(--relleno));
-    max-width: none;
-    justify-self: end;
-    margin-inline-end: calc(var(--relleno) * -1);
+@media (max-width: 640px) {
+  .hero::after {
+    background: linear-gradient(
+      180deg,
+      rgba(25, 92, 84, 0.93) 0%,
+      rgba(31, 111, 101, 0.86) 60%,
+      rgba(94, 42, 92, 0.7) 100%
+    );
   }
 }
 

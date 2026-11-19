@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 
 import { EvaluacionService } from '../evaluacion.service';
 import { ResumenEvaluacionResponse } from '../evaluacion.models';
+import { infoNivel } from '../evaluacion.niveles';
 
 @Component({
   selector: 'app-historial',
@@ -89,27 +90,13 @@ export class Historial implements OnInit {
     });
   }
 
+  /** Clase de color del distintivo de nivel (bajo, medio, alto o muy alto). */
   getClaseNivel(nivel: string): string {
-    const valor = nivel
-      ?.trim()
-      .toUpperCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '');
+    return 'nivel-' + infoNivel(nivel).clave;
+  }
 
-    switch (valor) {
-      case 'ALTO':
-      case 'CRITICO':
-        return 'nivel-alto';
-
-      case 'MEDIO':
-      case 'MODERADO':
-        return 'nivel-medio';
-
-      case 'BAJO':
-        return 'nivel-bajo';
-
-      default:
-        return 'nivel-desconocido';
-    }
+  /** Texto amable del nivel: «Muy alto» en lugar de MUY_ALTO. */
+  getEtiquetaNivel(nivel: string): string {
+    return infoNivel(nivel).etiqueta;
   }
 }

@@ -1,163 +1,128 @@
-<section class="resultados-container">
-
-  <header class="encabezado">
-    <span class="etiqueta">MI EVALUACIÓN</span>
-
-    <h1>Resultado de mi evaluación</h1>
-
-    <p>
-      Aquí puedes consultar el resultado de tus respuestas
-      y las señales identificadas.
-    </p>
+<section class="res">
+  <header class="banner aparece">
+    <img src="img/apoyo-manos.jpg" alt="" width="1200" height="800" fetchpriority="high" />
+    <div class="banner__texto">
+      <span class="etiqueta">Mi evaluación</span>
+      <h1>Gracias por tomarte este momento</h1>
+      <p>Esto es lo que encontramos a partir de tus respuestas. No es un diagnóstico, y no estás sola.</p>
+    </div>
   </header>
 
-  <!-- Estado de carga -->
   @if (cargando()) {
-    <div class="estado-carga" role="status">
-      Cargando resultado de tu evaluación...
-    </div>
+    <div class="estado" role="status">Cargando el resultado de tu evaluación…</div>
   }
 
-  <!-- Mensaje de error -->
   @if (error()) {
-    <div class="mensaje-error" role="alert">
-      {{ error() }}
-    </div>
-
-    <a routerLink="/evaluacion" class="boton-secundario">
-      Volver al cuestionario
-    </a>
+    <div class="mensaje-error" role="alert">{{ error() }}</div>
+    <a routerLink="/evaluacion/historial" class="boton boton--suave">Volver al historial</a>
   }
 
-  <!-- Resultado -->
   @if (!cargando() && resultado(); as resultado) {
-
-    <article class="resultado-card">
-
-      <div class="resultado-superior">
-
+    <article class="nivel aparece" style="--i: 1" [attr.data-nivel]="nivel().clave">
+      <div class="nivel__cabecera">
         <div>
-          <span class="subtitulo">Nivel obtenido</span>
-
-          <h2 [ngClass]="claseNivel">
-            {{ nombreNivel }}
-          </h2>
+          <span class="subtitulo">Señales de alerta identificadas</span>
+          <h2>Nivel {{ nivel().etiqueta }}</h2>
         </div>
-
         <div class="puntaje">
           <span>Puntaje</span>
           <strong>{{ resultado.puntaje }}</strong>
         </div>
-
       </div>
 
-      <p class="fecha">
-        Fecha de evaluación:
-        {{ resultado.fecha | date:'dd/MM/yyyy HH:mm' }}
-      </p>
+      <ol class="escala" aria-label="Escala de niveles">
+        @for (paso of escala; track paso.clave; let i = $index) {
+          <li
+            [class.alcanzado]="i <= nivel().posicion"
+            [class.actual]="i === nivel().posicion"
+            [attr.data-paso]="paso.clave"
+            [style.--i]="i"
+            [attr.aria-current]="i === nivel().posicion ? 'step' : null"
+          >
+            <span class="escala__barra"></span>
+            <span class="escala__etiqueta">{{ paso.etiqueta }}</span>
+          </li>
+        }
+      </ol>
 
-      <!-- Alerta crítica -->
-      @if (resultado.alertaCritica) {
-
-        <div class="alerta-critica" role="alert">
-
-          <h3>
-            Se identificó una señal de alerta crítica
-          </h3>
-
-          <p>
-            Es importante buscar orientación y apoyo especializado.
-            Si estás en peligro inmediato, solicita ayuda de emergencia.
-          </p>
-
-        </div>
-
+      @if (nivel().mensaje) {
+        <p class="nivel__mensaje">{{ nivel().mensaje }}</p>
       }
+      <p class="fecha">Evaluación del {{ resultado.fecha | date: 'dd/MM/yyyy HH:mm' }}</p>
 
+      @if (resultado.alertaCritica) {
+        <div class="alerta-critica" role="alert">
+          <app-icono nombre="alerta" [tamano]="26" />
+          <div>
+            <h3>Se identificó una señal de alerta crítica</h3>
+            <p>
+              Es importante buscar orientación y apoyo especializado. Si estás en peligro inmediato, llama al
+              <a href="tel:105">105</a> o a la <a href="tel:100">Línea 100</a>.
+            </p>
+          </div>
+        </div>
+      }
     </article>
 
-    <!-- Señales de alerta -->
-    <section class="seccion-resultados">
+    <div class="columnas">
+      <section class="bloque aparece" style="--i: 2">
+        <h2>Señales que marcaste</h2>
+        @if (resultado.senales.length > 0) {
+          <ul class="chips chips--senal">
+            @for (senal of resultado.senales; track $index) {
+              <li>{{ senal }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="vacio">No marcaste ninguna señal en esta evaluación.</p>
+        }
+      </section>
 
-      <h2>Señales de alerta identificadas</h2>
-
-      @if (resultado.senales.length > 0) {
-
-        <ul class="lista-senales">
-
-          @for (senal of resultado.senales; track $index) {
-            <li>{{ senal }}</li>
-          }
-
-        </ul>
-
-      } @else {
-
-        <p>
-          No se registraron señales en esta evaluación.
-        </p>
-
-      }
-
-    </section>
-
-    <!-- Respuestas por confirmar -->
-    <section class="seccion-resultados">
-
-      <h2>Respuestas por confirmar</h2>
-
-      @if (resultado.porConfirmar.length > 0) {
-
-        <ul class="lista-confirmar">
-
-          @for (respuesta of resultado.porConfirmar; track $index) {
-            <li>{{ respuesta }}</li>
-          }
-
-        </ul>
-
-      } @else {
-
-        <p>
-          No tienes respuestas pendientes de confirmar.
-        </p>
-
-      }
-
-    </section>
-
-    <!-- Nota informativa -->
-    <div class="nota">
-      Esta autoevaluación es orientativa y no sustituye
-      una evaluación profesional ni predice la ocurrencia de violencia.
+      <section class="bloque aparece" style="--i: 3">
+        <h2>Por confirmar</h2>
+        @if (resultado.porConfirmar.length > 0) {
+          <ul class="chips chips--confirmar">
+            @for (respuesta of resultado.porConfirmar; track $index) {
+              <li>{{ respuesta }}</li>
+            }
+          </ul>
+          <p class="vacio">Elegiste «No estoy segura». No suman puntaje; puedes repetir la evaluación cuando lo sepas.</p>
+        } @else {
+          <p class="vacio">No tienes respuestas pendientes de confirmar.</p>
+        }
+      </section>
     </div>
 
-    <!-- Navegación -->
-    <nav class="acciones">
+    <section class="siguientes">
+      <h2>¿Qué puedes hacer ahora?</h2>
+      <div class="siguientes__rejilla">
+        <a class="paso-card eleva aparece" style="--i: 3" href="tel:100">
+          <span class="paso-card__icono"><app-icono nombre="phone" [tamano]="24" /></span>
+          <strong>Hablar con la Línea 100</strong>
+          <span>Orientación gratuita y confidencial para mujeres.</span>
+        </a>
+        <a class="paso-card eleva aparece" style="--i: 4" routerLink="/seguridad">
+          <span class="paso-card__icono"><app-icono nombre="shield" [tamano]="24" /></span>
+          <strong>Armar mi plan de seguridad</strong>
+          <span>Acciones, lugares seguros y personas de confianza.</span>
+        </a>
+        <a class="paso-card eleva aparece" style="--i: 5" routerLink="/asistente">
+          <span class="paso-card__icono"><app-icono nombre="chat" [tamano]="24" /></span>
+          <strong>Conversar con el asistente</strong>
+          <span>Un espacio para preguntar sin presión.</span>
+        </a>
+      </div>
+    </section>
 
-      <a
-        routerLink="/evaluacion/historial"
-        class="boton-secundario">
-        Ver historial
-      </a>
+    <div class="nota">
+      Esta autoevaluación es orientativa y no sustituye una evaluación profesional ni predice la ocurrencia de
+      violencia.
+    </div>
 
-      <a
-        routerLink="/evaluacion"
-        class="boton-principal">
-        Nueva evaluación
-      </a>
-
-      <a routerLink="/ayuda" class="enlace">
-        Ayuda
-      </a>
-
-      <a routerLink="/seguridad" class="enlace">
-        Mi seguridad
-      </a>
-
+    <nav class="acciones" aria-label="Más opciones">
+      <a routerLink="/evaluacion/historial" class="boton boton--suave">Ver historial</a>
+      <a routerLink="/evaluacion" class="boton">Nueva evaluación</a>
+      <a routerLink="/ayuda" class="enlace">Ayuda</a>
     </nav>
-
   }
-
 </section>
-

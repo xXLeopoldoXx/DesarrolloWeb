@@ -1,11 +1,11 @@
 import { Component, input } from '@angular/core';
 
-export type IlustracionNombre = 'apoyo' | 'flor' | 'hojas';
+export type IlustracionNombre = 'flor' | 'hojas';
 
 /**
  * Ilustraciones propias (SVG en línea) de la app: sin imágenes externas, sin peticiones de red.
  * Son decorativas: van ocultas para lectores de pantalla (aria-hidden) salvo que se pase `etiqueta`.
- * Uso: <app-ilustracion nombre="apoyo" />  ·  se adaptan al ancho del contenedor.
+ * Uso: <app-ilustracion nombre="flor" />  ·  se adaptan al ancho del contenedor.
  */
 @Component({
   selector: 'app-ilustracion',

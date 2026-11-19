@@ -1,115 +1,124 @@
-import { Component, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import {
-  FormControl,
-  FormRecord,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
-import { Router } from '@angular/router';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 
+import { Icono } from '../../../shared/icono/icono';
 import { PREGUNTAS } from '../preguntas';
 import { EvaluacionService } from '../evaluacion.service';
-import {
-  Respuesta,
-  RespuestaItem
-} from '../evaluacion.models';
+import { Factor, Respuesta, RespuestaItem } from '../evaluacion.models';
 
+type Fase = 'intro' | 'preguntas' | 'revision';
+
+interface Opcion {
+  valor: Respuesta;
+  texto: string;
+  detalle: string;
+}
+
+/**
+ * Cuestionario paso a paso: una pregunta por pantalla, con avance automático al elegir,
+ * barra de progreso, posibilidad de volver atrás y una revisión final antes de enviar.
+ * El estado vive en signals (la app no usa zone.js).
+ */
 @Component({
   selector: 'app-cuestionario',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule
-  ],
+  imports: [RouterLink, Icono],
   templateUrl: './cuestionario.html',
   styleUrl: './cuestionario.scss'
 })
 export class Cuestionario {
-
   private readonly evaluacionService = inject(EvaluacionService);
   private readonly router = inject(Router);
 
   readonly preguntas = PREGUNTAS;
+  readonly total = PREGUNTAS.length;
 
-  readonly opciones: { valor: Respuesta; texto: string }[] = [
-    { valor: 'SI', texto: 'Sí' },
-    { valor: 'NO', texto: 'No' },
-    { valor: 'NO_SEGURA', texto: 'No estoy segura' }
+  readonly opciones: Opcion[] = [
+    { valor: 'SI', texto: 'Sí', detalle: 'Ha ocurrido o está ocurriendo' },
+    { valor: 'NO', texto: 'No', detalle: 'No ha ocurrido' },
+    { valor: 'NO_SEGURA', texto: 'No estoy segura', detalle: 'Prefiero confirmarlo más adelante' }
   ];
 
-  readonly formulario =
-    new FormRecord<FormControl<Respuesta | null>>({});
+  readonly fase = signal<Fase>('intro');
+  readonly indice = signal(0);
+  readonly direccion = signal<'adelante' | 'atras'>('adelante');
+  readonly respuestas = signal<Partial<Record<Factor, Respuesta>>>({});
 
-  // Signals: la app no usa zone.js, y un campo normal cambiado dentro de un subscribe no repinta la pantalla.
   readonly enviando = signal(false);
   readonly mostrarConfirmacion = signal(false);
   readonly error = signal('');
 
+  readonly pregunta = computed(() => this.preguntas[this.indice()]);
+  /** Respuesta ya elegida para la pregunta que se está viendo (o null). */
+  readonly actual = computed(() => this.respuestas()[this.pregunta().factor] ?? null);
+  readonly contestadas = computed(() => Object.keys(this.respuestas()).length);
+  readonly progreso = computed(() => Math.round((this.contestadas() / this.total) * 100));
+  readonly pendientes = computed(
+    () => Object.values(this.respuestas()).filter(valor => valor === 'NO_SEGURA').length
+  );
+  readonly completa = computed(() => this.contestadas() === this.total);
+
+  private temporizador: ReturnType<typeof setTimeout> | null = null;
+
   constructor() {
-    for (const pregunta of this.preguntas) {
-      this.formulario.addControl(
-        pregunta.factor,
-        new FormControl<Respuesta | null>(null, Validators.required)
-      );
+    inject(DestroyRef).onDestroy(() => this.cancelarAvance());
+  }
+
+  empezar(): void {
+    this.direccion.set('adelante');
+    this.indice.set(0);
+    this.fase.set('preguntas');
+  }
+
+  /** Guarda la respuesta y, tras un instante (para que se vea la selección), pasa a la siguiente. */
+  elegir(valor: Respuesta): void {
+    const factor = this.pregunta().factor;
+    this.respuestas.update(actuales => ({ ...actuales, [factor]: valor }));
+    this.error.set('');
+    this.cancelarAvance();
+    this.temporizador = setTimeout(() => this.siguiente(), 420);
+  }
+
+  siguiente(): void {
+    this.cancelarAvance();
+    this.direccion.set('adelante');
+    if (this.indice() < this.total - 1) {
+      this.indice.update(valor => valor + 1);
+    } else {
+      this.fase.set('revision');
     }
   }
 
-  // Obtener las respuestas seleccionadas.
-  get respuestas(): RespuestaItem[] {
-    return this.preguntas.map(pregunta => {
-      const respuesta =
-        this.formulario.controls[pregunta.factor].value;
-
-      if (respuesta === null) {
-        throw new Error(
-          `Falta responder: ${pregunta.factor}`
-        );
-      }
-
-      return {
-        factor: pregunta.factor,
-        respuesta
-      };
-    });
+  atras(): void {
+    this.cancelarAvance();
+    this.direccion.set('atras');
+    if (this.fase() === 'revision') {
+      this.indice.set(this.total - 1);
+      this.fase.set('preguntas');
+    } else if (this.indice() > 0) {
+      this.indice.update(valor => valor - 1);
+    } else {
+      this.fase.set('intro');
+    }
   }
 
-  // Contar las respuestas que necesitan confirmación.
-  get respuestasPendientes(): number {
-    return this.preguntas.filter(
-      pregunta =>
-        this.formulario.controls[pregunta.factor].value ===
-        'NO_SEGURA'
-    ).length;
+  /** Desde la revisión: volver a una pregunta concreta para cambiar la respuesta. */
+  editar(posicion: number): void {
+    this.cancelarAvance();
+    this.direccion.set('atras');
+    this.mostrarConfirmacion.set(false);
+    this.indice.set(posicion);
+    this.fase.set('preguntas');
   }
 
-  // Calcular el porcentaje de avance.
-  get progreso(): number {
-    const contestadas = Object.values(
-      this.formulario.controls
-    ).filter(control => control.value !== null).length;
-
-    return Math.round(
-      (contestadas / this.preguntas.length) * 100
-    );
-  }
-
-  // Validar y enviar el cuestionario.
   enviar(): void {
     this.error.set('');
 
-    if (this.formulario.invalid) {
-      this.formulario.markAllAsTouched();
-
+    if (!this.completa()) {
       this.error.set('Responde todas las preguntas antes de continuar.');
-
       return;
     }
 
-    if (
-      this.respuestasPendientes > 0 &&
-      !this.mostrarConfirmacion()
-    ) {
+    if (this.pendientes() > 0 && !this.mostrarConfirmacion()) {
       this.mostrarConfirmacion.set(true);
       return;
     }
@@ -117,42 +126,52 @@ export class Cuestionario {
     this.crearEvaluacion();
   }
 
-  // Confirmar las respuestas no seguras.
   confirmarRespuestas(): void {
     this.mostrarConfirmacion.set(false);
     this.crearEvaluacion();
   }
 
-  // Regresar a editar las respuestas.
   editarRespuestas(): void {
     this.mostrarConfirmacion.set(false);
   }
 
-  // Enviar la evaluación al backend.
+  textoRespuesta(factor: Factor): string {
+    const valor = this.respuestas()[factor];
+    return this.opciones.find(opcion => opcion.valor === valor)?.texto ?? 'Sin responder';
+  }
+
+  private cancelarAvance(): void {
+    if (this.temporizador !== null) {
+      clearTimeout(this.temporizador);
+      this.temporizador = null;
+    }
+  }
+
+  private lista(): RespuestaItem[] {
+    const actuales = this.respuestas();
+    return this.preguntas.map(pregunta => ({
+      factor: pregunta.factor,
+      respuesta: actuales[pregunta.factor] as Respuesta
+    }));
+  }
+
   private crearEvaluacion(): void {
     this.enviando.set(true);
     this.error.set('');
 
-    this.evaluacionService.crear(this.respuestas).subscribe({
+    this.evaluacionService.crear(this.lista()).subscribe({
       next: resultado => {
         this.enviando.set(false);
-
-        this.router.navigate([
-          '/evaluacion/resultados',
-          resultado.id
-        ]);
+        this.router.navigate(['/evaluacion/resultados', resultado.id]);
       },
-
       error: err => {
         this.enviando.set(false);
-
         this.error.set(
           err?.error?.mensaje ||
-          err?.error?.message ||
-          'No se pudo guardar la evaluación. Inténtalo nuevamente.'
+            err?.error?.message ||
+            'No se pudo guardar la evaluación. Inténtalo nuevamente.'
         );
       }
     });
   }
 }
-

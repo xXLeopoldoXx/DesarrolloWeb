@@ -2,19 +2,23 @@
 
   <header class="encabezado">
     <span class="etiqueta">MI EVALUACIÓN</span>
+
     <h1>Resultado de mi evaluación</h1>
+
     <p>
       Aquí puedes consultar el resultado de tus respuestas
       y las señales identificadas.
     </p>
   </header>
 
+  <!-- Estado de carga -->
   @if (cargando) {
     <div class="estado-carga" role="status">
       Cargando resultado de tu evaluación...
     </div>
   }
 
+  <!-- Mensaje de error -->
   @if (error) {
     <div class="mensaje-error" role="alert">
       {{ error }}
@@ -25,13 +29,16 @@
     </a>
   }
 
+  <!-- Resultado -->
   @if (!cargando && resultado) {
 
     <article class="resultado-card">
 
       <div class="resultado-superior">
+
         <div>
           <span class="subtitulo">Nivel obtenido</span>
+
           <h2 [ngClass]="claseNivel">
             {{ nombreNivel }}
           </h2>
@@ -41,6 +48,7 @@
           <span>Puntaje</span>
           <strong>{{ resultado.puntaje }}</strong>
         </div>
+
       </div>
 
       <p class="fecha">
@@ -48,57 +56,94 @@
         {{ resultado.fecha | date:'dd/MM/yyyy HH:mm' }}
       </p>
 
+      <!-- Alerta crítica -->
       @if (resultado.alertaCritica) {
+
         <div class="alerta-critica" role="alert">
-          <h3>Se identificó una señal de alerta crítica</h3>
+
+          <h3>
+            Se identificó una señal de alerta crítica
+          </h3>
+
           <p>
             Es importante buscar orientación y apoyo especializado.
             Si estás en peligro inmediato, solicita ayuda de emergencia.
           </p>
+
         </div>
+
       }
 
     </article>
 
+    <!-- Señales de alerta -->
     <section class="seccion-resultados">
+
       <h2>Señales de alerta identificadas</h2>
 
-      @if (resultado.senales?.length) {
+      @if (resultado.senales.length > 0) {
+
         <ul class="lista-senales">
+
           @for (senal of resultado.senales; track $index) {
             <li>{{ senal }}</li>
           }
+
         </ul>
+
       } @else {
-        <p>No se registraron señales en esta evaluación.</p>
+
+        <p>
+          No se registraron señales en esta evaluación.
+        </p>
+
       }
+
     </section>
 
+    <!-- Respuestas por confirmar -->
     <section class="seccion-resultados">
+
       <h2>Respuestas por confirmar</h2>
 
-      @if (resultado.porConfirmar?.length) {
+      @if (resultado.porConfirmar.length > 0) {
+
         <ul class="lista-confirmar">
+
           @for (respuesta of resultado.porConfirmar; track $index) {
             <li>{{ respuesta }}</li>
           }
+
         </ul>
+
       } @else {
-        <p>No tienes respuestas pendientes de confirmar.</p>
+
+        <p>
+          No tienes respuestas pendientes de confirmar.
+        </p>
+
       }
+
     </section>
 
+    <!-- Nota informativa -->
     <div class="nota">
       Esta autoevaluación es orientativa y no sustituye
       una evaluación profesional ni predice la ocurrencia de violencia.
     </div>
 
+    <!-- Navegación -->
     <nav class="acciones">
-      <a routerLink="/evaluacion/historial" class="boton-secundario">
+
+      <a
+        routerLink="/evaluacion/historial"
+        class="boton-secundario">
         Ver historial
       </a>
 
-      <a routerLink="/evaluacion" class="boton-principal">
+      <a
+        routerLink="/evaluacion"
+        class="boton-principal">
         Nueva evaluación
       </a>
 
@@ -109,8 +154,10 @@
       <a routerLink="/seguridad" class="enlace">
         Mi seguridad
       </a>
+
     </nav>
 
   }
 
 </section>
+

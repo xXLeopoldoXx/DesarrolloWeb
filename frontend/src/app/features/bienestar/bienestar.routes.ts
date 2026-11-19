@@ -1,6 +1,19 @@
 import { Routes } from '@angular/router';
 
-// Rutas propias del módulo. Agrega aquí las pantallas nuevas (hijas de '').
 export const BIENESTAR_ROUTES: Routes = [
-  { path: '', loadComponent: () => import('./bienestar').then(m => m.Bienestar) }
+  {
+    path: '',
+    loadComponent: () => import('./bienestar').then(m => m.Bienestar),
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'diario' },
+      {
+        path: 'diario',
+        loadComponent: () => import('./diario/diario').then(m => m.Diario)
+      },
+      {
+        path: 'recursos',
+        loadComponent: () => import('./recursos/recursos').then(m => m.Recursos)
+      }
+    ]
+  }
 ];

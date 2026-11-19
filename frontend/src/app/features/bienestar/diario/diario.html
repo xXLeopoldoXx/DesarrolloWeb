@@ -1,0 +1,201 @@
+<div class="diario-contenedor">
+  <div class="diario-cabecera">
+    <div>
+      <h2>Mi diario personal privado</h2>
+      <p class="diario-subtitulo">
+        Tus pensamientos son solo tuyos. Solo tú puedes ver, editar o eliminar lo que registres aquí.
+      </p>
+    </div>
+
+    @if (!mostrarFormulario()) {
+      <button type="button" class="boton" (click)="nuevaEntrada()">
+        <app-icono nombre="heart" [tamano]="18" />
+        <span>Escribir en mi diario</span>
+      </button>
+    }
+  </div>
+
+  @if (mensajeExito()) {
+    <div class="alerta alerta--info" role="status">
+      <app-icono nombre="check" [tamano]="18" />
+      <span>{{ mensajeExito() }}</span>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="alerta alerta--error" role="alert">
+      <app-icono nombre="alerta" [tamano]="18" />
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Formulario para Crear / Editar Entrada -->
+  @if (mostrarFormulario()) {
+    <section class="tarjeta formulario-entrada" aria-labelledby="form-titulo">
+      <h3 id="form-titulo">{{ editandoId() ? 'Editar entrada' : 'Nueva entrada privada' }}</h3>
+
+      <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+        <div class="campo">
+          <label for="titulo">Título o tema de hoy</label>
+          <input
+            id="titulo"
+            type="text"
+            formControlName="titulo"
+            placeholder="Ej. Una pequeña victoria, Algo que me dio paz..."
+            maxlength="150"
+          />
+          @if (formulario.controls.titulo.touched && formulario.controls.titulo.invalid) {
+            <span class="error">El título es obligatorio.</span>
+          }
+        </div>
+
+        <div class="campo">
+          <label id="label-animo">¿Cómo te sientes hoy? (Estado de ánimo)</label>
+          <div class="animo-selector" role="group" aria-labelledby="label-animo">
+            @for (opcion of opcionesAnimo; track opcion.valor) {
+              <button
+                type="button"
+                class="animo-boton"
+                [class.animo-boton--seleccionado]="formulario.controls.estadoAnimo.value === opcion.valor"
+                (click)="seleccionarAnimo(opcion.valor)"
+              >
+                <span class="animo-emoji">{{ opcion.emoji }}</span>
+                <span class="animo-texto">{{ opcion.etiqueta }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="emocion">Emoción principal (opcional)</label>
+          <input
+            id="emocion"
+            type="text"
+            formControlName="emocion"
+            placeholder="Ej. Esperanzada, Tranquila, Con dudas..."
+            maxlength="50"
+          />
+          <div class="emociones-chips">
+            <span class="emociones-ayuda">Sugerencias:</span>
+            @for (sug of emocionesSugeridas; track sug) {
+              <button
+                type="button"
+                class="chip-boton"
+                [class.chip-boton--activo]="formulario.controls.emocion.value === sug"
+                (click)="seleccionarEmocion(sug)"
+              >
+                {{ sug }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="contenido">Tus reflexiones y desahogo</label>
+          <textarea
+            id="contenido"
+            rows="6"
+            formControlName="contenido"
+            placeholder="Escribe lo que sientes, lo que te preocupa o lo que te dio fuerza hoy..."
+            maxlength="2000"
+          ></textarea>
+          @if (formulario.controls.contenido.touched && formulario.controls.contenido.invalid) {
+            <span class="error">El contenido es obligatorio.</span>
+          }
+        </div>
+
+        <div class="formulario-acciones">
+          <button type="button" class="boton boton--suave" (click)="cancelarFormulario()" [disabled]="guardando()">
+            Cancelar
+          </button>
+          <button type="submit" class="boton" [disabled]="guardando()">
+            <app-icono nombre="check" [tamano]="18" />
+            <span>{{ guardando() ? 'Guardando...' : (editandoId() ? 'Actualizar entrada' : 'Guardar entrada') }}</span>
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  <!-- Modal / Confirmación de Eliminación -->
+  @if (idConfirmandoEliminar(); as idParaEliminar) {
+    <div class="confirmacion-fondo" role="dialog" aria-modal="true" aria-labelledby="confirmar-titulo">
+      <div class="tarjeta confirmacion-caja">
+        <h3 id="confirmar-titulo">¿Eliminar esta entrada?</h3>
+        <p>Esta acción no se puede deshacer. Tu entrada se borrará permanentemente de tu diario.</p>
+        <div class="confirmacion-acciones">
+          <button type="button" class="boton boton--suave" (click)="cancelarEliminar()">
+            Conservar entrada
+          </button>
+          <button type="button" class="boton boton--peligro" (click)="confirmarEliminar(idParaEliminar)">
+            Sí, eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Listado de Entradas -->
+  @if (cargando() && entradas().length === 0) {
+    <div class="estado-vacio">
+      <p>Cargando tu diario privado...</p>
+    </div>
+  } @else if (entradas().length === 0) {
+    <div class="tarjeta estado-vacio">
+      <span class="vacio-icono"><app-icono nombre="heart" [tamano]="36" /></span>
+      <h3>Tu diario está listo para ti</h3>
+      <p>
+        Aún no has escrito ninguna entrada. Este espacio es 100% privado y seguro; anota tus pensamientos,
+        emociones o vivencias a tu propio ritmo.
+      </p>
+      @if (!mostrarFormulario()) {
+        <button type="button" class="boton" (click)="nuevaEntrada()">
+          <app-icono nombre="heart" [tamano]="18" />
+          <span>Escribir mi primera entrada</span>
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="entradas-lista">
+      @for (entrada of entradas(); track entrada.id) {
+        <article class="tarjeta entrada-item">
+          <header class="entrada-item__cabecera">
+            <div class="entrada-item__meta">
+              <span class="badge-animo badge-animo--{{ entrada.estadoAnimo }}">
+                {{ obtenerEtiquetaAnimo(entrada.estadoAnimo) }}
+              </span>
+              @if (entrada.emocion) {
+                <span class="badge-emocion">{{ entrada.emocion }}</span>
+              }
+              <time class="entrada-item__fecha" [attr.datetime]="entrada.fecha">
+                {{ entrada.fecha | date:'mediumDate' }} · {{ entrada.fecha | date:'shortTime' }}
+              </time>
+            </div>
+
+            <div class="entrada-item__acciones">
+              <button
+                type="button"
+                class="accion-boton"
+                (click)="editarEntrada(entrada)"
+                title="Editar esta entrada"
+              >
+                Editar
+              </button>
+              <button
+                type="button"
+                class="accion-boton accion-boton--peligro"
+                (click)="solicitarEliminar(entrada.id)"
+                title="Eliminar esta entrada"
+              >
+                Eliminar
+              </button>
+            </div>
+          </header>
+
+          <h3 class="entrada-item__titulo">{{ entrada.titulo }}</h3>
+          <p class="entrada-item__texto">{{ entrada.contenido }}</p>
+        </article>
+      }
+    </div>
+  }
+</div>

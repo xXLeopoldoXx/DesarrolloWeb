@@ -1,17 +1,12 @@
 import { Component } from '@angular/core';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
-import { PaginaPendiente } from '../../shared/pagina-pendiente/pagina-pendiente';
+import { Icono } from '../../shared/icono/icono';
 
-// TODO(Natty): reemplazar esta página por la real de "Bienestar".
 @Component({
   selector: 'app-bienestar',
-  imports: [PaginaPendiente],
-  template: `
-    <app-pagina-pendiente
-      titulo="Bienestar"
-      descripcion="Diario personal privado y recursos de autocuidado."
-      responsable="Natty"
-      icono="heart" />
-  `
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Icono],
+  templateUrl: './bienestar.html',
+  styleUrl: './bienestar.scss'
 })
 export class Bienestar {}

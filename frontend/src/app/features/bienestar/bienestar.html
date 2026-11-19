@@ -1,0 +1,38 @@
+<div class="bienestar-modulo">
+  <header class="bienestar-banner">
+    <div class="bienestar-banner__icono">
+      <app-icono nombre="heart" [tamano]="28" />
+    </div>
+    <div class="bienestar-banner__info">
+      <h1>Bienestar y Autocuidado</h1>
+      <p>
+        Tu espacio personal para registrar tus emociones, desahogarte en privado y explorar recursos que fortalezcan tu
+        paz y seguridad.
+      </p>
+    </div>
+  </header>
+
+  <nav class="bienestar-pestanas" aria-label="Secciones de bienestar">
+    <a
+      routerLink="diario"
+      routerLinkActive="pestana--activa"
+      class="pestana"
+    >
+      <app-icono nombre="heart" [tamano]="18" />
+      <span>Mi diario privado</span>
+    </a>
+
+    <a
+      routerLink="recursos"
+      routerLinkActive="pestana--activa"
+      class="pestana"
+    >
+      <app-icono nombre="clipboard" [tamano]="18" />
+      <span>Recursos de autocuidado</span>
+    </a>
+  </nav>
+
+  <main class="bienestar-contenido">
+    <router-outlet />
+  </main>
+</div>

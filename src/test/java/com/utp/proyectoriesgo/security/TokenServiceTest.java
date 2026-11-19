@@ -30,15 +30,17 @@ class TokenServiceTest {
             .macAlgorithm(MacAlgorithm.HS256).build();
 
     @Test
-    void tokenContieneUsuarioYRolFirmados() {
+    void tokenContieneUsuarioIdentidadInmutableYRolFirmados() {
         TokenService service = new TokenService(encoder, "riesgo-api", 30);
-        var auth = UsernamePasswordAuthenticationToken.authenticated(
-                "admin", null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+        var autoridades = List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        var principal = new UsuariaAutenticada(7L, "admin", "hash-de-prueba", true, autoridades);
+        var auth = UsernamePasswordAuthenticationToken.authenticated(principal, null, autoridades);
 
         String token = service.crearToken(auth);
         Jwt decoded = decoder.decode(token);
 
         assertEquals("admin", decoded.getSubject());
+        assertEquals("7", decoded.getClaimAsString("uid"));
         assertEquals("riesgo-api", decoded.getClaimAsString("iss"));
         assertTrue(decoded.getClaimAsStringList("roles").contains("ROLE_ADMIN"));
         assertNotNull(decoded.getExpiresAt());

@@ -5,17 +5,19 @@
 */
 :root {
   // Marca
+  --teal-800: #195c54;
   --teal-700: #1f6f65;
-  --teal-600: #2f8f83;
+  --teal-600: #26786e;
   --teal-500: #3fa496;
   --teal-100: #d9f1ec;
   --teal-50: #eef9f7;
 
   // Apoyo
-  --lila-600: #7a63b8;
+  --lila-600: #7058a9;
   --lila-100: #e9e3f7;
   --lila-50: #f5f2fb;
-  --coral-600: #d9594c;
+  --coral-700: #9b2f25;
+  --coral-600: #b84337;
   --coral-500: #ef7f72;
   --coral-100: #fde3df;
   --coral-50: #fff1ef;
@@ -26,6 +28,7 @@
   --fondo: #f6faf9;
   --superficie: #ffffff;
   --borde: #dbe7e4;
+  --borde-campo: #7c938e;
   --texto: #25364a;
   --texto-suave: #5b6b7d;
   --texto-inverso: #ffffff;
@@ -36,6 +39,7 @@
   --radio-l: 24px;
   --sombra: 0 8px 24px rgba(31, 79, 100, 0.08);
   --sombra-fuerte: 0 14px 34px rgba(31, 79, 100, 0.16);
+  --alto-control: 2.75rem;
 
   --fuente: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
 }
@@ -48,6 +52,7 @@
 
 html {
   color-scheme: light;
+  scroll-padding-block-start: 5rem;
 }
 
 body {
@@ -64,6 +69,14 @@ h2,
 h3 {
   line-height: 1.2;
   margin: 0 0 0.5rem;
+}
+
+h1 {
+  font-size: clamp(1.65rem, 1.45rem + 1vw, 2.25rem);
+}
+
+h2 {
+  font-size: clamp(1.2rem, 1.1rem + 0.45vw, 1.55rem);
 }
 
 p {
@@ -83,8 +96,9 @@ textarea {
 
 // Foco visible para quienes navegan con teclado
 :focus-visible {
-  outline: 3px solid var(--lila-600);
+  outline: 2px solid var(--lila-600);
   outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--superficie);
 }
 
 // ---------- Utilidades compartidas por todos los módulos ----------
@@ -94,7 +108,7 @@ textarea {
   border: 1px solid var(--borde);
   border-radius: var(--radio-m);
   box-shadow: var(--sombra);
-  padding: 1.25rem;
+  padding: clamp(1rem, 2.5vw, 1.25rem);
 }
 
 .boton {
@@ -102,12 +116,14 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-block-size: var(--alto-control);
   padding: 0.7rem 1.2rem;
   border: 0;
   border-radius: var(--radio-s);
   background: var(--teal-600);
   color: var(--texto-inverso);
   font-weight: 700;
+  text-align: center;
   text-decoration: none;
   cursor: pointer;
   transition: background 0.15s ease, transform 0.15s ease;
@@ -139,7 +155,7 @@ textarea {
     background: var(--coral-600);
 
     &:hover:not(:disabled) {
-      background: #b94539;
+      background: var(--coral-700);
     }
   }
 }
@@ -154,12 +170,12 @@ textarea {
     font-weight: 600;
   }
 
-  input,
+  input:not([type='checkbox'], [type='radio']),
   select,
   textarea {
     width: 100%;
     padding: 0.75rem 0.9rem;
-    border: 1px solid #b8c9c5;
+    border: 1px solid var(--borde-campo);
     border-radius: var(--radio-s);
     background: #fff;
     color: var(--texto);
@@ -177,7 +193,7 @@ textarea {
   }
 
   .error {
-    color: var(--coral-600);
+    color: var(--coral-700);
     font-size: 0.875rem;
   }
 }
@@ -186,11 +202,12 @@ textarea {
   padding: 0.8rem 1rem;
   border-radius: var(--radio-s);
   margin-bottom: 1rem;
+  overflow-wrap: anywhere;
 
   &--error {
     background: var(--coral-50);
     border: 1px solid var(--coral-100);
-    color: #9b2f25;
+    color: var(--coral-700);
   }
 
   &--info {

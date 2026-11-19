@@ -1,0 +1,117 @@
+<header class="cabecera-pagina">
+  <a class="volver" routerLink="/seguridad">Volver a Mi seguridad</a>
+  <h1>Plan de seguridad</h1>
+  <p>Anota acciones que quieras preparar y referencias de lugares donde puedas pedir apoyo.</p>
+</header>
+
+<div class="secciones">
+  <section class="tarjeta" aria-labelledby="titulo-acciones">
+    <h2 id="titulo-acciones">Acciones del plan</h2>
+    <form [formGroup]="accionForm" (ngSubmit)="crearAccion()" autocomplete="off" spellcheck="false">
+      <div class="campo">
+        <label for="texto-accion">Nueva acción</label>
+        <input id="texto-accion" formControlName="texto" maxlength="240" required
+          [attr.readonly]="ocupadasAcciones() ? '' : null"
+          [attr.aria-invalid]="accionForm.controls.texto.touched && accionForm.controls.texto.invalid"
+          [attr.aria-describedby]="accionForm.controls.texto.touched && accionForm.controls.texto.invalid ? 'error-texto' : null" />
+        @if (accionForm.controls.texto.touched && accionForm.controls.texto.invalid) {
+          <span class="error" id="error-texto" role="alert">Escribe una acción de hasta 240 caracteres.</span>
+        }
+      </div>
+      <button type="submit" class="boton"
+        [disabled]="cargandoAcciones() || !!errorCargaAcciones() || ocupadasAcciones()">
+        Agregar acción
+      </button>
+    </form>
+    @if (errorAccion()) {
+      <p class="alerta alerta--error" role="alert">{{ errorAccion() }}</p>
+    }
+    @if (ocupadasAcciones()) {
+      <p class="solo-lectores" role="status">Guardando cambio en las acciones.</p>
+    }
+    @if (cargandoAcciones()) {
+      <p class="vacio" role="status">Cargando acciones…</p>
+    } @else if (errorCargaAcciones()) {
+      <p class="alerta alerta--error" role="alert">{{ errorCargaAcciones() }}</p>
+      <button type="button" class="boton boton--suave" (click)="cargarAcciones()">Reintentar acciones</button>
+    } @else if (acciones().length === 0) {
+      <p class="vacio">Aún no tienes acciones en tu plan.</p>
+    } @else {
+      <ul class="lista-privada">
+        @for (accion of acciones(); track accion.id) {
+          <li class="fila">
+            <label class="check">
+              <input #casilla type="checkbox" [checked]="accion.completada" [disabled]="ocupadasAcciones()"
+                (change)="marcarAccion(accion, casilla)" />
+              <span>{{ accion.texto }}</span>
+            </label>
+            <button type="button" class="boton boton--suave" [disabled]="ocupadasAcciones()"
+              [attr.aria-label]="'Eliminar acción ' + accion.texto" (click)="eliminarAccion(accion.id)">
+              Eliminar
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="tarjeta" aria-labelledby="titulo-lugares">
+    <h2 id="titulo-lugares">Lugares seguros</h2>
+    <form [formGroup]="lugarForm" (ngSubmit)="crearLugar()" autocomplete="off" spellcheck="false">
+      <div class="campo">
+        <label for="nombre-lugar">Nombre del lugar</label>
+        <input id="nombre-lugar" formControlName="nombre" maxlength="100" required
+          [attr.readonly]="ocupadosLugares() ? '' : null"
+          [attr.aria-invalid]="lugarForm.controls.nombre.touched && lugarForm.controls.nombre.invalid"
+          [attr.aria-describedby]="lugarForm.controls.nombre.touched && lugarForm.controls.nombre.invalid ? 'error-nombre-lugar' : null" />
+        @if (lugarForm.controls.nombre.touched && lugarForm.controls.nombre.invalid) {
+          <span class="error" id="error-nombre-lugar" role="alert">Escribe un nombre de hasta 100 caracteres.</span>
+        }
+      </div>
+      <div class="campo">
+        <label for="referencia-lugar">Referencia (opcional)</label>
+        <input id="referencia-lugar" formControlName="referencia" maxlength="250"
+          [attr.readonly]="ocupadosLugares() ? '' : null" />
+      </div>
+      <div class="campo">
+        <label for="nota-lugar">Nota (opcional)</label>
+        <textarea id="nota-lugar" formControlName="nota" maxlength="500" rows="2"
+          [attr.readonly]="ocupadosLugares() ? '' : null"></textarea>
+      </div>
+      <button type="submit" class="boton"
+        [disabled]="cargandoLugares() || !!errorCargaLugares() || ocupadosLugares()">
+        Guardar lugar
+      </button>
+    </form>
+    @if (errorLugar()) {
+      <p class="alerta alerta--error" role="alert">{{ errorLugar() }}</p>
+    }
+    @if (ocupadosLugares()) {
+      <p class="solo-lectores" role="status">Guardando cambio en los lugares.</p>
+    }
+    @if (cargandoLugares()) {
+      <p class="vacio" role="status">Cargando lugares…</p>
+    } @else if (errorCargaLugares()) {
+      <p class="alerta alerta--error" role="alert">{{ errorCargaLugares() }}</p>
+      <button type="button" class="boton boton--suave" (click)="cargarLugares()">Reintentar lugares</button>
+    } @else if (lugares().length === 0) {
+      <p class="vacio">Aún no tienes lugares guardados.</p>
+    } @else {
+      <ul class="lista-privada">
+        @for (lugar of lugares(); track lugar.id) {
+          <li class="fila">
+            <div>
+              <strong>{{ lugar.nombre }}</strong>
+              @if (lugar.referencia) { <p>{{ lugar.referencia }}</p> }
+              @if (lugar.nota) { <p>{{ lugar.nota }}</p> }
+            </div>
+            <button type="button" class="boton boton--suave" [disabled]="ocupadosLugares()"
+              [attr.aria-label]="'Eliminar lugar ' + lugar.nombre" (click)="eliminarLugar(lugar.id)">
+              Eliminar
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>

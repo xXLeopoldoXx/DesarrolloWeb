@@ -23,6 +23,7 @@ import { Icono } from '../icono/icono';
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
+      min-block-size: var(--alto-control);
       padding: 0.5rem 0.9rem;
       border: 0;
       border-radius: 999px;
@@ -30,12 +31,13 @@ import { Icono } from '../icono/icono';
       color: #fff;
       font-weight: 700;
       font-size: 0.9rem;
+      white-space: nowrap;
       cursor: pointer;
       box-shadow: 0 4px 14px rgba(217, 89, 76, 0.35);
     }
 
     .salida:hover {
-      background: #b94539;
+      background: var(--coral-700);
     }
   `
 })

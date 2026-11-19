@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import {
   FormControl,
   FormRecord,
-  ReactiveFormsModule
+  ReactiveFormsModule,
+  Validators
 } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -48,7 +49,7 @@ export class Cuestionario {
     for (const pregunta of this.preguntas) {
       this.formulario.addControl(
         pregunta.factor,
-        new FormControl<Respuesta | null>(null)
+        new FormControl<Respuesta | null>(null, Validators.required)
       );
     }
   }

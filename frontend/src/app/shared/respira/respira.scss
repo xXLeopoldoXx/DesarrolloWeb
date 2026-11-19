@@ -1,0 +1,145 @@
+@keyframes crecer {
+  0%,
+  100% {
+    transform: scale(0.6);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+@keyframes palabra-inhala {
+  0%,
+  4% {
+    opacity: 0;
+  }
+  10%,
+  36% {
+    opacity: 1;
+  }
+  44%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes palabra-exhala {
+  0%,
+  44% {
+    opacity: 0;
+  }
+  52%,
+  92% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+:host {
+  display: block;
+}
+
+.respira {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1.5rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border-radius: var(--radio-l);
+  background: linear-gradient(135deg, var(--ciruela-50), var(--teal-50));
+  border: 1px solid var(--ciruela-100);
+  box-shadow: var(--sombra);
+
+  h2 {
+    margin-bottom: 0.35rem;
+    color: var(--ciruela-700);
+  }
+
+  p {
+    max-width: 52ch;
+    color: var(--texto-suave);
+  }
+}
+
+.respira__aro {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(150px, 22vw, 190px);
+  aspect-ratio: 1;
+}
+
+.respira__onda,
+.respira__circulo {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.respira__onda {
+  border: 2px dashed var(--ciruela-500);
+  opacity: 0.35;
+}
+
+.respira__circulo {
+  background: radial-gradient(circle at 35% 30%, #fff, var(--teal-100) 45%, var(--ciruela-100));
+  box-shadow: 0 10px 28px rgba(122, 58, 119, 0.22);
+  transform: scale(0.8);
+  animation: crecer 10s ease-in-out infinite;
+}
+
+.respira__guia {
+  position: relative;
+  display: grid;
+  place-items: center;
+  font-family: var(--fuente-titulo);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ciruela-700);
+}
+
+.respira__palabra {
+  grid-area: 1 / 1;
+  opacity: 0;
+
+  &--inhala {
+    animation: palabra-inhala 10s ease-in-out infinite;
+  }
+
+  &--exhala {
+    animation: palabra-exhala 10s ease-in-out infinite;
+  }
+}
+
+// Pausada por la usuaria: el círculo queda quieto a medias y se lee la guía fija.
+.respira--pausada {
+  .respira__circulo,
+  .respira__palabra {
+    animation-play-state: paused;
+  }
+}
+
+// Con «reducir movimiento» no hay animación: se muestran las dos indicaciones fijas.
+@media (prefers-reduced-motion: reduce) {
+  .respira__guia {
+    gap: 0.1rem;
+  }
+
+  .respira__palabra {
+    grid-area: auto;
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .respira {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .respira__aro {
+    justify-self: center;
+  }
+}

@@ -3,6 +3,8 @@
   Cualquier componente puede usarlos: color: var(--texto);
   Responsable del diseño visual: Anheli (ajustar valores aquí cambia toda la app).
 */
+@use 'apoyo';
+
 :root {
   // Marca
   --teal-800: #195c54;
@@ -59,7 +61,12 @@ body {
   margin: 0;
   font-family: var(--fuente);
   color: var(--texto);
-  background: var(--fondo);
+  // Luz suave y estática (no distrae): un velo ciruela arriba y uno verde-agua abajo
+  background:
+    radial-gradient(900px 480px at 100% -10%, var(--ciruela-50), transparent 60%),
+    radial-gradient(800px 460px at -10% 110%, var(--teal-50), transparent 55%),
+    var(--fondo);
+  background-attachment: fixed;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -109,6 +116,7 @@ textarea {
   border-radius: var(--radio-m);
   box-shadow: var(--sombra);
   padding: clamp(1rem, 2.5vw, 1.25rem);
+  border-radius: var(--radio-l);
 }
 
 .boton {
@@ -117,9 +125,9 @@ textarea {
   justify-content: center;
   gap: 0.5rem;
   min-block-size: var(--alto-control);
-  padding: 0.7rem 1.2rem;
+  padding: 0.7rem 1.4rem;
   border: 0;
-  border-radius: var(--radio-s);
+  border-radius: 999px;
   background: var(--teal-600);
   color: var(--texto-inverso);
   font-weight: 700;

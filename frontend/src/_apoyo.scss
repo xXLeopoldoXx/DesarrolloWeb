@@ -1,0 +1,118 @@
+/*
+  Capa visual de "apoyo": paleta cálida, titulares con serifa, animaciones suaves y utilidades.
+  Se carga desde styles.scss. Las animaciones son lentas y discretas a propósito (la app la usan
+  mujeres en situaciones difíciles): nada parpadea ni se mueve rápido, y con «reducir movimiento»
+  activado en el sistema se apagan todas (ver el bloque prefers-reduced-motion de styles.scss).
+*/
+
+:root {
+  // Ciruela: acento cálido (inspirado en el morado de Feminist.com)
+  --ciruela-700: #5e2a5c;
+  --ciruela-600: #7a3a77;
+  --ciruela-500: #9b4f96;
+  --ciruela-100: #f2e3f1;
+  --ciruela-50: #faf3fa;
+
+  // Durazno y sol: calidez
+  --durazno-50: #fff6ee;
+  --durazno-100: #ffeadb;
+  --durazno-300: #ffc8a6;
+  --sol-200: #ffe3b0;
+
+  --fuente-titulo: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+  --radio-organico: 28px 14px 28px 14px;
+}
+
+// Titulares con serifa: tono más humano y cercano
+h1,
+h2 {
+  font-family: var(--fuente-titulo);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+// ---------- Animaciones ----------
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes flotar {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes mecer {
+  0%,
+  100% {
+    transform: rotate(-2.5deg);
+  }
+  50% {
+    transform: rotate(2.5deg);
+  }
+}
+
+@keyframes respirar-aro {
+  0%,
+  100% {
+    transform: scale(0.62);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+// Aro suave que invita a abrir el asistente (cada 6 s, muy discreto)
+@keyframes latido {
+  0%,
+  60%,
+  100% {
+    box-shadow: var(--sombra-fuerte), 0 0 0 0 rgba(122, 58, 119, 0);
+  }
+  72% {
+    box-shadow: var(--sombra-fuerte), 0 0 0 0 rgba(122, 58, 119, 0.32);
+  }
+  95% {
+    box-shadow: var(--sombra-fuerte), 0 0 0 16px rgba(122, 58, 119, 0);
+  }
+}
+
+@keyframes halo {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.04);
+  }
+}
+
+// Entrada escalonada: <div class="aparece" style="--i: 2">
+.aparece {
+  animation: aparecer 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+
+// Elevación suave al pasar el cursor o enfocar
+.eleva {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-4px);
+    box-shadow: var(--sombra-fuerte);
+  }
+}

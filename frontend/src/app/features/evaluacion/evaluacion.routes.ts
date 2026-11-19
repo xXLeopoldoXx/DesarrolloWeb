@@ -1,6 +1,22 @@
 import { Routes } from '@angular/router';
 
-// Rutas propias del módulo. Agrega aquí las pantallas nuevas (hijas de '').
 export const EVALUACION_ROUTES: Routes = [
-  { path: '', loadComponent: () => import('./evaluacion').then(m => m.Evaluacion) }
+  {
+    path: '',
+    loadComponent: () =>
+      import('./cuestionario/cuestionario')
+        .then(m => m.Cuestionario)
+  },
+  {
+    path: 'historial',
+    loadComponent: () =>
+      import('./historial/historial')
+        .then(m => m.Historial)
+  },
+  {
+    path: 'resultados/:id',
+    loadComponent: () =>
+      import('./resultados/resultados')
+        .then(m => m.Resultados)
+  }
 ];

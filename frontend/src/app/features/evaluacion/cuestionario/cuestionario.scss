@@ -1,0 +1,199 @@
+
+:host {
+  display: block;
+}
+
+.evaluacion-container {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 32px 20px;
+  color: #263238;
+}
+
+.encabezado {
+  margin-bottom: 28px;
+
+  h1 {
+    font-size: 30px;
+    margin: 12px 0;
+  }
+
+  p {
+    color: #667085;
+    line-height: 1.6;
+  }
+}
+
+.etiqueta,
+.numero {
+  color: #8754a3;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.progreso {
+  margin-bottom: 25px;
+}
+
+.progreso-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.barra {
+  height: 9px;
+  background: #eee8f1;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.barra-valor {
+  height: 100%;
+  background: #8754a3;
+  transition: width 0.3s ease;
+}
+
+.pregunta-card {
+  padding: 25px;
+  margin-bottom: 18px;
+  border: 1px solid #e8e3eb;
+  border-radius: 14px;
+  background: white;
+
+  h2 {
+    font-size: 19px;
+    line-height: 1.5;
+    margin: 12px 0;
+  }
+}
+
+.ayuda {
+  color: #667085;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.opciones {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.opcion {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px;
+  border: 1px solid #ddd6e2;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+
+  input {
+    accent-color: #8754a3;
+  }
+
+  &:hover,
+  &.seleccionada {
+    border-color: #8754a3;
+    background: #f7f1fa;
+  }
+}
+
+.boton-principal,
+.boton-secundario {
+  padding: 13px 22px;
+  border-radius: 9px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.boton-principal {
+  background: #8754a3;
+  color: white;
+  border: none;
+
+  &:hover {
+    background: #70418a;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.boton-secundario {
+  background: white;
+  border: 1px solid #8754a3;
+  color: #70418a;
+}
+
+.boton-enviar {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.confirmacion {
+  padding: 22px;
+  margin: 20px 0;
+  border: 1px solid #d9a441;
+  border-radius: 12px;
+  background: #fffaf0;
+
+  h2 {
+    font-size: 20px;
+  }
+
+  p {
+    line-height: 1.6;
+  }
+}
+
+.acciones-confirmacion {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.mensaje-error,
+.error-campo {
+  color: #b42318;
+}
+
+.mensaje-error {
+  padding: 14px;
+  background: #fff1f0;
+  border-radius: 8px;
+  margin: 15px 0;
+}
+
+.nota {
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 25px;
+}
+
+@media (max-width: 600px) {
+  .opciones {
+    grid-template-columns: 1fr;
+  }
+
+  .encabezado h1 {
+    font-size: 25px;
+  }
+
+  .pregunta-card {
+    padding: 18px;
+  }
+
+  .acciones-confirmacion {
+    flex-direction: column;
+  }
+}

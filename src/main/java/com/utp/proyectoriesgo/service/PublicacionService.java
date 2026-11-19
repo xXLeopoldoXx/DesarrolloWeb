@@ -53,4 +53,26 @@ public class PublicacionService {
 
         return publicacionRepository.save(publicacion);
     }
+
+
+    // Ocultar una publicación desde moderación
+    @Transactional
+    public void ocultarPublicacion(Long publicacionId) {
+
+        Publicacion publicacion = publicacionRepository
+                .findById(publicacionId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "La publicación no existe"));
+
+        if (publicacion.isOculta()) {
+            throw new IllegalArgumentException(
+                    "La publicación ya está oculta");
+        }
+
+        publicacion.setOculta(true);
+
+        publicacionRepository.save(publicacion);
+    }
+
 }

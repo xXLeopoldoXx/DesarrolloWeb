@@ -91,6 +91,75 @@ import {
             {{ publicacion.texto }}
           </p>
 
+          
+<!-- SECCIÓN PARA REPORTAR PUBLICACIONES -->
+<div class="reportes">
+
+  <button
+    type="button"
+    class="boton-reportar"
+    (click)="formularioReporteAbierto[publicacion.id] =
+      !formularioReporteAbierto[publicacion.id]">
+
+    {{ formularioReporteAbierto[publicacion.id]
+      ? 'Cancelar reporte'
+      : 'Reportar publicación' }}
+
+  </button>
+
+  <div
+    *ngIf="formularioReporteAbierto[publicacion.id]"
+    class="formulario-reporte">
+
+    <p>¿Por qué deseas reportar esta publicación?</p>
+
+    <textarea
+      [ngModel]="motivosReportes[publicacion.id] || ''"
+      (ngModelChange)="motivosReportes[publicacion.id] = $event"
+      maxlength="300"
+      rows="3"
+      placeholder="Describe el motivo del reporte...">
+    </textarea>
+
+    <div class="acciones">
+      <span>
+        {{ (motivosReportes[publicacion.id] || '').length }}/300
+      </span>
+
+      <button
+        type="button"
+        [disabled]="
+          !(motivosReportes[publicacion.id] || '').trim() ||
+          enviandoReportes[publicacion.id]
+        "
+        (click)="reportarPublicacion(publicacion.id)">
+
+        {{ enviandoReportes[publicacion.id]
+          ? 'Enviando...'
+          : 'Enviar reporte' }}
+
+      </button>
+    </div>
+
+  </div>
+
+  <p
+    *ngIf="erroresReportes[publicacion.id]"
+    class="mensaje-error"
+    role="alert">
+    {{ erroresReportes[publicacion.id] }}
+  </p>
+
+  <p
+    *ngIf="mensajesReportes[publicacion.id]"
+    class="mensaje"
+    role="status">
+    {{ mensajesReportes[publicacion.id] }}
+  </p>
+
+</div>
+
+
           <!-- SECCIÓN DE COMENTARIOS -->
           <div class="comentarios">
 
@@ -340,6 +409,20 @@ export class Comunidad implements OnInit {
   publicandoComentarios: Record<number, boolean> = {};
   erroresComentarios: Record<number, string> = {};
 
+
+  // REPORTES DE PUBLICACIONES
+
+  formularioReporteAbierto: Record<number, boolean> = {};
+
+  motivosReportes: Record<number, string> = {};
+
+  enviandoReportes: Record<number, boolean> = {};
+
+  erroresReportes: Record<number, string> = {};
+
+  mensajesReportes: Record<number, string> = {};
+
+
   cargando = false;
   publicando = false;
   error = '';
@@ -465,6 +548,56 @@ publicarComentario(publicacionId: number): void {
           'No se pudo guardar el comentario.';
 
         this.publicandoComentarios[publicacionId] = false;
+
+        this.cdr.markForCheck();
+      }
+    });
+    
+}
+
+
+reportarPublicacion(publicacionId: number): void {
+
+  const motivo =
+    (this.motivosReportes[publicacionId] || '').trim();
+
+  if (
+    !motivo ||
+    motivo.length > 300 ||
+    this.enviandoReportes[publicacionId]
+  ) {
+    return;
+  }
+
+  this.enviandoReportes[publicacionId] = true;
+  this.erroresReportes[publicacionId] = '';
+  this.mensajesReportes[publicacionId] = '';
+
+  this.cdr.markForCheck();
+
+  this.comunidadService
+    .reportarPublicacion(publicacionId, motivo)
+    .subscribe({
+      next: () => {
+        this.enviandoReportes[publicacionId] = false;
+        this.formularioReporteAbierto[publicacionId] = false;
+        this.motivosReportes[publicacionId] = '';
+
+        this.mensajesReportes[publicacionId] =
+          'Tu reporte fue enviado correctamente. Será revisado por moderación.';
+
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.enviandoReportes[publicacionId] = false;
+
+        if (err.status === 409) {
+          this.erroresReportes[publicacionId] =
+            'Ya reportaste esta publicación anteriormente.';
+        } else {
+          this.erroresReportes[publicacionId] =
+            'No se pudo enviar el reporte. Inténtalo nuevamente.';
+        }
 
         this.cdr.markForCheck();
       }

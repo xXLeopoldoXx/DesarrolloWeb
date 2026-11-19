@@ -1,0 +1,79 @@
+<section class="com">
+  <header class="banner aparece">
+    <img src="img/comunidad-amigas.jpg" alt="" width="1400" height="788" fetchpriority="high" />
+    <div class="banner__texto">
+      <span class="etiqueta">Comunidad</span>
+      <h1>Aquí nos acompañamos</h1>
+      <p>Un espacio para compartir, encontrar apoyo y acompañarnos con respeto. Todo es anónimo: usa tu seudónimo.</p>
+    </div>
+  </header>
+
+  <!-- ===== Compartir ===== -->
+  <div class="compositor tarjeta aparece" style="--i: 1">
+    <div class="compositor__fila">
+      <span class="avatar" [attr.data-tono]="tonoPropio()" aria-hidden="true">{{ inicialPropia() }}</span>
+      <textarea
+        [value]="texto()"
+        (input)="escribir($any($event.target).value)"
+        [attr.maxlength]="maxPublicacion"
+        rows="3"
+        placeholder="¿Qué te gustaría compartir hoy?"
+        aria-label="Escribir una publicación"
+      ></textarea>
+    </div>
+
+    <p class="aviso-privacidad">
+      <strong>Cuida tu privacidad:</strong> no publiques direcciones, teléfonos ni nombres completos.
+    </p>
+
+    @if (errorPublicar()) {
+      <p class="mensaje-error" role="alert">{{ errorPublicar() }}</p>
+    }
+
+    <div class="compositor__pie">
+      <span class="contador" [class.contador--limite]="texto().length >= maxPublicacion">
+        {{ texto().length }}/{{ maxPublicacion }}
+      </span>
+      <button type="button" class="boton" [disabled]="!texto().trim() || publicando()" (click)="publicar()">
+        {{ publicando() ? 'Publicando…' : 'Compartir' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== Muro ===== -->
+  <div class="barra">
+    <h2>Publicaciones</h2>
+    <div class="orden" role="group" aria-label="Ordenar publicaciones">
+      <button type="button" [attr.aria-pressed]="orden() === 'recientes'" (click)="cambiarOrden('recientes')">
+        Recientes
+      </button>
+      <button type="button" [attr.aria-pressed]="orden() === 'acompanadas'" (click)="cambiarOrden('acompanadas')">
+        Más acompañadas
+      </button>
+    </div>
+  </div>
+
+  @if (cargando()) {
+    <p class="estado" role="status">Cargando publicaciones…</p>
+  }
+
+  @if (error()) {
+    <div class="mensaje-error" role="alert">
+      {{ error() }}
+      <button type="button" class="enlace" (click)="cargarPublicaciones()">Reintentar</button>
+    </div>
+  }
+
+  @if (!cargando() && !error() && publicaciones().length === 0) {
+    <div class="vacio tarjeta aparece">
+      <h3>Bienvenida a la comunidad</h3>
+      <p>Aún no hay publicaciones. ¡Comparte la primera y rompe el hielo!</p>
+    </div>
+  }
+
+  <div class="muro">
+    @for (publicacion of visibles(); track publicacion.id; let i = $index) {
+      <app-tarjeta-publicacion class="aparece" [style.--i]="i < 6 ? i : 6" [publicacion]="publicacion" />
+    }
+  </div>
+</section>

@@ -1,0 +1,302 @@
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes subir {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+:host {
+  display: block;
+}
+
+.publicacion {
+  padding: clamp(1rem, 3vw, 1.4rem);
+  overflow-wrap: anywhere;
+}
+
+// ---------- Avatar ----------
+.avatar {
+  --fondo-avatar: var(--teal-100);
+  --texto-avatar: var(--teal-800);
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 50% 40% 50% 40%;
+  background: var(--fondo-avatar);
+  color: var(--texto-avatar);
+  font-family: var(--fuente-titulo);
+  font-weight: 700;
+  font-size: 1.2rem;
+
+  &[data-tono='1'] {
+    --fondo-avatar: var(--ciruela-100);
+    --texto-avatar: var(--ciruela-700);
+  }
+
+  &[data-tono='2'] {
+    --fondo-avatar: var(--durazno-100);
+    --texto-avatar: var(--coral-700);
+  }
+
+  &[data-tono='3'] {
+    --fondo-avatar: var(--lila-100);
+    --texto-avatar: var(--lila-600);
+  }
+
+  &[data-tono='4'] {
+    --fondo-avatar: var(--ambar-100);
+    --texto-avatar: var(--ambar-700);
+  }
+
+  &--chico {
+    width: 2.1rem;
+    height: 2.1rem;
+    font-size: 0.95rem;
+  }
+}
+
+.publicacion__cabecera {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.publicacion__quien {
+  display: grid;
+
+  small {
+    color: var(--texto-suave);
+  }
+}
+
+.insignia {
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: var(--ciruela-100);
+  color: var(--ciruela-700);
+  font-size: 0.72rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+.publicacion__texto {
+  margin: 0.9rem 0 1rem;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+// ---------- Reacciones ----------
+.reacciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.reaccion {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-block-size: var(--alto-control);
+  padding: 0.35rem 0.9rem;
+  border: 1.5px solid var(--borde);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--texto-suave);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: var(--ciruela-500);
+    color: var(--ciruela-700);
+  }
+
+  &--dada {
+    border-color: var(--ciruela-500);
+    background: var(--ciruela-50);
+    color: var(--ciruela-700);
+
+    app-icono {
+      color: var(--ciruela-600);
+    }
+  }
+
+  &--pulso app-icono {
+    animation: pop 0.55s ease;
+  }
+}
+
+.reaccion__cantidad {
+  min-width: 1.4rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: var(--ciruela-100);
+  color: var(--ciruela-700);
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+// ---------- Acciones ----------
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--borde);
+}
+
+.enlace {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-block-size: var(--alto-control);
+  padding: 0.3rem 0.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--teal-700);
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--teal-50);
+  }
+
+  &--suave {
+    color: var(--texto-suave);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  &--chico {
+    min-block-size: 2rem;
+    padding: 0.1rem 0.4rem;
+    font-size: 0.85rem;
+  }
+}
+
+.aviso {
+  margin: 0.6rem 0 0;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--radio-s);
+  font-size: 0.9rem;
+
+  &--error {
+    background: var(--coral-50);
+    color: var(--coral-700);
+  }
+
+  &--ok {
+    background: var(--teal-50);
+    color: var(--teal-800);
+  }
+}
+
+// ---------- Reporte y comentarios ----------
+.reporte,
+.comentarios {
+  margin-top: 0.75rem;
+  animation: subir 0.3s ease both;
+}
+
+.reporte {
+  padding: 0.9rem;
+  border-radius: var(--radio-m);
+  background: var(--coral-50);
+
+  p {
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+  }
+}
+
+textarea {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--borde-campo);
+  border-radius: var(--radio-m);
+  background: #fff;
+  color: var(--texto);
+  resize: vertical;
+}
+
+.fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.6rem;
+}
+
+.contador {
+  color: var(--texto-suave);
+  font-size: 0.82rem;
+}
+
+.comentario {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 0.7rem;
+  animation: subir 0.3s ease both;
+}
+
+.comentario__cuerpo {
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 0.9rem;
+  border-radius: 4px var(--radio-m) var(--radio-m) var(--radio-m);
+  background: var(--teal-50);
+
+  p {
+    margin: 0.15rem 0 0;
+    white-space: pre-wrap;
+  }
+}
+
+.comentario--mio .comentario__cuerpo {
+  background: var(--ciruela-50);
+}
+
+.comentario__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+
+  small {
+    color: var(--texto-suave);
+  }
+}
+
+.vacio {
+  margin: 0.4rem 0 0.8rem;
+  color: var(--texto-suave);
+}
+
+.nuevo {
+  margin-top: 0.5rem;
+}

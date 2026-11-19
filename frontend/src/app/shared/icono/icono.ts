@@ -14,7 +14,10 @@ export type IconoNombre =
   | 'check'
   | 'clock'
   | 'flecha-izq'
-  | 'flecha-der';
+  | 'flecha-der'
+  | 'sol'
+  | 'bandera'
+  | 'enviar';
 
 /**
  * Iconos de trazo (estilo Feather, licencia MIT) para toda la app.
@@ -96,6 +99,25 @@ export type IconoNombre =
         @case ('flecha-izq') {
           <line x1="19" y1="12" x2="5" y2="12" />
           <polyline points="12 19 5 12 12 5" />
+        }
+        @case ('sol') {
+          <circle cx="12" cy="12" r="5" />
+          <line x1="12" y1="1" x2="12" y2="3" />
+          <line x1="12" y1="21" x2="12" y2="23" />
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+          <line x1="1" y1="12" x2="3" y2="12" />
+          <line x1="21" y1="12" x2="23" y2="12" />
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+        }
+        @case ('bandera') {
+          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+          <line x1="4" y1="22" x2="4" y2="15" />
+        }
+        @case ('enviar') {
+          <line x1="22" y1="2" x2="11" y2="13" />
+          <polygon points="22 2 15 22 11 13 2 9 22 2" />
         }
         @case ('flecha-der') {
           <line x1="5" y1="12" x2="19" y2="12" />

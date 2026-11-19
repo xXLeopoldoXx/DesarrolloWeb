@@ -11,7 +11,10 @@ export type IconoNombre =
   | 'salir'
   | 'ocultar'
   | 'alerta'
-  | 'check';
+  | 'check'
+  | 'clock'
+  | 'flecha-izq'
+  | 'flecha-der';
 
 /**
  * Iconos de trazo (estilo Feather, licencia MIT) para toda la app.
@@ -85,6 +88,18 @@ export type IconoNombre =
         }
         @case ('check') {
           <polyline points="20 6 9 17 4 12" />
+        }
+        @case ('clock') {
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        }
+        @case ('flecha-izq') {
+          <line x1="19" y1="12" x2="5" y2="12" />
+          <polyline points="12 19 5 12 12 5" />
+        }
+        @case ('flecha-der') {
+          <line x1="5" y1="12" x2="19" y2="12" />
+          <polyline points="12 5 19 12 12 19" />
         }
       }
     </svg>

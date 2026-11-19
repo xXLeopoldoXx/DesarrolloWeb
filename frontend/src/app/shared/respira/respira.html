@@ -1,0 +1,21 @@
+<section class="respira" [class.respira--pausada]="pausada()" aria-labelledby="respira-titulo">
+  <div class="respira__texto">
+    <h2 id="respira-titulo">Un momento para ti</h2>
+    <p>
+      Si sientes el cuerpo tenso, respira con el círculo: inhala despacio por la nariz mientras crece
+      y suelta el aire por la boca mientras se achica. Sin prisa.
+    </p>
+    <button type="button" class="boton boton--suave" (click)="alternar()" [attr.aria-pressed]="pausada()">
+      {{ pausada() ? 'Continuar' : 'Pausar' }}
+    </button>
+  </div>
+
+  <div class="respira__aro" aria-hidden="true">
+    <span class="respira__onda"></span>
+    <span class="respira__circulo"></span>
+    <span class="respira__guia">
+      <span class="respira__palabra respira__palabra--inhala">Inhala</span>
+      <span class="respira__palabra respira__palabra--exhala">Exhala</span>
+    </span>
+  </div>
+</section>

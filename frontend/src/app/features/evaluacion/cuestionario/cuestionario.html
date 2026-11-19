@@ -1,182 +1,168 @@
-<section class="evaluacion-container">
-
-  <header class="encabezado">
-    <span class="etiqueta">AUTOEVALUACIÓN</span>
-
-    <h1>Mi evaluación de riesgo</h1>
-
-    <p>
-      Responde las siguientes preguntas según tu situación.
-      Puedes tomarte el tiempo que necesites.
-    </p>
-  </header>
-
-  <!-- Progreso -->
-  <div class="progreso">
-    <div class="progreso-info">
-      <span>Progreso del cuestionario</span>
-      <strong>{{ progreso }}%</strong>
-    </div>
-
-    <div
-      class="barra"
-      role="progressbar"
-      [attr.aria-valuenow]="progreso"
-      aria-valuemin="0"
-      aria-valuemax="100"
-      aria-label="Progreso del cuestionario">
-
-      <div
-        class="barra-valor"
-        [style.width.%]="progreso">
-      </div>
-    </div>
-  </div>
-
-  <!-- Formulario -->
-  <form [formGroup]="formulario" (ngSubmit)="enviar()">
-
-    @for (pregunta of preguntas; track pregunta.factor; let i = $index) {
-
-      <article class="pregunta-card">
-
-        <span class="numero">
-          Pregunta {{ i + 1 }} de {{ preguntas.length }}
-        </span>
-
-        <h2>{{ pregunta.texto }}</h2>
-
-        <p class="ayuda">
-          {{ pregunta.ayuda }}
-        </p>
-
-        <fieldset class="grupo-opciones">
-
-          <legend>Selecciona una respuesta:</legend>
-
-          <div class="opciones">
-
-            @for (opcion of opciones; track opcion.valor) {
-
-              <label
-                class="opcion"
-                [class.seleccionada]="
-                  formulario.controls[pregunta.factor].value === opcion.valor
-                ">
-
-                <input
-                  type="radio"
-                  [name]="pregunta.factor"
-                  [value]="opcion.valor"
-                  [formControl]="formulario.controls[pregunta.factor]"
-                  [attr.aria-label]="opcion.texto">
-
-                <span>{{ opcion.texto }}</span>
-
-              </label>
-
-            }
-
-          </div>
-
-        </fieldset>
-
-        @if (
-          formulario.controls[pregunta.factor].invalid &&
-          formulario.controls[pregunta.factor].touched
-        ) {
-
-          <p class="error-campo" role="alert">
-            Selecciona una respuesta.
-          </p>
-
-        }
-
-      </article>
-
-    }
-
-    <!-- Error general -->
-    @if (error()) {
-
-      <div class="mensaje-error" role="alert">
-        {{ error() }}
-      </div>
-
-    }
-
-    <!-- Confirmación de respuestas -->
-    @if (mostrarConfirmacion()) {
-
-      <section
-        class="confirmacion"
-        role="alertdialog"
-        aria-labelledby="titulo-confirmacion">
-
-        <h2 id="titulo-confirmacion">
-          Confirma tus respuestas
-        </h2>
-
-        <p>
-          Has seleccionado «No estoy segura» en
-          {{ respuestasPendientes }}
-          {{ respuestasPendientes === 1 ? 'pregunta' : 'preguntas' }}.
-        </p>
-
-        <p>
-          Estas respuestas se registrarán como pendientes de confirmar.
-          No sumarán puntaje según las reglas de evaluación.
-        </p>
-
-        <div class="acciones-confirmacion">
-
-          <button
-            type="button"
-            class="boton-secundario"
-            (click)="editarRespuestas()">
-
-            Revisar respuestas
-
-          </button>
-
-          <button
-            type="button"
-            class="boton-principal"
-            [disabled]="enviando()"
-            (click)="confirmarRespuestas()">
-
-            {{ enviando() ? 'Enviando...' : 'Confirmar y continuar' }}
-
-          </button>
-
+<section class="eval">
+  @switch (fase()) {
+    <!-- ============ Bienvenida ============ -->
+    @case ('intro') {
+      <div class="intro aparece">
+        <div class="intro__foto">
+          <img src="img/evaluacion-manana.jpg" alt="" width="1200" height="1595" fetchpriority="high" />
         </div>
 
-      </section>
+        <div class="intro__texto">
+          <span class="etiqueta">Mi evaluación</span>
+          <h1>Tu evaluación, a tu ritmo</h1>
+          <p>
+            Son {{ total }} preguntas sobre situaciones que pueden ser señales de riesgo. No hay respuestas
+            buenas ni malas: contesta lo que sientes que es verdad hoy.
+          </p>
 
+          <ul class="intro__puntos">
+            <li><app-icono nombre="clock" [tamano]="20" /> Toma unos 2 minutos.</li>
+            <li><app-icono nombre="shield" [tamano]="20" /> Solo tú ves tus respuestas y puedes borrarlas.</li>
+            <li><app-icono nombre="heart" [tamano]="20" /> Si no estás segura, puedes elegir «No estoy segura».</li>
+          </ul>
+
+          <div class="intro__acciones">
+            <button type="button" class="boton" (click)="empezar()">Comenzar</button>
+            <a class="boton boton--suave" routerLink="/evaluacion/historial">Ver mi historial</a>
+          </div>
+
+          <p class="nota">
+            Esta autoevaluación es orientativa: no es un diagnóstico ni predice lo que pueda pasar. Si estás en
+            peligro ahora, llama al <a href="tel:105">105</a>.
+          </p>
+        </div>
+      </div>
     }
 
-    <!-- Botón de envío -->
-    @if (!mostrarConfirmacion()) {
+    <!-- ============ Una pregunta por pantalla ============ -->
+    @case ('preguntas') {
+      <div class="paso">
+        <header class="paso__cabecera">
+          <button type="button" class="atras" (click)="atras()">
+            <app-icono nombre="flecha-izq" [tamano]="18" /> Atrás
+          </button>
+          <span class="paso__contador" aria-live="polite">Pregunta {{ indice() + 1 }} de {{ total }}</span>
+        </header>
 
-      <button
-        type="submit"
-        class="boton-principal boton-enviar"
-        [disabled]="enviando()">
+        <div
+          class="progreso"
+          role="progressbar"
+          aria-label="Progreso del cuestionario"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          [attr.aria-valuenow]="progreso()"
+        >
+          @for (p of preguntas; track p.factor; let i = $index) {
+            <span class="progreso__tramo" [class.hecho]="respuestas()[p.factor]" [class.actual]="i === indice()"></span>
+          }
+        </div>
 
-        {{ enviando() ? 'Guardando evaluación...' : 'Enviar evaluación' }}
+        @for (p of [pregunta()]; track p.factor) {
+          <div class="tarjeta-pregunta" [class.desde-atras]="direccion() === 'atras'">
+            <h2 [id]="'pregunta-' + p.factor">{{ p.texto }}</h2>
 
-      </button>
+            <details class="ayuda">
+              <summary>¿Qué significa?</summary>
+              <p>{{ p.ayuda }}</p>
+            </details>
 
+            <div class="opciones" role="radiogroup" [attr.aria-labelledby]="'pregunta-' + p.factor">
+              @for (opcion of opciones; track opcion.valor) {
+                <label class="opcion" [class.elegida]="actual() === opcion.valor" [attr.data-valor]="opcion.valor">
+                  <input
+                    type="radio"
+                    [name]="'respuesta-' + p.factor"
+                    [value]="opcion.valor"
+                    [checked]="actual() === opcion.valor"
+                    (change)="elegir(opcion.valor)"
+                  />
+                  <span class="opcion__icono" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                      @switch (opcion.valor) {
+                        @case ('SI') {
+                          <polyline points="20 6 9 17 4 12" />
+                        }
+                        @case ('NO') {
+                          <line x1="18" y1="6" x2="6" y2="18" />
+                          <line x1="6" y1="6" x2="18" y2="18" />
+                        }
+                        @default {
+                          <circle cx="12" cy="12" r="10" />
+                          <path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
+                          <line x1="12" y1="17" x2="12.01" y2="17" />
+                        }
+                      }
+                    </svg>
+                  </span>
+                  <span class="opcion__texto">
+                    <strong>{{ opcion.texto }}</strong>
+                    <small>{{ opcion.detalle }}</small>
+                  </span>
+                </label>
+              }
+            </div>
+          </div>
+        }
+
+        <footer class="paso__pie">
+          <button type="button" class="boton" [disabled]="!actual()" (click)="siguiente()">
+            {{ indice() === total - 1 ? 'Revisar mis respuestas' : 'Siguiente' }}
+          </button>
+          <p class="urgente-linea">
+            ¿Estás en peligro ahora? Llama al <a href="tel:105">105</a> o a la <a href="tel:100">Línea 100</a>.
+          </p>
+        </footer>
+      </div>
     }
 
-  </form>
+    <!-- ============ Revisión final ============ -->
+    @case ('revision') {
+      <div class="revision aparece">
+        <header class="paso__cabecera">
+          <button type="button" class="atras" (click)="atras()">
+            <app-icono nombre="flecha-izq" [tamano]="18" /> Atrás
+          </button>
+        </header>
 
-  <!-- Información -->
-  <p class="nota">
-    Tus respuestas serán utilizadas para generar el resultado
-    de tu evaluación. Esta herramienta es orientativa y no
-    sustituye la atención profesional. Si estás en peligro
-    inmediato, busca ayuda de emergencia.
-  </p>
+        <h1>Revisa tus respuestas</h1>
+        <p class="revision__sub">Puedes cambiar cualquiera antes de enviar. Nada se guarda hasta que lo confirmes.</p>
 
+        <ol class="resumen">
+          @for (p of preguntas; track p.factor; let i = $index) {
+            <li class="resumen__fila">
+              <span class="resumen__numero">{{ i + 1 }}</span>
+              <span class="resumen__texto">{{ p.texto }}</span>
+              <span class="chip" [attr.data-valor]="respuestas()[p.factor]">{{ textoRespuesta(p.factor) }}</span>
+              <button type="button" class="enlace" (click)="editar(i)">Cambiar</button>
+            </li>
+          }
+        </ol>
+
+        @if (error()) {
+          <div class="mensaje-error" role="alert">{{ error() }}</div>
+        }
+
+        @if (mostrarConfirmacion()) {
+          <div class="confirmacion" role="alertdialog" aria-labelledby="confirma-titulo">
+            <h2 id="confirma-titulo">Una última cosa</h2>
+            <p>
+              Elegiste «No estoy segura» en {{ pendientes() }}
+              {{ pendientes() === 1 ? 'pregunta' : 'preguntas' }}. No sumarán puntaje y quedarán marcadas
+              como «por confirmar» en tu resultado.
+            </p>
+            <div class="confirmacion__acciones">
+              <button type="button" class="boton boton--suave" (click)="editarRespuestas()">Revisar de nuevo</button>
+              <button type="button" class="boton" [disabled]="enviando()" (click)="confirmarRespuestas()">
+                {{ enviando() ? 'Guardando…' : 'Confirmar y ver mi resultado' }}
+              </button>
+            </div>
+          </div>
+        } @else {
+          <button type="button" class="boton boton--grande" [disabled]="enviando()" (click)="enviar()">
+            {{ enviando() ? 'Guardando…' : 'Ver mi resultado' }}
+          </button>
+        }
+      </div>
+    }
+  }
 </section>

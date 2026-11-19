@@ -1,16 +1,64 @@
 .hero {
-  padding: 2rem;
+  --relleno: clamp(1.5rem, 4vw, 2.5rem);
+  position: relative;
+  display: grid;
+  align-items: center;
+  min-height: clamp(300px, 42vw, 400px);
+  padding: var(--relleno);
+  overflow: hidden;
   border-radius: var(--radio-l);
   color: #fff;
-  background: linear-gradient(135deg, var(--teal-800), var(--teal-700) 70%, var(--teal-600));
+  background: var(--teal-800);
   box-shadow: var(--sombra-fuerte);
 
+  // Velo de color: el texto siempre se lee, aunque la foto sea clara
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      100deg,
+      rgba(25, 92, 84, 0.96) 0%,
+      rgba(31, 111, 101, 0.88) 38%,
+      rgba(94, 42, 92, 0.35) 72%,
+      rgba(94, 42, 92, 0.1) 100%
+    );
+  }
+
   h1 {
-    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-size: clamp(1.8rem, 4vw, 2.7rem);
+    color: #fff;
   }
 
   p {
-    max-width: 56ch;
+    max-width: 50ch;
+  }
+}
+
+.hero__texto {
+  position: relative;
+  z-index: 1;
+  max-width: 560px;
+}
+
+// Foto real de fondo (decorativa): se ve a la derecha y se funde con el velo
+.hero__foto {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 72% 50%;
+}
+
+@media (max-width: 640px) {
+  .hero::after {
+    background: linear-gradient(
+      180deg,
+      rgba(25, 92, 84, 0.93) 0%,
+      rgba(31, 111, 101, 0.86) 60%,
+      rgba(94, 42, 92, 0.7) 100%
+    );
   }
 }
 
@@ -38,6 +86,33 @@
   }
 }
 
+// Mensajes de apoyo
+.afirmaciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.1rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 1rem 0.35rem 0.5rem;
+    border-radius: 999px;
+    background: var(--ciruela-50);
+    border: 1px solid var(--ciruela-100);
+    color: var(--ciruela-700);
+    font-family: var(--fuente-titulo);
+    font-weight: 700;
+  }
+
+  app-ilustracion {
+    width: 1.7rem;
+  }
+}
+
 .urgente {
   display: flex;
   gap: 0.75rem;
@@ -60,8 +135,8 @@
 }
 
 .titulo-seccion {
-  margin: 2rem 0 0.9rem;
-  font-size: 1.25rem;
+  margin: 2.25rem 0 0.9rem;
+  font-size: 1.35rem;
 }
 
 .accesos {
@@ -76,28 +151,30 @@
   gap: 0.35rem;
   color: var(--texto);
   text-decoration: none;
-  border-top: 5px solid var(--teal-500);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  border: 0;
+  border-radius: var(--radio-l);
+  background: linear-gradient(160deg, var(--teal-50), #fff 70%);
+  box-shadow: var(--sombra);
 
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--sombra-fuerte);
+  strong {
+    font-family: var(--fuente-titulo);
+    font-size: 1.1rem;
   }
 
   &--lila {
-    border-top-color: var(--lila-600);
+    background: linear-gradient(160deg, var(--ciruela-50), #fff 70%);
 
     .acceso__icono {
-      background: var(--lila-100);
-      color: var(--lila-600);
+      background: var(--ciruela-100);
+      color: var(--ciruela-600);
     }
   }
 
   &--coral {
-    border-top-color: var(--coral-500);
+    background: linear-gradient(160deg, var(--durazno-50), #fff 70%);
 
     .acceso__icono {
-      background: var(--coral-100);
+      background: var(--durazno-100);
       color: var(--coral-600);
     }
   }
@@ -106,8 +183,8 @@
 .acceso__icono {
   display: inline-flex;
   width: fit-content;
-  padding: 0.6rem;
-  border-radius: 14px;
+  padding: 0.65rem;
+  border-radius: 50% 40% 50% 40%;
   background: var(--teal-100);
   color: var(--teal-700);
 }
@@ -115,6 +192,10 @@
 .acceso__desc {
   color: var(--texto-suave);
   font-size: 0.9rem;
+}
+
+.respira-contenedor {
+  margin-top: 2rem;
 }
 
 .recomendaciones {

@@ -2,20 +2,25 @@
 
 <div class="auth">
   <aside class="auth__panel">
-    <span class="auth__logo"><app-icono nombre="shield" [tamano]="34" /></span>
-    <h2>Mi espacio seguro</h2>
-    <p>
-      Un lugar privado para entender tu situación, planear tu seguridad y encontrar ayuda cuando la necesites.
-    </p>
-    <ul>
-      <li><app-icono nombre="check" [tamano]="18" /> Usa un seudónimo, no tu nombre real.</li>
-      <li><app-icono nombre="check" [tamano]="18" /> Tu información es solo tuya y puedes borrarla.</li>
-      <li><app-icono nombre="check" [tamano]="18" /> El botón «Salida rápida» está siempre visible.</li>
-    </ul>
+    <div class="auth__texto aparece">
+      <span class="auth__logo"><app-icono nombre="shield" [tamano]="34" /></span>
+      <h2>Mi espacio seguro</h2>
+      <p>
+        Un lugar privado para entender tu situación, planear tu seguridad y encontrar ayuda cuando la
+        necesites. Aquí no estás sola.
+      </p>
+      <ul>
+        <li class="aparece" style="--i: 2"><app-icono nombre="check" [tamano]="18" /> Usa un seudónimo, no tu nombre real.</li>
+        <li class="aparece" style="--i: 3"><app-icono nombre="check" [tamano]="18" /> Tu información es solo tuya y puedes borrarla.</li>
+        <li class="aparece" style="--i: 4"><app-icono nombre="check" [tamano]="18" /> El botón «Salida rápida» está siempre visible.</li>
+      </ul>
+    </div>
+
+    <img class="auth__foto" src="img/acceso-ventana.jpg" alt="" width="1000" height="1500" />
   </aside>
 
   <main class="auth__contenido">
-    <section class="auth__tarjeta tarjeta">
+    <section class="auth__tarjeta tarjeta aparece" style="--i: 1">
       <h1>{{ titulo() }}</h1>
       @if (subtitulo()) {
         <p class="auth__sub">{{ subtitulo() }}</p>

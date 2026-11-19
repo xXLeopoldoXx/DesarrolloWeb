@@ -1,0 +1,27 @@
+:host {
+  display: block;
+  line-height: 0;
+}
+
+svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+// Todo el movimiento es lento y sutil; se apaga con «reducir movimiento» (styles.scss).
+.planta {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: mecer 7s ease-in-out infinite;
+
+  &--der {
+    animation-delay: -3.5s;
+  }
+}
+
+.flor {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: mecer 9s ease-in-out infinite;
+}

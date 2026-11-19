@@ -1,0 +1,89 @@
+<header class="cabecera-pagina">
+  <a class="volver" routerLink="/seguridad">Volver a Mi seguridad</a>
+  <h1>Red de confianza</h1>
+  <p>Guarda los contactos de quienes puedan apoyarte. Puedes usar un nombre corto o un seudónimo.</p>
+</header>
+
+<div class="secciones">
+  <section class="tarjeta" aria-labelledby="titulo-formulario-contacto">
+    <h2 id="titulo-formulario-contacto">{{ editando() === null ? 'Agregar contacto' : 'Editar contacto' }}</h2>
+    <form [formGroup]="formulario" (ngSubmit)="guardar()" autocomplete="off">
+      <div class="campo">
+        <label for="nombre-contacto">Nombre</label>
+        <input #campoNombre id="nombre-contacto" formControlName="nombre" maxlength="100" required
+          [attr.readonly]="ocupada() ? '' : null"
+          [attr.aria-invalid]="formulario.controls.nombre.touched && formulario.controls.nombre.invalid"
+          [attr.aria-describedby]="formulario.controls.nombre.touched && formulario.controls.nombre.invalid ? 'error-nombre-contacto' : null" />
+        @if (formulario.controls.nombre.touched && formulario.controls.nombre.invalid) {
+          <span class="error" id="error-nombre-contacto" role="alert">Escribe un nombre de hasta 100 caracteres.</span>
+        }
+      </div>
+      <div class="campo">
+        <label for="telefono-contacto">Teléfono</label>
+        <input id="telefono-contacto" type="tel" inputmode="tel" formControlName="telefono" maxlength="16" required
+          [attr.readonly]="ocupada() ? '' : null"
+          aria-describedby="ayuda-telefono"
+          [attr.aria-invalid]="formulario.controls.telefono.touched && formulario.controls.telefono.invalid" />
+        <span id="ayuda-telefono" [class]="formulario.controls.telefono.touched && formulario.controls.telefono.invalid ? 'error' : 'ayuda'"
+          [attr.role]="formulario.controls.telefono.touched && formulario.controls.telefono.invalid ? 'alert' : null">
+          Usa de 6 a 15 dígitos sin espacios. Puedes empezar con +.
+        </span>
+      </div>
+      <div class="campo">
+        <label for="relacion-contacto">Relación (opcional)</label>
+        <input id="relacion-contacto" formControlName="relacion" maxlength="100"
+          [attr.readonly]="ocupada() ? '' : null" />
+      </div>
+      <div class="grupo-botones">
+        <button type="submit" class="boton" [disabled]="cargando() || !!errorCarga() || ocupada()">
+          Guardar contacto
+        </button>
+        @if (editando() !== null) {
+          <button type="button" class="boton boton--suave" [disabled]="ocupada()" (click)="cancelarEdicion()">
+            Cancelar edición
+          </button>
+        }
+      </div>
+    </form>
+    @if (errorOperacion()) {
+      <p class="alerta alerta--error" role="alert">{{ errorOperacion() }}</p>
+    }
+    @if (ocupada()) {
+      <p class="solo-lectores" role="status">Guardando cambio en los contactos.</p>
+    }
+  </section>
+
+  <section class="tarjeta" aria-labelledby="titulo-contactos">
+    <h2 id="titulo-contactos">Mis contactos</h2>
+    @if (cargando()) {
+      <p class="vacio" role="status">Cargando contactos…</p>
+    } @else if (errorCarga()) {
+      <p class="alerta alerta--error" role="alert">{{ errorCarga() }}</p>
+      <button type="button" class="boton boton--suave" (click)="cargar()">Reintentar contactos</button>
+    } @else if (contactos().length === 0) {
+      <p class="vacio">Aún no tienes contactos guardados.</p>
+    } @else {
+      <ul class="lista-privada">
+        @for (contacto of contactos(); track contacto.id) {
+          <li class="fila">
+            <div>
+              <strong>{{ contacto.nombre }}</strong>
+              <p>{{ contacto.telefono }}</p>
+              @if (contacto.relacion) { <p>{{ contacto.relacion }}</p> }
+            </div>
+            <div class="grupo-botones">
+              <button type="button" class="boton boton--suave" [disabled]="ocupada()"
+                [attr.aria-label]="'Editar contacto ' + contacto.nombre" (click)="editar(contacto)">
+                Editar
+              </button>
+              <button type="button" class="boton boton--suave" [disabled]="ocupada()"
+                [attr.aria-label]="'Eliminar contacto ' + contacto.nombre" (click)="eliminar(contacto.id)">
+                Eliminar
+              </button>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>

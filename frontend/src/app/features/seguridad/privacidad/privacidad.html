@@ -1,0 +1,42 @@
+<header class="cabecera-pagina">
+  <a class="volver" routerLink="/seguridad">Volver a Mi seguridad</a>
+  <h1>Privacidad</h1>
+  <p>Administra la eliminación de tu cuenta y de los datos asociados a ella.</p>
+</header>
+
+<section class="tarjeta" aria-labelledby="eliminar-mis-datos">
+  <h2 id="eliminar-mis-datos">Eliminar mis datos</h2>
+  @if (cargando()) {
+    <p role="status">Verificando disponibilidad…</p>
+  } @else if (errorEstado()) {
+    <p class="alerta alerta--error" role="alert">{{ errorEstado() }}</p>
+    <button type="button" class="boton boton--suave" (click)="consultarDisponibilidad()">Reintentar</button>
+  } @else if (!disponible()) {
+    <p class="alerta alerta--info" role="status">
+      La eliminación de la cuenta todavía no está disponible. Puedes borrar acciones, lugares y contactos
+      desde las pantallas de Mi seguridad.
+    </p>
+    <button type="button" class="boton boton--peligro" disabled>Eliminar mis datos</button>
+  } @else if (confirmando()) {
+    <h3>Confirma la eliminación de tu cuenta</h3>
+    <p>Se eliminará tu cuenta junto con los datos asociados y se cerrará la sesión. Esta acción es irreversible.</p>
+    <div class="grupo-botones">
+      <button #botonCancelar type="button" class="boton boton--suave" [disabled]="eliminando()" (click)="cancelar()">
+        Cancelar
+      </button>
+      <button type="button" class="boton boton--peligro" [disabled]="eliminando()" (click)="confirmarEliminacion()">
+        Eliminar definitivamente
+      </button>
+    </div>
+    @if (eliminando()) {
+      <p role="status">Eliminando tu cuenta…</p>
+    }
+    @if (errorEliminar()) {
+      <p class="alerta alerta--error" role="alert">{{ errorEliminar() }}</p>
+    }
+  } @else {
+    <button #botonEliminar type="button" class="boton boton--peligro" (click)="solicitarConfirmacion()">
+      Eliminar mis datos
+    </button>
+  }
+</section>

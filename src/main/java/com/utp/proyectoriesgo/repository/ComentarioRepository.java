@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface ComentarioRepository
@@ -17,6 +18,11 @@ public interface ComentarioRepository
     List<Comentario> findByPublicacionIdAndOcultoFalseOrderByFechaAsc(
             Long publicacionId
     );
+
+    /** Filas [publicacionId, cantidad] de comentarios visibles de las publicaciones indicadas. */
+    @Query("select c.publicacion.id, count(c) from Comentario c "
+            + "where c.oculto = false and c.publicacion.id in :ids group by c.publicacion.id")
+    List<Object[]> contarVisibles(@Param("ids") Collection<Long> ids);
 
     /** Borra los comentarios de la usuaria y los que recibieron sus publicaciones. */
     @Modifying

@@ -9,6 +9,7 @@ public record ComentarioResponse(
     Long publicacionId,
     String seudonimo,
     String texto,
-    LocalDateTime fecha
+    LocalDateTime fecha,
+    boolean esMia
 
 ) {}

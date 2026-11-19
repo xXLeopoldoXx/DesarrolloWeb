@@ -1,0 +1,280 @@
+
+:host {
+  display: block;
+}
+
+.historial-container {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 32px 20px;
+  color: #263238;
+}
+
+.encabezado {
+  margin-bottom: 28px;
+
+  h1 {
+    font-size: 30px;
+    margin: 12px 0;
+  }
+
+  p {
+    color: #667085;
+    line-height: 1.6;
+  }
+}
+
+.etiqueta {
+  color: #8754a3;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.resumen {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 18px;
+  color: #667085;
+
+  strong {
+    color: #8754a3;
+    font-size: 24px;
+  }
+}
+
+.lista-evaluaciones {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.evaluacion-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 22px;
+  border: 1px solid #e8e3eb;
+  border-radius: 13px;
+  background: #fff;
+}
+
+.informacion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fecha {
+  color: #667085;
+  font-size: 13px;
+}
+
+.nivel {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.nivel-alto {
+  color: #b42318;
+}
+
+.nivel-medio {
+  color: #a15c00;
+}
+
+.nivel-bajo {
+  color: #237a45;
+}
+
+.nivel-desconocido {
+  color: #667085;
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.boton-principal,
+.boton-secundario,
+.boton-eliminar,
+.boton-peligro {
+  display: inline-block;
+  padding: 11px 17px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.boton-principal {
+  background: #8754a3;
+  color: #fff;
+  border: none;
+
+  &:hover {
+    background: #70418a;
+  }
+}
+
+.boton-secundario {
+  background: #fff;
+  color: #70418a;
+  border: 1px solid #8754a3;
+}
+
+.boton-eliminar {
+  background: #fff;
+  border: 1px solid #fecdca;
+  color: #b42318;
+
+  &:hover {
+    background: #fff1f0;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.boton-peligro {
+  background: #b42318;
+  border: none;
+  color: #fff;
+}
+
+.boton-peligro:hover {
+  background: #912018;
+}
+
+.boton-peligro:disabled,
+.boton-secundario:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sin-resultados {
+  padding: 35px 20px;
+  text-align: center;
+  border: 1px dashed #d9cce0;
+  border-radius: 14px;
+
+  h2 {
+    font-size: 21px;
+  }
+
+  p {
+    color: #667085;
+    line-height: 1.6;
+    margin-bottom: 25px;
+  }
+}
+
+.estado-carga {
+  padding: 25px;
+  text-align: center;
+  color: #667085;
+}
+
+.mensaje-error,
+.mensaje-exito {
+  padding: 14px;
+  margin: 15px 0;
+  border-radius: 9px;
+}
+
+.mensaje-error {
+  color: #b42318;
+  background: #fff1f0;
+}
+
+.mensaje-exito {
+  color: #237a45;
+  background: #ecfdf3;
+}
+
+.fondo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 45%);
+}
+
+.modal-confirmacion {
+  width: 100%;
+  max-width: 430px;
+  padding: 25px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 12px 35px rgb(0 0 0 / 15%);
+
+  h2 {
+    margin-top: 0;
+    font-size: 21px;
+  }
+
+  p {
+    color: #667085;
+    line-height: 1.6;
+  }
+}
+
+.acciones-modal {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 25px;
+}
+
+.pie {
+  margin-top: 30px;
+
+  a {
+    color: #70418a;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 600px) {
+  .historial-container {
+    padding: 24px 15px;
+  }
+
+  .encabezado h1 {
+    font-size: 25px;
+  }
+
+  .evaluacion-card {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 18px;
+  }
+
+  .acciones {
+    flex-direction: column;
+    align-items: stretch;
+
+    a,
+    button {
+      text-align: center;
+    }
+  }
+
+  .acciones-modal {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}

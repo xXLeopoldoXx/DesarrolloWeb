@@ -1,6 +1,7 @@
 
 package com.utp.proyectoriesgo.service;
 
+import com.utp.proyectoriesgo.exception.RecursoNoEncontradoException;
 import com.utp.proyectoriesgo.model.Publicacion;
 import com.utp.proyectoriesgo.model.Usuario;
 import com.utp.proyectoriesgo.repository.PublicacionRepository;
@@ -62,8 +63,7 @@ public class PublicacionService {
         Publicacion publicacion = publicacionRepository
                 .findById(publicacionId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "La publicación no existe"));
+                        new RecursoNoEncontradoException("La publicación no existe"));
 
         if (publicacion.isOculta()) {
             throw new IllegalArgumentException(

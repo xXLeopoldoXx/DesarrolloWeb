@@ -1,0 +1,98 @@
+<section class="chat tarjeta">
+  <header class="chat__cabecera">
+    <span class="chat__avatar"><app-icono nombre="chat" [tamano]="24" /></span>
+    <div class="chat__titulo">
+      <h1>Asistente de orientación</h1>
+      <p>Información general. Tu conversación no se guarda.</p>
+    </div>
+    @if (mensajes().length > 0) {
+      <button type="button" class="boton boton--suave chat__limpiar" (click)="limpiarConversacion()">
+        Borrar conversación
+      </button>
+    }
+  </header>
+
+  @if (disponible() === false) {
+    <div class="alerta alerta--aviso" role="status">
+      El asistente aún no está configurado en este servidor. Mientras tanto, puedes llamar a la
+      <a href="tel:100">Línea 100</a>.
+    </div>
+  }
+
+  <div class="chat__mensajes" #lista role="log" aria-live="polite" aria-label="Conversación con el asistente">
+    @if (mensajes().length === 0) {
+      <div class="chat__bienvenida">
+        <p>
+          Hola, soy el asistente de <strong>Mi espacio seguro</strong>. Puedo explicarte, en términos generales, qué es
+          la violencia de género, qué es un plan de seguridad o cómo usar esta app.
+        </p>
+        <p class="chat__sugerencias-titulo">Puedes empezar con:</p>
+        <div class="chat__sugerencias">
+          @for (sugerencia of sugerencias; track sugerencia) {
+            <button
+              type="button"
+              class="chat__sugerencia"
+              [disabled]="!sugerenciasActivas()"
+              (click)="usarSugerencia(sugerencia)"
+            >
+              {{ sugerencia }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    @for (mensaje of mensajes(); track $index) {
+      <div
+        class="burbuja"
+        [class.burbuja--usuaria]="mensaje.rol === 'usuaria'"
+        [class.burbuja--emergencia]="mensaje.emergencia"
+      >
+        <span class="solo-lectores">{{ mensaje.rol === 'usuaria' ? 'Tú:' : 'Asistente:' }}</span>
+        <p>{{ mensaje.texto }}</p>
+        @if (mensaje.emergencia) {
+          <div class="burbuja__llamar">
+            <a class="boton boton--peligro" href="tel:105">
+              <app-icono nombre="phone" [tamano]="18" /> Llamar al 105
+            </a>
+            <a class="boton" href="tel:100">
+              <app-icono nombre="phone" [tamano]="18" /> Línea 100
+            </a>
+          </div>
+        }
+      </div>
+    }
+
+    @if (enviando()) {
+      <div class="burbuja burbuja--escribiendo" aria-label="El asistente está escribiendo">
+        <span></span><span></span><span></span>
+      </div>
+    }
+  </div>
+
+  @if (error()) {
+    <div class="alerta alerta--error" role="alert">{{ error() }}</div>
+  }
+
+  <form class="chat__formulario" (submit)="alEnviarFormulario($event)">
+    <label class="solo-lectores" for="mensaje-asistente">Tu mensaje</label>
+    <textarea
+      id="mensaje-asistente"
+      rows="2"
+      placeholder="Escribe tu pregunta…"
+      [value]="borrador()"
+      [attr.maxlength]="maxCaracteres"
+      (input)="alEscribir($event)"
+      (keydown.enter)="alPresionarEnter($event)"
+    ></textarea>
+    <button type="submit" class="boton" [disabled]="!puedeEnviar()">Enviar</button>
+  </form>
+
+  <p class="chat__aviso">
+    <app-icono nombre="alerta" [tamano]="16" />
+    <span>
+      No reemplaza la ayuda profesional. No escribas tu nombre real, dirección ni teléfono. Si estás en peligro, llama
+      al <a href="tel:105">105</a>; para orientación, a la <a href="tel:100">Línea 100</a>.
+    </span>
+  </p>
+</section>

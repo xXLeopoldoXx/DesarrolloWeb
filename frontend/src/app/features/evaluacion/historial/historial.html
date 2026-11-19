@@ -1,0 +1,153 @@
+<section class="historial-container">
+
+  <header class="encabezado">
+    <span class="etiqueta">MI EVALUACIÓN</span>
+    <h1>Historial de evaluaciones</h1>
+    <p>
+      Consulta los resultados de tus evaluaciones anteriores.
+    </p>
+  </header>
+
+  @if (cargando) {
+    <div class="estado-carga" role="status">
+      Cargando historial...
+    </div>
+  }
+
+  @if (error) {
+    <div class="mensaje-error" role="alert">
+      {{ error }}
+    </div>
+
+    <button
+      type="button"
+      class="boton-secundario"
+      (click)="cargarHistorial()">
+      Intentar nuevamente
+    </button>
+  }
+
+  @if (!cargando && !error && evaluaciones.length === 0) {
+    <div class="sin-resultados">
+      <h2>Aún no tienes evaluaciones</h2>
+      <p>
+        Cuando completes tu primera autoevaluación,
+        aparecerá aquí.
+      </p>
+
+      <a routerLink="/evaluacion" class="boton-principal">
+        Realizar evaluación
+      </a>
+    </div>
+  }
+
+  @if (!cargando && evaluaciones.length > 0) {
+
+    <div class="resumen">
+      <strong>{{ evaluaciones.length }}</strong>
+      <span>
+        {{ evaluaciones.length === 1
+          ? 'evaluación registrada'
+          : 'evaluaciones registradas' }}
+      </span>
+    </div>
+
+    <div class="lista-evaluaciones">
+
+      @for (evaluacion of evaluaciones; track evaluacion.id) {
+
+        <article class="evaluacion-card">
+
+          <div class="informacion">
+            <span class="fecha">
+              {{ evaluacion.fecha | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+
+            <span class="nivel" [ngClass]="getClaseNivel(evaluacion.nivel)">
+              {{ evaluacion.nivel }}
+            </span>
+          </div>
+
+          <div class="acciones">
+
+            <a
+              [routerLink]="['/evaluacion/resultados', evaluacion.id]"
+              class="boton-principal">
+              Ver resultado
+            </a>
+
+            <button
+              type="button"
+              class="boton-eliminar"
+              [disabled]="eliminandoId !== null"
+              (click)="confirmarEliminacion(evaluacion.id)">
+              Eliminar
+            </button>
+
+          </div>
+
+        </article>
+
+      }
+
+    </div>
+  }
+
+  @if (mensaje) {
+    <div class="mensaje-exito" role="status">
+      {{ mensaje }}
+    </div>
+  }
+
+  @if (evaluacionSeleccionada !== null) {
+
+    <div class="fondo-modal">
+
+      <section
+        class="modal-confirmacion"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="titulo-eliminar">
+
+        <h2 id="titulo-eliminar">
+          ¿Eliminar evaluación?
+        </h2>
+
+        <p>
+          Esta acción eliminará el registro seleccionado.
+          No podrás recuperarlo desde el historial.
+        </p>
+
+        <div class="acciones-modal">
+
+          <button
+            type="button"
+            class="boton-secundario"
+            [disabled]="eliminandoId !== null"
+            (click)="cancelarEliminacion()">
+            Cancelar
+          </button>
+
+          <button
+            type="button"
+            class="boton-peligro"
+            [disabled]="eliminandoId !== null"
+            (click)="eliminarEvaluacion()">
+            {{ eliminandoId !== null ? 'Eliminando...' : 'Sí, eliminar' }}
+          </button>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  }
+
+  <footer class="pie">
+    <a routerLink="/evaluacion">
+      Volver a mi evaluación
+    </a>
+  </footer>
+
+</section>

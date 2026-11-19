@@ -8,6 +8,7 @@
   margin: 0 auto;
   padding: 32px 20px;
   color: #263238;
+  box-sizing: border-box;
 }
 
 .encabezado {
@@ -16,11 +17,13 @@
   h1 {
     font-size: 30px;
     margin: 12px 0;
+    line-height: 1.3;
   }
 
   p {
     color: #667085;
     line-height: 1.6;
+    margin: 0;
   }
 }
 
@@ -38,8 +41,13 @@
 .progreso-info {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 10px;
   font-size: 14px;
+
+  strong {
+    color: #8754a3;
+  }
 }
 
 .barra {
@@ -52,6 +60,7 @@
 .barra-valor {
   height: 100%;
   background: #8754a3;
+  border-radius: 20px;
   transition: width 0.3s ease;
 }
 
@@ -60,12 +69,14 @@
   margin-bottom: 18px;
   border: 1px solid #e8e3eb;
   border-radius: 14px;
-  background: white;
+  background: #fff;
+  box-sizing: border-box;
 
   h2 {
     font-size: 19px;
     line-height: 1.5;
     margin: 12px 0;
+    color: #263238;
   }
 }
 
@@ -76,9 +87,23 @@
   margin-bottom: 20px;
 }
 
+.grupo-opciones {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+
+  legend {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475467;
+    margin-bottom: 10px;
+  }
+}
+
 .opciones {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -86,21 +111,34 @@
   display: flex;
   align-items: center;
   gap: 9px;
+  min-width: 0;
   padding: 13px;
   border: 1px solid #ddd6e2;
   border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
-  transition: 0.2s;
+  transition: background 0.2s, border-color 0.2s;
+  box-sizing: border-box;
 
   input {
     accent-color: #8754a3;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  span {
+    line-height: 1.4;
   }
 
   &:hover,
   &.seleccionada {
     border-color: #8754a3;
     background: #f7f1fa;
+  }
+
+  &:focus-within {
+    outline: 2px solid #8754a3;
+    outline-offset: 3px;
   }
 }
 
@@ -110,15 +148,22 @@
   border-radius: 9px;
   font-weight: 600;
   cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s, border-color 0.2s;
 }
 
 .boton-principal {
   background: #8754a3;
-  color: white;
+  color: #fff;
   border: none;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: #70418a;
+  }
+
+  &:focus-visible {
+    outline: 3px solid #c9a9da;
+    outline-offset: 3px;
   }
 
   &:disabled {
@@ -128,9 +173,18 @@
 }
 
 .boton-secundario {
-  background: white;
+  background: #fff;
   border: 1px solid #8754a3;
   color: #70418a;
+
+  &:hover {
+    background: #f7f1fa;
+  }
+
+  &:focus-visible {
+    outline: 3px solid #c9a9da;
+    outline-offset: 3px;
+  }
 }
 
 .boton-enviar {
@@ -147,10 +201,12 @@
 
   h2 {
     font-size: 20px;
+    color: #60430b;
   }
 
   p {
     line-height: 1.6;
+    color: #5c5140;
   }
 }
 
@@ -169,8 +225,14 @@
 .mensaje-error {
   padding: 14px;
   background: #fff1f0;
+  border: 1px solid #fecdca;
   border-radius: 8px;
   margin: 15px 0;
+}
+
+.error-campo {
+  font-size: 13px;
+  margin-top: 10px;
 }
 
 .nota {
@@ -181,6 +243,10 @@
 }
 
 @media (max-width: 600px) {
+  .evaluacion-container {
+    padding: 24px 15px;
+  }
+
   .opciones {
     grid-template-columns: 1fr;
   }
@@ -193,7 +259,19 @@
     padding: 18px;
   }
 
+  .pregunta-card h2 {
+    font-size: 17px;
+  }
+
   .acciones-confirmacion {
     flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .boton-enviar {
+    padding: 15px;
   }
 }

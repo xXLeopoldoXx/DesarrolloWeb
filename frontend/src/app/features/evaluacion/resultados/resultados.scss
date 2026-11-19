@@ -1,0 +1,234 @@
+
+:host {
+  display: block;
+}
+
+.resultados-container {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 32px 20px;
+  color: #263238;
+}
+
+.encabezado {
+  margin-bottom: 28px;
+
+  h1 {
+    font-size: 30px;
+    margin: 12px 0;
+  }
+
+  p {
+    color: #667085;
+    line-height: 1.6;
+  }
+}
+
+.etiqueta {
+  color: #8754a3;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.resultado-card,
+.seccion-resultados {
+  padding: 25px;
+  margin-bottom: 20px;
+  border: 1px solid #e8e3eb;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.resultado-superior {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+
+  h2 {
+    margin: 10px 0 0;
+    font-size: 26px;
+  }
+}
+
+.subtitulo,
+.puntaje span {
+  color: #667085;
+  font-size: 14px;
+}
+
+.puntaje {
+  text-align: right;
+
+  strong {
+    display: block;
+    font-size: 30px;
+    color: #8754a3;
+    margin-top: 5px;
+  }
+}
+
+.nivel-alto {
+  color: #b42318;
+}
+
+.nivel-medio {
+  color: #a15c00;
+}
+
+.nivel-bajo {
+  color: #237a45;
+}
+
+.nivel-desconocido {
+  color: #667085;
+}
+
+.fecha {
+  margin-top: 20px;
+  color: #667085;
+  font-size: 13px;
+}
+
+.alerta-critica {
+  padding: 18px;
+  margin-top: 20px;
+  background: #fff1f0;
+  border: 1px solid #fecdca;
+  border-radius: 10px;
+
+  h3 {
+    color: #b42318;
+    margin-top: 0;
+  }
+
+  p {
+    color: #7a271a;
+    line-height: 1.6;
+    margin-bottom: 0;
+  }
+}
+
+.seccion-resultados {
+  h2 {
+    font-size: 19px;
+    margin-top: 0;
+  }
+
+  p {
+    color: #667085;
+    line-height: 1.6;
+  }
+}
+
+.lista-senales,
+.lista-confirmar {
+  padding-left: 22px;
+
+  li {
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+}
+
+.lista-senales li::marker {
+  color: #b42318;
+}
+
+.lista-confirmar li::marker {
+  color: #a15c00;
+}
+
+.nota {
+  padding: 16px;
+  background: #f7f1fa;
+  border-radius: 10px;
+  color: #604b6c;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.boton-principal,
+.boton-secundario {
+  display: inline-block;
+  padding: 13px 20px;
+  border-radius: 9px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.boton-principal {
+  background: #8754a3;
+  color: #fff;
+}
+
+.boton-principal:hover {
+  background: #70418a;
+}
+
+.boton-secundario {
+  border: 1px solid #8754a3;
+  color: #70418a;
+  background: #fff;
+}
+
+.enlace {
+  color: #70418a;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.estado-carga {
+  padding: 25px;
+  text-align: center;
+  color: #667085;
+}
+
+.mensaje-error {
+  padding: 16px;
+  margin-bottom: 20px;
+  background: #fff1f0;
+  color: #b42318;
+  border-radius: 9px;
+}
+
+@media (max-width: 600px) {
+  .resultados-container {
+    padding: 24px 15px;
+  }
+
+  .encabezado h1 {
+    font-size: 25px;
+  }
+
+  .resultado-card,
+  .seccion-resultados {
+    padding: 18px;
+  }
+
+  .resultado-superior {
+    align-items: flex-start;
+  }
+
+  .resultado-superior h2 {
+    font-size: 22px;
+  }
+
+  .acciones {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .acciones a {
+    text-align: center;
+  }
+}

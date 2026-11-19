@@ -19,4 +19,10 @@ export class Shell {
   protected readonly items = computed(() =>
     NAV_ITEMS.filter(item => !item.soloAdmin || this.auth.esAdmin())
   );
+
+  protected irAlContenido(evento: MouseEvent, contenido: HTMLElement): void {
+    evento.preventDefault();
+    contenido.focus({ preventScroll: true });
+    contenido.scrollIntoView({ block: 'start' });
+  }
 }

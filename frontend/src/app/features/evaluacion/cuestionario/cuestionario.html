@@ -1,0 +1,114 @@
+<section class="evaluacion-container">
+
+  <header class="encabezado">
+    <span class="etiqueta">AUTOEVALUACIÓN</span>
+    <h1>Mi evaluación de riesgo</h1>
+    <p>
+      Responde las siguientes preguntas según tu situación.
+      Puedes tomarte el tiempo que necesites.
+    </p>
+  </header>
+
+  <div class="progreso">
+    <div class="progreso-info">
+      <span>Progreso del cuestionario</span>
+      <strong>{{ progreso }}%</strong>
+    </div>
+
+    <div class="barra">
+      <div class="barra-valor" [style.width.%]="progreso"></div>
+    </div>
+  </div>
+
+  <form [formGroup]="formulario" (ngSubmit)="enviar()">
+
+    @for (pregunta of preguntas; track pregunta.factor; let i = $index) {
+      <article class="pregunta-card">
+
+        <span class="numero">Pregunta {{ i + 1 }} de {{ preguntas.length }}</span>
+
+        <h2>{{ pregunta.texto }}</h2>
+
+        <p class="ayuda">{{ pregunta.ayuda }}</p>
+
+        <div class="opciones">
+          @for (opcion of opciones; track opcion.valor) {
+            <label
+              class="opcion"
+              [class.seleccionada]="formulario.controls[pregunta.factor].value === opcion.valor">
+
+              <input
+                type="radio"
+                [name]="pregunta.factor"
+                [value]="opcion.valor"
+                [formControl]="formulario.controls[pregunta.factor]">
+
+              <span>{{ opcion.texto }}</span>
+            </label>
+          }
+        </div>
+
+        @if (
+          formulario.controls[pregunta.factor].invalid &&
+          formulario.controls[pregunta.factor].touched
+        ) {
+          <p class="error-campo">Selecciona una respuesta.</p>
+        }
+
+      </article>
+    }
+
+    @if (error) {
+      <div class="mensaje-error" role="alert">
+        {{ error }}
+      </div>
+    }
+
+    @if (mostrarConfirmacion) {
+      <section class="confirmacion" role="alertdialog" aria-labelledby="titulo-confirmacion">
+        <h2 id="titulo-confirmacion">Confirma tus respuestas</h2>
+
+        <p>
+          Has seleccionado «No estoy segura» en
+          {{ respuestasPendientes }}
+          {{ respuestasPendientes === 1 ? 'pregunta' : 'preguntas' }}.
+        </p>
+
+        <p>
+          Estas respuestas se registrarán como pendientes de confirmar.
+          No sumarán puntaje según las reglas de evaluación.
+        </p>
+
+        <div class="acciones-confirmacion">
+          <button type="button" class="boton-secundario"
+                  (click)="editarRespuestas()">
+            Revisar respuestas
+          </button>
+
+          <button type="button" class="boton-principal"
+                  [disabled]="enviando"
+                  (click)="confirmarRespuestas()">
+            {{ enviando ? 'Enviando...' : 'Confirmar y continuar' }}
+          </button>
+        </div>
+      </section>
+    }
+
+    @if (!mostrarConfirmacion) {
+      <button
+        type="submit"
+        class="boton-principal boton-enviar"
+        [disabled]="enviando">
+
+        {{ enviando ? 'Guardando evaluación...' : 'Enviar evaluación' }}
+      </button>
+    }
+
+  </form>
+
+  <p class="nota">
+    Tus respuestas serán utilizadas para generar el resultado de tu evaluación.
+    Si estás en peligro inmediato, busca ayuda de emergencia.
+  </p>
+
+</section>

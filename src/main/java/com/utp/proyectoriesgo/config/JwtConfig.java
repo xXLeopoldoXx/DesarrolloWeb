@@ -1,9 +1,11 @@
 package com.utp.proyectoriesgo.config;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import com.utp.proyectoriesgo.security.ValidadorCuentaJwt;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -34,13 +36,15 @@ public class JwtConfig {
         return new NimbusJwtEncoder(new ImmutableSecret<>(key));
     }
 
-    // VERIFICA los tokens que llegan (firma, expiración y emisor)
+    // Verifica firma, vigencia, emisor y que el token pertenezca a una cuenta activa.
     @Bean
-    JwtDecoder jwtDecoder(SecretKey key, @Value("${app.jwt.issuer}") String issuer) {
+    JwtDecoder jwtDecoder(SecretKey key, @Value("${app.jwt.issuer}") String issuer,
+                          ValidadorCuentaJwt validadorCuenta) {
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(key)
                 .macAlgorithm(MacAlgorithm.HS256)
                 .build();
-        decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer));
+        decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
+                JwtValidators.createDefaultWithIssuer(issuer), validadorCuenta));
         return decoder;
     }
 }

@@ -3,6 +3,7 @@ package com.utp.proyectoriesgo.security;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -35,6 +36,9 @@ public class TokenService {
     // Recibe un Authentication YA validado: no ve contraseñas ni consulta la base
     // de datos
     public String crearToken(Authentication autenticacion) {
+        if (!(autenticacion.getPrincipal() instanceof UsuariaAutenticada usuaria) || usuaria.id() == null) {
+            throw new BadCredentialsException("No se pudo identificar la cuenta autenticada");
+        }
         Instant ahora = Instant.now();
 
         var roles = autenticacion.getAuthorities().stream()
@@ -45,6 +49,7 @@ public class TokenService {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer(issuer)
                 .subject(autenticacion.getName())
+                .claim(IdentidadJwt.ID_CUENTA, usuaria.id().toString())
                 .issuedAt(ahora)
                 .expiresAt(ahora.plus(ttlMinutes, ChronoUnit.MINUTES))
                 .claim("roles", roles)

@@ -23,16 +23,15 @@
   gap: 0.75rem;
   padding: 3rem;
   color: #fff;
-  background: linear-gradient(150deg, var(--teal-700), var(--teal-500) 60%, #6fbcb1);
+  background: linear-gradient(150deg, var(--teal-800), var(--teal-700) 60%, var(--teal-600));
 
   h2 {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 3vw, 2rem);
     margin: 0;
   }
 
   p {
     max-width: 34ch;
-    opacity: 0.95;
   }
 
   ul {
@@ -66,7 +65,7 @@
 
 .auth__tarjeta {
   width: min(460px, 100%);
-  padding: 2rem;
+  padding: clamp(1.15rem, 4vw, 2rem);
 }
 
 .auth__sub {

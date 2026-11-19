@@ -2,7 +2,7 @@
   padding: 2rem;
   border-radius: var(--radio-l);
   color: #fff;
-  background: linear-gradient(135deg, var(--teal-700), var(--teal-500) 70%, #7cc6bb);
+  background: linear-gradient(135deg, var(--teal-800), var(--teal-700) 70%, var(--teal-600));
   box-shadow: var(--sombra-fuerte);
 
   h1 {
@@ -20,7 +20,6 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  opacity: 0.85;
 }
 
 .hero__acciones {
@@ -67,7 +66,7 @@
 
 .accesos {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
   gap: 1rem;
 }
 

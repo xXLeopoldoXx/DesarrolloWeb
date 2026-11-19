@@ -7,5 +7,8 @@ public record PublicacionResponse(
     Long id,
     String seudonimo,
     String texto,
-    LocalDateTime fecha
+    LocalDateTime fecha,
+    boolean esMia,
+    long totalComentarios,
+    ReaccionesResponse reacciones
 ) {}

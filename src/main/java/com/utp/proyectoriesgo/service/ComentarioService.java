@@ -11,7 +11,10 @@ import com.utp.proyectoriesgo.repository.PublicacionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ComentarioService {
@@ -42,6 +45,19 @@ public class ComentarioService {
                 .findByPublicacionIdAndOcultoFalseOrderByFechaAsc(
                         publicacionId
                 );
+    }
+
+    /** Cantidad de comentarios visibles por publicación (una sola consulta). Las que no tienen, no aparecen. */
+    @Transactional(readOnly = true)
+    public Map<Long, Long> contarVisibles(Collection<Long> publicacionIds) {
+        Map<Long, Long> cantidades = new HashMap<>();
+        if (publicacionIds.isEmpty()) {
+            return cantidades;
+        }
+        for (Object[] fila : comentarioRepository.contarVisibles(publicacionIds)) {
+            cantidades.put((Long) fila[0], (Long) fila[1]);
+        }
+        return cantidades;
     }
 
     @Transactional

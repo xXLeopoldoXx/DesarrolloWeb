@@ -7,7 +7,10 @@ import com.utp.proyectoriesgo.model.Publicacion;
 import com.utp.proyectoriesgo.model.Reporte;
 import com.utp.proyectoriesgo.model.Usuario;
 import com.utp.proyectoriesgo.service.ComentarioService;
+import com.utp.proyectoriesgo.dto.ReaccionesResponse;
+import com.utp.proyectoriesgo.model.TipoReaccion;
 import com.utp.proyectoriesgo.service.PublicacionService;
+import com.utp.proyectoriesgo.service.ReaccionService;
 import com.utp.proyectoriesgo.service.ReporteService;
 import com.utp.proyectoriesgo.service.UsuarioService;
 import org.junit.jupiter.api.Test;
@@ -25,6 +28,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -53,6 +57,8 @@ class ComunidadControllerTest {
     private ComentarioService comentarios;
     @MockitoBean
     private ReporteService reportes;
+    @MockitoBean
+    private ReaccionService reacciones;
     @MockitoBean
     private UsuarioService usuarias;
     @MockitoBean
@@ -98,6 +104,8 @@ class ComunidadControllerTest {
         Publicacion conSeudonimo = publicacion(1L, autor("Luna"), "Hola a todas");
         Publicacion sinSeudonimo = publicacion(2L, autor(" "), "Sin seudónimo");
         when(publicaciones.listarPublicaciones()).thenReturn(List.of(conSeudonimo, sinSeudonimo));
+        Usuario usuariaTmp1 = usuariaConId(99L);
+        when(usuarias.actual(any())).thenReturn(usuariaTmp1);
 
         mvc.perform(get("/api/comunidad/publicaciones"))
                 .andExpect(status().isOk())
@@ -105,6 +113,51 @@ class ComunidadControllerTest {
                 .andExpect(jsonPath("$[1].seudonimo").value("Anónima"))
                 .andExpect(jsonPath("$[0].username").doesNotExist())
                 .andExpect(jsonPath("$[0].autor").doesNotExist());
+    }
+
+    private Usuario usuariaConId(Long id) {
+        Usuario usuaria = mock(Usuario.class);
+        when(usuaria.getId()).thenReturn(id);
+        return usuaria;
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void listar_incluyeReaccionesComentariosYSiLaPublicacionEsDeQuienConsulta() throws Exception {
+        Publicacion ajena = publicacion(1L, autor("Luna"), "De otra usuaria");   // autor con id 7
+        Publicacion propia = publicacion(2L, autor("Yo"), "Mía");
+        when(publicaciones.listarPublicaciones()).thenReturn(List.of(ajena, propia));
+        Usuario usuariaTmp2 = usuariaConId(7L);
+        when(usuarias.actual(any())).thenReturn(usuariaTmp2);
+        when(reacciones.resumenes(eq(7L), any())).thenReturn(Map.of(
+                1L, new ReaccionesResponse(Map.of(TipoReaccion.ABRAZO, 3L, TipoReaccion.FUERZA, 0L,
+                        TipoReaccion.IDENTIFICO, 1L), List.of(TipoReaccion.ABRAZO))));
+        when(comentarios.contarVisibles(any())).thenReturn(Map.of(1L, 4L));
+
+        mvc.perform(get("/api/comunidad/publicaciones"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].esMia").value(true))   // ambas tienen autor con id 7
+                .andExpect(jsonPath("$[0].totalComentarios").value(4))
+                .andExpect(jsonPath("$[0].reacciones.conteos.ABRAZO").value(3))
+                .andExpect(jsonPath("$[0].reacciones.mias[0]").value("ABRAZO"))
+                .andExpect(jsonPath("$[1].totalComentarios").value(0))
+                .andExpect(jsonPath("$[1].reacciones.conteos.ABRAZO").value(0))
+                .andExpect(jsonPath("$[1].reacciones.mias").isEmpty())
+                // Privacidad: solo totales, nunca quién reaccionó.
+                .andExpect(jsonPath("$[0].reacciones.usuarias").doesNotExist());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void listar_marcaComoAjenaLaPublicacionDeOtra() throws Exception {
+        Publicacion deLuna = publicacion(1L, autor("Luna"), "Hola");
+        when(publicaciones.listarPublicaciones()).thenReturn(List.of(deLuna));
+        Usuario usuariaTmp3 = usuariaConId(99L);
+        when(usuarias.actual(any())).thenReturn(usuariaTmp3);
+
+        mvc.perform(get("/api/comunidad/publicaciones"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].esMia").value(false));
     }
 
     @Test
@@ -135,6 +188,8 @@ class ComunidadControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     void comentarios_deUnaPublicacionInexistenteOOculta_responde404() throws Exception {
+        Usuario usuariaTmp4 = usuariaConId(7L);
+        when(usuarias.actual(any())).thenReturn(usuariaTmp4);
         when(comentarios.listarComentarios(99L))
                 .thenThrow(new RecursoNoEncontradoException("La publicación no existe"));
 
@@ -159,7 +214,36 @@ class ComunidadControllerTest {
         json(post("/api/comunidad/publicaciones/3/comentarios"), "{\"texto\":\"Ánimo\"}")
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.publicacionId").value(3))
-                .andExpect(jsonPath("$.seudonimo").value("Luna"));
+                .andExpect(jsonPath("$.seudonimo").value("Luna"))
+                .andExpect(jsonPath("$.esMia").value(true));
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void listarComentarios_marcaCuálesSonDeQuienConsulta() throws Exception {
+        Publicacion origen = publicacion(3L, autor("Otra"), "Texto");
+        Comentario propio = mock(Comentario.class);
+        when(propio.getId()).thenReturn(1L);
+        when(propio.getPublicacion()).thenReturn(origen);
+        Usuario usuariaTmp5 = usuariaConId(7L);
+        when(propio.getAutor()).thenReturn(usuariaTmp5);
+        when(propio.getTexto()).thenReturn("Mío");
+        when(propio.getFecha()).thenReturn(LocalDateTime.of(2026, 11, 19, 11, 0));
+        Comentario ajeno = mock(Comentario.class);
+        when(ajeno.getId()).thenReturn(2L);
+        when(ajeno.getPublicacion()).thenReturn(origen);
+        Usuario usuariaTmp6 = usuariaConId(8L);
+        when(ajeno.getAutor()).thenReturn(usuariaTmp6);
+        when(ajeno.getTexto()).thenReturn("De otra");
+        when(ajeno.getFecha()).thenReturn(LocalDateTime.of(2026, 11, 19, 11, 5));
+        Usuario usuariaTmp7 = usuariaConId(7L);
+        when(usuarias.actual(any())).thenReturn(usuariaTmp7);
+        when(comentarios.listarComentarios(3L)).thenReturn(List.of(propio, ajeno));
+
+        mvc.perform(get("/api/comunidad/publicaciones/3/comentarios"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].esMia").value(true))
+                .andExpect(jsonPath("$[1].esMia").value(false));
     }
 
     // ---------- Reportes y moderación ----------

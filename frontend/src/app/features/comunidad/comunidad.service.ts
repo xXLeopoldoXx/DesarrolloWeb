@@ -1,15 +1,27 @@
-
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { API_URL } from '../../core/config';
 
+/** Formas de acompañar una publicación (solo apoyo: no existe «no me gusta»). */
+export type TipoReaccion = 'ABRAZO' | 'FUERZA' | 'IDENTIFICO';
+
+/** Totales por tipo y las reacciones que dio quien consulta. Nunca dice QUIÉN reaccionó. */
+export interface Reacciones {
+  conteos: Record<TipoReaccion, number>;
+  mias: TipoReaccion[];
+}
+
 export interface Publicacion {
   id: number;
   seudonimo: string;
   texto: string;
   fecha: string;
+  /** true si la publicó quien consulta (se muestra «Tú»). */
+  esMia: boolean;
+  totalComentarios: number;
+  reacciones: Reacciones;
 }
 
 export interface Comentario {
@@ -18,6 +30,7 @@ export interface Comentario {
   seudonimo: string;
   texto: string;
   fecha: string;
+  esMia: boolean;
 }
 
 // Datos que recibe el administrador
@@ -53,6 +66,17 @@ export class ComunidadService {
     return this.http.post<Publicacion>(
       this.url,
       { texto }
+    );
+  }
+
+  // =====================================
+  // REACCIONES (cada llamada alterna: la pone o la quita)
+  // =====================================
+
+  reaccionar(publicacionId: number, tipo: TipoReaccion): Observable<Reacciones> {
+    return this.http.post<Reacciones>(
+      `${this.url}/${publicacionId}/reacciones`,
+      { tipo }
     );
   }
 

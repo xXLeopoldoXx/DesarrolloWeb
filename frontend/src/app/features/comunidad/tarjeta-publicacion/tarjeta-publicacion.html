@@ -1,0 +1,149 @@
+<article class="tarjeta publicacion">
+  <header class="publicacion__cabecera">
+    <span class="avatar" [attr.data-tono]="tono(publicacion().seudonimo)" aria-hidden="true">
+      {{ inicial(publicacion().seudonimo) }}
+    </span>
+    <div class="publicacion__quien">
+      <strong>
+        {{ publicacion().seudonimo || 'Anónima' }}
+        @if (publicacion().esMia) {
+          <span class="insignia">Tú</span>
+        }
+      </strong>
+      <small>{{ hace(publicacion().fecha) }}</small>
+    </div>
+  </header>
+
+  <p class="publicacion__texto">{{ publicacion().texto }}</p>
+
+  <!-- ===== Reacciones de apoyo ===== -->
+  <div class="reacciones" role="group" aria-label="Acompañar esta publicación">
+    @for (opcion of opciones; track opcion.tipo) {
+      <button
+        type="button"
+        class="reaccion"
+        [class.reaccion--dada]="dada(opcion.tipo)"
+        [class.reaccion--pulso]="pulso() === opcion.tipo"
+        [attr.aria-pressed]="dada(opcion.tipo)"
+        [attr.data-tipo]="opcion.tipo"
+        (click)="reaccionar(opcion.tipo)"
+      >
+        <app-icono [nombre]="opcion.icono" [tamano]="18" />
+        <span>{{ opcion.etiqueta }}</span>
+        @if (cantidad(opcion.tipo) > 0) {
+          <span class="reaccion__cantidad" aria-label="{{ cantidad(opcion.tipo) }} reacciones">
+            {{ cantidad(opcion.tipo) }}
+          </span>
+        }
+      </button>
+    }
+  </div>
+  @if (errorReaccion()) {
+    <p class="aviso aviso--error" role="alert">{{ errorReaccion() }}</p>
+  }
+
+  <!-- ===== Barra de acciones ===== -->
+  <div class="acciones">
+    <button type="button" class="enlace" [attr.aria-expanded]="abiertos()" (click)="alternarComentarios()">
+      <app-icono nombre="chat" [tamano]="18" />
+      {{ abiertos() ? 'Ocultar comentarios' : totalComentarios() === 0 ? 'Comentar' : 'Ver comentarios (' + totalComentarios() + ')' }}
+    </button>
+
+    @if (!publicacion().esMia) {
+      <button type="button" class="enlace enlace--suave" [attr.aria-expanded]="reporteAbierto()" (click)="alternarReporte()">
+        <app-icono nombre="bandera" [tamano]="16" />
+        {{ reporteAbierto() ? 'Cancelar reporte' : 'Reportar' }}
+      </button>
+    }
+  </div>
+
+  @if (mensajeReporte()) {
+    <p class="aviso aviso--ok" role="status">{{ mensajeReporte() }}</p>
+  }
+
+  @if (reporteAbierto()) {
+    <div class="reporte">
+      <p>¿Por qué quieres reportar esta publicación?</p>
+      <textarea
+        [value]="motivo()"
+        (input)="escribirMotivo($any($event.target).value)"
+        [attr.maxlength]="maxMotivo"
+        rows="3"
+        placeholder="Cuéntanos el motivo…"
+        aria-label="Motivo del reporte"
+      ></textarea>
+      <div class="fila">
+        <span class="contador">{{ motivo().length }}/{{ maxMotivo }}</span>
+        <button type="button" class="boton boton--suave" [disabled]="!motivo().trim() || enviandoReporte()" (click)="reportar()">
+          {{ enviandoReporte() ? 'Enviando…' : 'Enviar reporte' }}
+        </button>
+      </div>
+    </div>
+  }
+  @if (errorReporte()) {
+    <p class="aviso aviso--error" role="alert">{{ errorReporte() }}</p>
+  }
+
+  <!-- ===== Comentarios ===== -->
+  @if (abiertos()) {
+    <section class="comentarios" aria-label="Comentarios">
+      @if (cargandoComentarios()) {
+        <p class="vacio" role="status">Cargando comentarios…</p>
+      }
+      @if (errorComentarios()) {
+        <p class="aviso aviso--error" role="alert">{{ errorComentarios() }}</p>
+      }
+
+      @for (comentario of comentarios() ?? []; track comentario.id) {
+        <div class="comentario" [class.comentario--mio]="comentario.esMia">
+          <span class="avatar avatar--chico" [attr.data-tono]="tono(comentario.seudonimo)" aria-hidden="true">
+            {{ inicial(comentario.seudonimo) }}
+          </span>
+          <div class="comentario__cuerpo">
+            <div class="comentario__cabecera">
+              <strong>
+                {{ comentario.seudonimo || 'Anónima' }}
+                @if (comentario.esMia) {
+                  <span class="insignia">Tú</span>
+                }
+              </strong>
+              <small>{{ hace(comentario.fecha) }}</small>
+            </div>
+            <p>{{ comentario.texto }}</p>
+            @if (!comentario.esMia) {
+              <button type="button" class="enlace enlace--chico" (click)="responder(comentario)">Responder</button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (!cargandoComentarios() && !errorComentarios() && (comentarios() ?? []).length === 0) {
+        <p class="vacio">Todavía no hay comentarios. Una palabra amable puede hacer mucho.</p>
+      }
+
+      <div class="nuevo">
+        <textarea
+          #caja
+          [value]="textoComentario()"
+          (input)="escribirComentario($any($event.target).value)"
+          [attr.maxlength]="maxComentario"
+          rows="2"
+          placeholder="Escribe un comentario respetuoso…"
+          aria-label="Escribir un comentario"
+        ></textarea>
+        <div class="fila">
+          <span class="contador">{{ textoComentario().length }}/{{ maxComentario }}</span>
+          <button
+            type="button"
+            class="boton"
+            [disabled]="!textoComentario().trim() || enviandoComentario()"
+            (click)="comentar()"
+          >
+            <app-icono nombre="enviar" [tamano]="16" />
+            {{ enviandoComentario() ? 'Enviando…' : 'Comentar' }}
+          </button>
+        </div>
+      </div>
+    </section>
+  }
+</article>

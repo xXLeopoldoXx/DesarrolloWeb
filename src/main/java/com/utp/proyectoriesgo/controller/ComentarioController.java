@@ -34,12 +34,15 @@ public class ComentarioController {
 
     @GetMapping
     public List<ComentarioResponse> listar(
-            @PathVariable Long publicacionId) {
+            @PathVariable Long publicacionId,
+            Authentication autenticacion) {
+
+        Long usuariaId = usuarioService.actual(autenticacion).getId();
 
         return comentarioService
                 .listarComentarios(publicacionId)
                 .stream()
-                .map(this::convertirRespuesta)
+                .map(comentario -> convertirRespuesta(comentario, usuariaId))
                 .toList();
     }
 
@@ -59,11 +62,11 @@ public class ComentarioController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(convertirRespuesta(comentario));
+                .body(convertirRespuesta(comentario, autor.getId()));
     }
 
     private ComentarioResponse convertirRespuesta(
-            Comentario comentario) {
+            Comentario comentario, Long usuariaId) {
 
         String seudonimo = comentario.getAutor().getSeudonimo();
 
@@ -76,7 +79,8 @@ public class ComentarioController {
                 comentario.getPublicacion().getId(),
                 seudonimo,
                 comentario.getTexto(),
-                comentario.getFecha()
+                comentario.getFecha(),
+                comentario.getAutor().getId().equals(usuariaId)
         );
     }
 }

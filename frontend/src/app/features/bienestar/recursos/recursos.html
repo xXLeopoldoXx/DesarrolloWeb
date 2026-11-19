@@ -1,0 +1,83 @@
+<div class="recursos-contenedor">
+  <div class="recursos-cabecera">
+    <div>
+      <h2>Recursos y prácticas de autocuidado</h2>
+      <p class="recursos-subtitulo">
+        Estrategias prácticas de bienestar emocional, técnicas de calma y orientación especializada pensadas para ti.
+      </p>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="alerta alerta--error" role="alert">
+      <app-icono nombre="alerta" [tamano]="18" />
+      <span>{{ error() }}</span>
+    </div>
+  }
+
+  <!-- Filtro de Categorías -->
+  <div class="filtros-categoria" role="group" aria-label="Filtrar por categoría">
+    @for (cat of categorias; track cat.clave) {
+      <button
+        type="button"
+        class="filtro-boton"
+        [class.filtro-boton--activo]="categoriaActiva() === cat.clave"
+        (click)="filtrarPorCategoria(cat.clave)"
+      >
+        {{ cat.etiqueta }}
+      </button>
+    }
+  </div>
+
+  <!-- Estado de Carga -->
+  @if (cargando() && recursos().length === 0) {
+    <div class="estado-vacio">
+      <p>Cargando recursos de autocuidado...</p>
+    </div>
+  } @else if (recursos().length === 0) {
+    <div class="tarjeta estado-vacio">
+      <span class="vacio-icono"><app-icono nombre="heart" [tamano]="36" /></span>
+      <h3>No se encontraron recursos en esta categoría</h3>
+      <p>Prueba seleccionando otra categoría o revisa todas las áreas disponibles.</p>
+      <button type="button" class="boton boton--suave" (click)="filtrarPorCategoria('')">
+        Ver todas las áreas
+      </button>
+    </div>
+  } @else {
+    <!-- Grid de Recursos -->
+    <div class="recursos-grid">
+      @for (recurso of recursos(); track recurso.id) {
+        <article class="tarjeta recurso-tarjeta recurso-tarjeta--{{ recurso.categoria.toLowerCase() }}">
+          <header class="recurso-tarjeta__cabecera">
+            <span class="recurso-categoria">{{ recurso.categoria }}</span>
+            <span class="recurso-tipo">{{ recurso.tipo }}</span>
+          </header>
+
+          <h3 class="recurso-tarjeta__titulo">{{ recurso.titulo }}</h3>
+          <p class="recurso-tarjeta__descripcion">{{ recurso.descripcion }}</p>
+
+          @if (recurso.enlaceOConsejo) {
+            <footer class="recurso-tarjeta__pie">
+              @if (esUrl(recurso.enlaceOConsejo)) {
+                <a
+                  class="boton boton--suave enlace-recurso"
+                  [href]="recurso.enlaceOConsejo"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span>Abrir enlace oficial</span>
+                  <app-icono nombre="salir" [tamano]="16" />
+                </a>
+              } @else {
+                <div class="consejo-caja">
+                  <span class="consejo-titulo">Paso a paso / Consejo:</span>
+                  <p class="consejo-texto">{{ recurso.enlaceOConsejo }}</p>
+                </div>
+              }
+            </footer>
+          }
+        </article>
+      }
+    </div>
+  }
+</div>

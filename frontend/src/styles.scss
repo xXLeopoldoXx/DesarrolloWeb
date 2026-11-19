@@ -1,0 +1,224 @@
+/*
+  Estilos globales y tokens de diseño (variables CSS).
+  Cualquier componente puede usarlos: color: var(--texto);
+  Responsable del diseño visual: Anheli (ajustar valores aquí cambia toda la app).
+*/
+:root {
+  // Marca
+  --teal-700: #1f6f65;
+  --teal-600: #2f8f83;
+  --teal-500: #3fa496;
+  --teal-100: #d9f1ec;
+  --teal-50: #eef9f7;
+
+  // Apoyo
+  --lila-600: #7a63b8;
+  --lila-100: #e9e3f7;
+  --lila-50: #f5f2fb;
+  --coral-600: #d9594c;
+  --coral-500: #ef7f72;
+  --coral-100: #fde3df;
+  --coral-50: #fff1ef;
+  --ambar-100: #fdf0d2;
+  --ambar-700: #8a5a00;
+
+  // Superficies y texto
+  --fondo: #f6faf9;
+  --superficie: #ffffff;
+  --borde: #dbe7e4;
+  --texto: #25364a;
+  --texto-suave: #5b6b7d;
+  --texto-inverso: #ffffff;
+
+  // Forma
+  --radio-s: 10px;
+  --radio-m: 16px;
+  --radio-l: 24px;
+  --sombra: 0 8px 24px rgba(31, 79, 100, 0.08);
+  --sombra-fuerte: 0 14px 34px rgba(31, 79, 100, 0.16);
+
+  --fuente: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  font-family: var(--fuente);
+  color: var(--texto);
+  background: var(--fondo);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  margin: 0 0 0.5rem;
+}
+
+p {
+  margin: 0 0 0.75rem;
+}
+
+a {
+  color: var(--teal-700);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+// Foco visible para quienes navegan con teclado
+:focus-visible {
+  outline: 3px solid var(--lila-600);
+  outline-offset: 2px;
+}
+
+// ---------- Utilidades compartidas por todos los módulos ----------
+
+.tarjeta {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-m);
+  box-shadow: var(--sombra);
+  padding: 1.25rem;
+}
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.2rem;
+  border: 0;
+  border-radius: var(--radio-s);
+  background: var(--teal-600);
+  color: var(--texto-inverso);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--teal-700);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  &--suave {
+    background: var(--teal-50);
+    color: var(--teal-700);
+    border: 1px solid var(--teal-100);
+
+    &:hover:not(:disabled) {
+      background: var(--teal-100);
+    }
+  }
+
+  &--peligro {
+    background: var(--coral-600);
+
+    &:hover:not(:disabled) {
+      background: #b94539;
+    }
+  }
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+
+  label {
+    font-weight: 600;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid #b8c9c5;
+    border-radius: var(--radio-s);
+    background: #fff;
+    color: var(--texto);
+  }
+
+  input.ng-invalid.ng-touched,
+  textarea.ng-invalid.ng-touched,
+  select.ng-invalid.ng-touched {
+    border-color: var(--coral-600);
+  }
+
+  .ayuda {
+    color: var(--texto-suave);
+    font-size: 0.85rem;
+  }
+
+  .error {
+    color: var(--coral-600);
+    font-size: 0.875rem;
+  }
+}
+
+.alerta {
+  padding: 0.8rem 1rem;
+  border-radius: var(--radio-s);
+  margin-bottom: 1rem;
+
+  &--error {
+    background: var(--coral-50);
+    border: 1px solid var(--coral-100);
+    color: #9b2f25;
+  }
+
+  &--info {
+    background: var(--teal-50);
+    border: 1px solid var(--teal-100);
+    color: var(--teal-700);
+  }
+
+  &--aviso {
+    background: var(--ambar-100);
+    border: 1px solid #f1d48a;
+    color: var(--ambar-700);
+  }
+}
+
+// Texto solo para lectores de pantalla
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

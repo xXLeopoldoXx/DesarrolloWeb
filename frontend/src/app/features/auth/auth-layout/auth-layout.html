@@ -1,0 +1,26 @@
+<div class="salida-flotante"><app-salida-rapida /></div>
+
+<div class="auth">
+  <aside class="auth__panel">
+    <span class="auth__logo"><app-icono nombre="shield" [tamano]="34" /></span>
+    <h2>Mi espacio seguro</h2>
+    <p>
+      Un lugar privado para entender tu situación, planear tu seguridad y encontrar ayuda cuando la necesites.
+    </p>
+    <ul>
+      <li><app-icono nombre="check" [tamano]="18" /> Usa un seudónimo, no tu nombre real.</li>
+      <li><app-icono nombre="check" [tamano]="18" /> Tu información es solo tuya y puedes borrarla.</li>
+      <li><app-icono nombre="check" [tamano]="18" /> El botón «Salida rápida» está siempre visible.</li>
+    </ul>
+  </aside>
+
+  <main class="auth__contenido">
+    <section class="auth__tarjeta tarjeta">
+      <h1>{{ titulo() }}</h1>
+      @if (subtitulo()) {
+        <p class="auth__sub">{{ subtitulo() }}</p>
+      }
+      <ng-content />
+    </section>
+  </main>
+</div>

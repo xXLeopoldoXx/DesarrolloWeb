@@ -1,0 +1,80 @@
+.bienestar-modulo {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.bienestar-banner {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-m);
+  box-shadow: var(--sombra);
+
+  &__icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--lila-100);
+    color: var(--lila-600);
+    flex-shrink: 0;
+  }
+
+  &__info {
+    h1 {
+      margin: 0 0 0.25rem;
+      font-size: 1.5rem;
+      color: var(--texto);
+    }
+
+    p {
+      margin: 0;
+      color: var(--texto-suave);
+      font-size: 0.95rem;
+    }
+  }
+}
+
+.bienestar-pestanas {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--borde);
+  padding-bottom: 0.25rem;
+}
+
+.pestana {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radio-s) var(--radio-s) 0 0;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--texto-suave);
+  transition: all 0.15s ease;
+
+  &:hover {
+    color: var(--texto);
+    background: var(--superficie);
+  }
+
+  &.pestana--activa {
+    color: var(--lila-600);
+    background: var(--superficie);
+    border-bottom: 3px solid var(--lila-600);
+    margin-bottom: -2px;
+  }
+}
+
+.bienestar-contenido {
+  min-height: 350px;
+}

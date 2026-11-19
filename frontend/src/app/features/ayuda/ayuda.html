@@ -1,0 +1,37 @@
+<header class="cabecera-pagina">
+  <h1>Necesito ayuda</h1>
+  <p>No estás sola. Estos servicios oficiales pueden orientarte y protegerte.</p>
+</header>
+
+<div class="servicios">
+  @for (servicio of servicios; track servicio.nombre) {
+    <article class="servicio tarjeta" [class.servicio--urgente]="servicio.urgente">
+      <h2>{{ servicio.nombre }}</h2>
+      <p>{{ servicio.descripcion }}</p>
+
+      @if (servicio.telefono) {
+        <a class="boton" [class.boton--peligro]="servicio.urgente" [href]="'tel:' + servicio.telefono">
+          <app-icono nombre="phone" [tamano]="20" /> {{ servicio.accion }}
+        </a>
+      } @else if (servicio.enlace) {
+        <a class="boton boton--suave" [href]="servicio.enlace" target="_blank" rel="noopener noreferrer">
+          {{ servicio.accion }}
+        </a>
+      }
+    </article>
+  }
+</div>
+
+<section class="tarjeta">
+  <h2>Antes y durante la llamada</h2>
+  <ol class="pasos">
+    @for (paso of pasos; track paso) {
+      <li>{{ paso }}</li>
+    }
+  </ol>
+</section>
+
+<p class="alerta alerta--aviso aviso">
+  Información orientativa. Verifica siempre los números y servicios en los sitios oficiales del Estado
+  peruano, porque pueden cambiar.
+</p>

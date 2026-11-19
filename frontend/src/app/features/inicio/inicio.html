@@ -1,0 +1,44 @@
+<section class="hero">
+  <div class="hero__texto">
+    <p class="hero__etiqueta">Mi espacio seguro</p>
+    <h1>Hola, {{ auth.nombreVisible() || 'bienvenida' }}</h1>
+    <p>
+      Este es un lugar privado. Aquí puedes entender mejor tu situación, preparar tu seguridad y
+      encontrar ayuda, a tu ritmo.
+    </p>
+    <div class="hero__acciones">
+      <a class="boton" routerLink="/evaluacion">
+        <app-icono nombre="clipboard" [tamano]="20" /> Hacer mi evaluación
+      </a>
+      <a class="boton boton--peligro" routerLink="/ayuda">
+        <app-icono nombre="phone" [tamano]="20" /> Necesito ayuda ahora
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="urgente" role="note">
+  <app-icono nombre="alerta" [tamano]="24" />
+  <p>
+    <strong>¿Estás en peligro ahora?</strong> Llama al <a href="tel:105">105</a> (Policía). Para
+    orientación y apoyo, la <a href="tel:100">Línea 100</a> atiende a mujeres que sufren violencia.
+  </p>
+</section>
+
+<h2 class="titulo-seccion">Accesos rápidos</h2>
+<div class="accesos">
+  @for (acceso of accesos; track acceso.ruta) {
+    <a class="acceso tarjeta" [class]="'acceso--' + acceso.tono" [routerLink]="acceso.ruta">
+      <span class="acceso__icono"><app-icono [nombre]="acceso.icono" [tamano]="26" /></span>
+      <strong>{{ acceso.etiqueta }}</strong>
+      <span class="acceso__desc">{{ acceso.descripcion }}</span>
+    </a>
+  }
+</div>
+
+<h2 class="titulo-seccion">Recomendaciones de seguridad</h2>
+<ul class="recomendaciones tarjeta">
+  @for (texto of recomendaciones; track texto) {
+    <li><app-icono nombre="check" [tamano]="20" /> <span>{{ texto }}</span></li>
+  }
+</ul>

@@ -109,6 +109,26 @@ class AsistenteControllerTest {
 
     @Test
     @WithMockUser(roles = "USER")
+    void respuestaLargaDelAsistenteEnElHistorial_seAcepta() throws Exception {
+        // Regresión: una respuesta de Gemini de más de 500 caracteres hacía fallar el mensaje siguiente.
+        when(asistenteService.responder(any(), any())).thenReturn(new AsistenteResponse("ok", false));
+        String respuestaLarga = "a".repeat(1500);
+
+        enviar("{\"mensaje\":\"gracias\",\"historial\":[{\"rol\":\"asistente\",\"texto\":\"" + respuestaLarga + "\"}]}")
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void turnoDelHistorialDemasiadoLargo_responde400() throws Exception {
+        String excesivo = "a".repeat(3001);
+
+        enviar("{\"mensaje\":\"hola\",\"historial\":[{\"rol\":\"asistente\",\"texto\":\"" + excesivo + "\"}]}")
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
     void siElAsistenteNoEstaDisponible_responde503ConMensajeParaLaUsuaria() throws Exception {
         when(asistenteService.responder(any(), any()))
                 .thenThrow(new AsistenteNoDisponibleException("El asistente no está disponible. Llama a la Línea 100."));

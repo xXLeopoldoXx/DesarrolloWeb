@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Configuración local con secretos (claves de API): NUNCA se sube a git ###
+/config/

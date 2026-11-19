@@ -26,6 +26,18 @@ public class GlobalExceptionHandler {
         return construir(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(AsistenteNoDisponibleException.class)
+    public ResponseEntity<ErrorResponse> manejarAsistenteNoDisponible(
+            AsistenteNoDisponibleException ex, HttpServletRequest request) {
+        return construir(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(LimiteMensajesException.class)
+    public ResponseEntity<ErrorResponse> manejarLimiteMensajes(
+            LimiteMensajesException ex, HttpServletRequest request) {
+        return construir(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), request);
+    }
+
     @ExceptionHandler(UsuarioExistenteException.class)
     public ResponseEntity<ErrorResponse> manejarUsuarioExistente(
             UsuarioExistenteException ex, HttpServletRequest request) {

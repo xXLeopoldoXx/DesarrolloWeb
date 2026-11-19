@@ -11,7 +11,7 @@ Angular (frontend/)  ──/api──▶  Spring Boot (src/)  ──JPA──▶
 | Backend (raíz) | `./mvnw spring-boot:run` · `./mvnw test` | Java 21, Postgres con `riesgo_db`, variables abajo |
 | Frontend | `cd frontend && npm install && npm start` · `npm test` | Node **22.22.3+ o 24** |
 
-Variables del backend: `JWT_SECRET_BASE64` (Base64 de 32+ bytes), `DB_PASSWORD` (tu Postgres), `SERVER_PORT` (opcional, `8081` si el 8080 está ocupado). Si usas 8081: `API_PORT=8081 npm start`.
+Variables del backend: `JWT_SECRET_BASE64` (Base64 de 32+ bytes), `DB_PASSWORD` (tu Postgres), `SERVER_PORT` (opcional, `8081` si el 8080 está ocupado), `GEMINI_API_KEY` (solo para el asistente). Si usas 8081: `API_PORT=8081 npm start`.
 Cuentas de prueba: `usuario / Usuario123*` · `admin / Admin123*` (o crear una en `/registro`).
 
 ## 2. Reglas
@@ -161,25 +161,35 @@ admin/moderacion.ts      lista de reportes + botón «Ocultar» (solo ADMIN; ya 
 
 ### Leo — Base, Inicio, Ayuda e integración
 
-Hecho: base, Inicio y Ayuda. Pendiente: revisar y fusionar los PR, y que **Inicio** muestre el «resumen de actividades» (última evaluación y acciones pendientes del plan) cuando existan esos módulos. Después, el asistente (sección 6).
+Hecho: base, Inicio, Ayuda y **Asistente** (sección 6). Pendiente: revisar y fusionar los PR, y que **Inicio** muestre el «resumen de actividades» (última evaluación y acciones pendientes del plan) cuando existan esos módulos.
 
-## 6. Futuro — Asistente con IA (Leo)
+## 6. Asistente con IA (Leo) — hecho
 
-Después de que estén los módulos. Gemini, plan gratuito, lo más simple posible.
+Gemini (plan gratuito de Google AI Studio). Rama `feature/asistente`.
+
+**Para usarlo:** crear la clave en Google AI Studio y ponerla en **uno** de estos dos sitios (`GEMINI_MODEL` es opcional; por defecto `gemini-3.5-flash-lite`):
+- variable de entorno `GEMINI_API_KEY`, o
+- archivo local `config/application.properties` con `app.gemini.api-key=tu-clave` (la carpeta `config/` está en `.gitignore`; Spring Boot la carga sola al arrancar desde la raíz).
+
+Sin clave todo funciona y el chat avisa «aún no está configurado». **Nunca** poner la clave en `src/main/resources/application.properties` ni en ningún archivo versionado.
 
 ```
-Backend   controller/AsistenteController   POST /api/asistente/mensajes  {mensaje (≤500)} → {respuesta}
-          service/AsistenteService          responder(Long usuarioId, String mensaje)
-          service/GeminiClient              enviar(String instrucciones, String mensaje)  (RestClient)
-          application.properties            app.gemini.model · clave en variable GEMINI_API_KEY (nunca en el repo)
-Frontend  features/asistente/asistente.ts   chat simple: lista de mensajes + caja de texto + estado «escribiendo…»
-          features/asistente/asistente.service.ts   enviar(mensaje)
+Backend   controller/AsistenteController   POST /api/asistente/mensajes {mensaje ≤500, historial ≤6} → {respuesta, emergencia} · GET /api/asistente/estado → {disponible}
+          service/AsistenteService          responder(usuario, request) · construirTurnos(historial, mensaje)
+          service/GeminiClient              generar(instrucciones, turnos) · configurado()          (RestClient → generateContent)
+          service/DetectorPeligro           indicaPeligro(mensaje)
+          service/LimitadorMensajes         registrar(usuario)  (20 mensajes/hora ⇒ 429)
+          exception/                        AsistenteNoDisponibleException (503) · LimiteMensajesException (429)
+          application.properties            app.gemini.* · app.asistente.max-mensajes-hora
+Frontend  features/asistente/asistente.ts + .html + .scss   chat: burbujas, sugerencias, «escribiendo…», tarjeta de emergencia
+          features/asistente/asistente.service.ts            enviar(mensaje, historial) · estado()
 ```
-Reglas:
+Reglas (ya implementadas y con pruebas):
 - Instrucciones fijas: orienta de forma general, no diagnostica, no da «probabilidad de feminicidio», no pide datos personales.
-- **Nunca** recibe evaluaciones, diario ni publicaciones.
-- Si el mensaje indica peligro inmediato: respuesta fija (105 y Línea 100) **sin llamar al modelo**.
-- Límite por usuaria (ej. 20 mensajes/hora ⇒ 429). El plan gratuito de Google puede usar lo enviado: por eso no se envía nada personal.
+- **Nunca** recibe evaluaciones, diario ni publicaciones; el nombre de usuaria tampoco se envía. La conversación no se guarda en el servidor ni en el navegador.
+- Mensaje de peligro (frases como «me va a matar», «quiero morir»): respuesta fija con 105 y Línea 100, **sin llamar al modelo** y aunque se haya agotado el límite.
+- La clave viaja solo en la cabecera `x-goog-api-key`. Los logs no guardan el texto de la usuaria (`spring.mvc.log-resolved-exception=false`).
+- El plan gratuito de Google puede usar lo enviado para mejorar sus productos: otra razón para no enviar nada personal.
 
 ## 7. Git
 

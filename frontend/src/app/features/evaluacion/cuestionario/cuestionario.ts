@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormControl,
@@ -41,9 +41,10 @@ export class Cuestionario {
   readonly formulario =
     new FormRecord<FormControl<Respuesta | null>>({});
 
-  enviando = false;
-  mostrarConfirmacion = false;
-  error = '';
+  // Signals: la app no usa zone.js, y un campo normal cambiado dentro de un subscribe no repinta la pantalla.
+  readonly enviando = signal(false);
+  readonly mostrarConfirmacion = signal(false);
+  readonly error = signal('');
 
   constructor() {
     for (const pregunta of this.preguntas) {
@@ -95,22 +96,21 @@ export class Cuestionario {
 
   // Validar y enviar el cuestionario.
   enviar(): void {
-    this.error = '';
+    this.error.set('');
 
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
 
-      this.error =
-        'Responde todas las preguntas antes de continuar.';
+      this.error.set('Responde todas las preguntas antes de continuar.');
 
       return;
     }
 
     if (
       this.respuestasPendientes > 0 &&
-      !this.mostrarConfirmacion
+      !this.mostrarConfirmacion()
     ) {
-      this.mostrarConfirmacion = true;
+      this.mostrarConfirmacion.set(true);
       return;
     }
 
@@ -119,23 +119,23 @@ export class Cuestionario {
 
   // Confirmar las respuestas no seguras.
   confirmarRespuestas(): void {
-    this.mostrarConfirmacion = false;
+    this.mostrarConfirmacion.set(false);
     this.crearEvaluacion();
   }
 
   // Regresar a editar las respuestas.
   editarRespuestas(): void {
-    this.mostrarConfirmacion = false;
+    this.mostrarConfirmacion.set(false);
   }
 
   // Enviar la evaluación al backend.
   private crearEvaluacion(): void {
-    this.enviando = true;
-    this.error = '';
+    this.enviando.set(true);
+    this.error.set('');
 
     this.evaluacionService.crear(this.respuestas).subscribe({
       next: resultado => {
-        this.enviando = false;
+        this.enviando.set(false);
 
         this.router.navigate([
           '/evaluacion/resultados',
@@ -144,12 +144,13 @@ export class Cuestionario {
       },
 
       error: err => {
-        this.enviando = false;
+        this.enviando.set(false);
 
-        this.error =
+        this.error.set(
           err?.error?.mensaje ||
           err?.error?.message ||
-          'No se pudo guardar la evaluación. Inténtalo nuevamente.';
+          'No se pudo guardar la evaluación. Inténtalo nuevamente.'
+        );
       }
     });
   }

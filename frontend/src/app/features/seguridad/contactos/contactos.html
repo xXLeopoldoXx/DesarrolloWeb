@@ -7,7 +7,7 @@
 <div class="secciones">
   <section class="tarjeta" aria-labelledby="titulo-formulario-contacto">
     <h2 id="titulo-formulario-contacto">{{ editando() === null ? 'Agregar contacto' : 'Editar contacto' }}</h2>
-    <form [formGroup]="formulario" (ngSubmit)="guardar()" autocomplete="off">
+    <form [formGroup]="formulario" (ngSubmit)="guardar()" autocomplete="off" spellcheck="false">
       <div class="campo">
         <label for="nombre-contacto">Nombre</label>
         <input #campoNombre id="nombre-contacto" formControlName="nombre" maxlength="100" required

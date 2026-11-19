@@ -3,34 +3,33 @@ package com.utp.proyectoriesgo.integration;
 import com.jayway.jsonpath.JsonPath;
 import com.utp.proyectoriesgo.model.Usuario;
 import com.utp.proyectoriesgo.repository.UsuarioRepository;
-import com.utp.proyectoriesgo.service.CuentaService;
-import com.utp.proyectoriesgo.service.InvalidacionSesionesCuenta;
-import com.utp.proyectoriesgo.service.LimpiezaDatosUsuaria;
+import com.utp.proyectoriesgo.service.ContactoService;
+import com.utp.proyectoriesgo.service.DisponibilidadBorradoCuenta;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.time.Instant;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -46,7 +45,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "spring.jpa.show-sql=false"
 })
 @AutoConfigureMockMvc
-@Import(MiSeguridadPostgresTest.ConfiguracionDePrueba.class)
 class MiSeguridadPostgresTest {
     private static final String ACCIONES = "/api/mi/plan/acciones";
     private static final String LUGARES = "/api/mi/plan/lugares";
@@ -63,7 +61,16 @@ class MiSeguridadPostgresTest {
     private JdbcClient jdbc;
 
     @Autowired
-    private InvalidacionSesionesCuenta invalidacion;
+    private JwtEncoder jwtEncoder;
+
+    @MockitoSpyBean
+    private DisponibilidadBorradoCuenta disponibilidad;
+
+    @MockitoSpyBean
+    private ContactoService contactos;
+
+    @PersistenceContext
+    private EntityManager entidades;
 
     @Test
     void datosPrivadosAisladosEntreDosCuentasConJwtReal() throws Exception {
@@ -102,9 +109,12 @@ class MiSeguridadPostgresTest {
     }
 
     @Test
-    void borradoEliminaDatosDeLaCuentaYConservaLosDeOtraUsuaria() throws Exception {
+    void borradoConservaDatosAjenosEInvalidaSesionesAlReutilizarElNombre() throws Exception {
+        // Solo se sustituye el resultado del bloqueo para probar el recorrido transaccional.
+        doReturn(true).when(disponibilidad).disponible();
         Sesion a = registrar();
         Sesion b = registrar();
+        String segundoToken = iniciarSesion(a.usuaria().getUsername());
         crearRecursos(a);
         crearRecursos(b);
 
@@ -112,34 +122,79 @@ class MiSeguridadPostgresTest {
                 .andExpect(status().isNoContent());
 
         Long id = a.usuaria().getId();
-        verify(invalidacion).invalidarSesionesDe(id);
         assertThat(usuarias.existsById(id)).isFalse();
         for (String tabla : new String[]{"usuarios_roles", "plan_acciones", "lugares_seguros", "contactos_confianza"}) {
             assertThat(jdbc.sql("select count(*) from " + tabla + " where usuario_id = :id")
                     .param("id", id).query(Long.class).single()).isZero();
         }
         comprobarListas(b, 1);
+
+        mvc.perform(get("/api/asistente/estado").header(HttpHeaders.AUTHORIZATION, segundoToken))
+                .andExpect(status().isUnauthorized());
+        Sesion nueva = registrar(a.usuaria().getUsername());
+        assertThat(nueva.usuaria().getId()).isNotEqualTo(id);
+        crearRecursos(nueva);
+        mvc.perform(get(ACCIONES).header(HttpHeaders.AUTHORIZATION, a.bearer()))
+                .andExpect(status().isUnauthorized());
+        mvc.perform(delete(CUENTA).header(HttpHeaders.AUTHORIZATION, segundoToken))
+                .andExpect(status().isUnauthorized());
+        comprobarListas(nueva, 1);
     }
 
     @Test
-    void revierteLaLimpiezaDeDatosSiFallaLaInvalidacion() throws Exception {
+    void revierteLaLimpiezaDeDatosSiFallaUnHook() throws Exception {
+        doReturn(true).when(disponibilidad).disponible();
         Sesion sesion = registrar();
         crearRecursos(sesion);
-        try {
-            doThrow(new IllegalStateException("Fallo simulado")).when(invalidacion)
-                    .invalidarSesionesDe(sesion.usuaria().getId());
-            mvc.perform(delete(CUENTA).header(HttpHeaders.AUTHORIZATION, sesion.bearer()))
-                    .andExpect(status().isInternalServerError());
-        } finally {
-            reset(invalidacion);
-        }
+        Long id = sesion.usuaria().getId();
+        doAnswer(llamada -> {
+            llamada.callRealMethod();
+            entidades.flush();
+            assertThat(jdbc.sql("select count(*) from contactos_confianza where usuario_id = :id")
+                    .param("id", id).query(Long.class).single()).isZero();
+            throw new IllegalStateException("Fallo simulado después de borrar los contactos");
+        }).when(contactos).eliminarDatosDe(id);
+        mvc.perform(delete(CUENTA).header(HttpHeaders.AUTHORIZATION, sesion.bearer()))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.mensaje").value("No se pudo eliminar la cuenta. Inténtalo de nuevo más tarde."));
 
         assertThat(usuarias.existsById(sesion.usuaria().getId())).isTrue();
         comprobarListas(sesion, 1);
     }
 
+    @Test
+    void bloqueoRealImpideBorrarYLosTokensPreviosALaMigracionSeRechazan() throws Exception {
+        Sesion sesion = registrar();
+        crearRecursos(sesion);
+        mvc.perform(get(CUENTA + "/estado").header(HttpHeaders.AUTHORIZATION, sesion.bearer()))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.disponible").value(false));
+        mvc.perform(delete(CUENTA).header(HttpHeaders.AUTHORIZATION, sesion.bearer()))
+                .andExpect(status().isServiceUnavailable());
+        comprobarListas(sesion, 1);
+
+        var claims = JwtClaimsSet.builder().issuer("riesgo-api").subject(sesion.usuaria().getUsername())
+                .issuedAt(Instant.now()).expiresAt(Instant.now().plusSeconds(600))
+                .claim("roles", java.util.List.of("ROLE_USER")).build();
+        var tokenAnterior = jwtEncoder.encode(JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS256).build(), claims));
+        mvc.perform(get(ACCIONES).header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenAnterior.getTokenValue()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void lasTresTablasProtegenLaRelacionConLaCuentaEnPostgres() {
+        var relaciones = jdbc.sql("""
+                select conname from pg_constraint
+                where contype = 'f' and confrelid = 'usuarios'::regclass and confdeltype = 'a'
+                """).query(String.class).list();
+        assertThat(relaciones).contains("fk_plan_acciones_usuario", "fk_lugares_seguros_usuario",
+                "fk_contactos_confianza_usuario");
+    }
+
     private Sesion registrar() throws Exception {
-        String username = "test-" + UUID.randomUUID().toString().substring(0, 24);
+        return registrar("test-" + UUID.randomUUID().toString().substring(0, 24));
+    }
+
+    private Sesion registrar(String username) throws Exception {
         MvcResult registro = mvc.perform(post("/api/auth/registro").contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {"username":"%s","password":"ClaveFicticia123","seudonimo":"Usuaria de prueba"}
@@ -147,6 +202,15 @@ class MiSeguridadPostgresTest {
                 .andExpect(status().isCreated()).andReturn();
         String token = JsonPath.read(registro.getResponse().getContentAsString(), "$.accessToken");
         return new Sesion(usuarias.findByUsername(username).orElseThrow(), "Bearer " + token);
+    }
+
+    private String iniciarSesion(String username) throws Exception {
+        MvcResult login = mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"username":"%s","password":"ClaveFicticia123"}
+                                """.formatted(username)))
+                .andExpect(status().isOk()).andReturn();
+        return "Bearer " + JsonPath.<String>read(login.getResponse().getContentAsString(), "$.accessToken");
     }
 
     private Recursos crearRecursos(Sesion sesion) throws Exception {
@@ -182,24 +246,4 @@ class MiSeguridadPostgresTest {
     private record Recursos(long accion, long lugar, long contacto) {
     }
 
-    @TestConfiguration(proxyBeanMethods = false)
-    static class ConfiguracionDePrueba {
-        @Bean
-        @Primary
-        InvalidacionSesionesCuenta invalidacionDePrueba() {
-            return mock(InvalidacionSesionesCuenta.class);
-        }
-
-        @Bean
-        @Primary
-        CuentaService cuentaDePrueba(UsuarioRepository usuarias, Map<String, LimpiezaDatosUsuaria> reales,
-                                    InvalidacionSesionesCuenta invalidacion) {
-            // Los reemplazos viven solo en esta prueba. Las limpiezas reales se conservan si ya se integraron.
-            Map<String, LimpiezaDatosUsuaria> limpiezas = new LinkedHashMap<>(reales);
-            limpiezas.putIfAbsent("autoevaluacionService", id -> {});
-            limpiezas.putIfAbsent("diarioService", id -> {});
-            limpiezas.putIfAbsent("comunidadService", id -> {});
-            return new CuentaService(usuarias, limpiezas, Optional.of(invalidacion), true);
-        }
-    }
 }

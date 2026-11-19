@@ -7,7 +7,7 @@
 <div class="secciones">
   <section class="tarjeta" aria-labelledby="titulo-acciones">
     <h2 id="titulo-acciones">Acciones del plan</h2>
-    <form [formGroup]="accionForm" (ngSubmit)="crearAccion()" autocomplete="off">
+    <form [formGroup]="accionForm" (ngSubmit)="crearAccion()" autocomplete="off" spellcheck="false">
       <div class="campo">
         <label for="texto-accion">Nueva acción</label>
         <input id="texto-accion" formControlName="texto" maxlength="240" required
@@ -57,7 +57,7 @@
 
   <section class="tarjeta" aria-labelledby="titulo-lugares">
     <h2 id="titulo-lugares">Lugares seguros</h2>
-    <form [formGroup]="lugarForm" (ngSubmit)="crearLugar()" autocomplete="off">
+    <form [formGroup]="lugarForm" (ngSubmit)="crearLugar()" autocomplete="off" spellcheck="false">
       <div class="campo">
         <label for="nombre-lugar">Nombre del lugar</label>
         <input id="nombre-lugar" formControlName="nombre" maxlength="100" required

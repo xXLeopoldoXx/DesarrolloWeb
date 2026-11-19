@@ -22,6 +22,7 @@
 
 .chat__titulo {
   flex: 1;
+  min-width: 0;
 
   h1 {
     margin: 0;
@@ -70,6 +71,7 @@
 
 .chat__sugerencia {
   padding: 0.5rem 0.8rem;
+  min-block-size: var(--alto-control);
   border: 1px solid var(--lila-100);
   border-radius: 999px;
   background: var(--lila-50);
@@ -165,11 +167,27 @@
 
   textarea {
     flex: 1;
+    min-width: 0;
     resize: none;
     padding: 0.7rem 0.9rem;
-    border: 1px solid #b8c9c5;
+    border: 1px solid var(--borde-campo);
     border-radius: var(--radio-s);
     color: var(--texto);
+  }
+}
+
+@media (max-width: 480px) {
+  .chat__cabecera {
+    flex-wrap: wrap;
+  }
+
+  .chat__titulo {
+    flex-basis: 10rem;
+  }
+
+  .chat__formulario {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 

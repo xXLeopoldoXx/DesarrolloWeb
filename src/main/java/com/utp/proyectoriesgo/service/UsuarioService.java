@@ -7,8 +7,10 @@ import com.utp.proyectoriesgo.model.Rol;
 import com.utp.proyectoriesgo.model.Usuario;
 import com.utp.proyectoriesgo.repository.RolRepository;
 import com.utp.proyectoriesgo.repository.UsuarioRepository;
+import com.utp.proyectoriesgo.security.IdentidadJwt;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +57,10 @@ public class UsuarioService {
      */
     @Transactional(readOnly = true)
     public Usuario actual(Authentication autenticacion) {
-        return usuarioRepository.findByUsername(autenticacion.getName())
+        var cuenta = autenticacion instanceof JwtAuthenticationToken jwt
+                ? IdentidadJwt.idDe(jwt.getToken()).flatMap(usuarioRepository::findById)
+                : usuarioRepository.findByUsername(autenticacion.getName());
+        return cuenta.filter(Usuario::isActivo)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuaria no encontrada"));
     }
 }

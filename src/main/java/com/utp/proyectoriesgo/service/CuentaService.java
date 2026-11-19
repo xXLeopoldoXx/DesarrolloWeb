@@ -4,51 +4,45 @@ import com.utp.proyectoriesgo.exception.BorradoCuentaNoDisponibleException;
 import com.utp.proyectoriesgo.exception.RecursoNoEncontradoException;
 import com.utp.proyectoriesgo.model.Usuario;
 import com.utp.proyectoriesgo.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class CuentaService {
-    private static final Set<String> LIMPIEZAS_REQUERIDAS = Set.of(
-            "planSeguridadService", "contactoService", "autoevaluacionService", "diarioService", "comunidadService");
-
     private final UsuarioRepository usuarias;
     private final List<LimpiezaDatosUsuaria> limpiezas;
-    private final Optional<InvalidacionSesionesCuenta> invalidacion;
-    private final boolean habilitado;
+    private final DisponibilidadBorradoCuenta disponibilidad;
 
-    public CuentaService(UsuarioRepository usuarias, Map<String, LimpiezaDatosUsuaria> limpiezas,
-                         Optional<InvalidacionSesionesCuenta> invalidacion,
-                         @Value("${app.seguridad.borrado-cuenta.habilitado:false}") boolean autorizado) {
+    public CuentaService(UsuarioRepository usuarias, List<LimpiezaDatosUsuaria> limpiezas,
+                         DisponibilidadBorradoCuenta disponibilidad) {
         this.usuarias = usuarias;
-        this.limpiezas = List.copyOf(limpiezas.values());
-        this.invalidacion = invalidacion;
-        this.habilitado = autorizado && limpiezas.keySet().containsAll(LIMPIEZAS_REQUERIDAS);
+        this.limpiezas = List.copyOf(limpiezas);
+        this.disponibilidad = disponibilidad;
     }
 
     public boolean borradoDisponible() {
-        return habilitado && invalidacion.isPresent();
+        return disponibilidad.disponible();
     }
 
     @Transactional
     public void eliminarCuenta(Usuario usuaria) {
-        if (!habilitado) {
+        if (!borradoDisponible()) {
             throw new BorradoCuentaNoDisponibleException();
         }
-        InvalidacionSesionesCuenta sesiones = invalidacion.orElseThrow(BorradoCuentaNoDisponibleException::new);
         Long id = usuaria.getId();
-        Usuario cuenta = usuarias.findById(id)
+        Usuario cuenta = usuarias.buscarParaBorrado(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Usuaria no encontrada."));
-        for (LimpiezaDatosUsuaria limpieza : limpiezas) {
-            limpieza.eliminarDatosDe(id);
+        try {
+            for (LimpiezaDatosUsuaria limpieza : limpiezas) {
+                limpieza.eliminarDatosDe(id);
+            }
+            // El validador JWT rechaza esta identidad al confirmarse la transacción.
+            usuarias.delete(cuenta);
+            usuarias.flush();
+        } catch (RuntimeException error) {
+            throw new IllegalStateException("No se pudo eliminar la cuenta. Inténtalo de nuevo más tarde.", error);
         }
-        sesiones.invalidarSesionesDe(id);
-        usuarias.delete(cuenta);
     }
 }

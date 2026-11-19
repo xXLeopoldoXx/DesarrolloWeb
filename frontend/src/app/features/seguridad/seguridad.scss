@@ -94,26 +94,6 @@
   }
 }
 
-.boton:not(.boton--suave, .boton--peligro) {
-  background: var(--teal-700);
-
-  &:hover:not(:disabled) {
-    background: #195c54;
-  }
-}
-
-.boton--peligro {
-  background: #9b2f25;
-
-  &:hover:not(:disabled) {
-    background: #81281f;
-  }
-}
-
-.campo .error {
-  color: #9b2f25;
-}
-
 .vacio {
   margin-top: 1rem;
   color: var(--texto-suave);

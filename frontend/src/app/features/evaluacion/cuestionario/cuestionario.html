@@ -97,16 +97,16 @@
     }
 
     <!-- Error general -->
-    @if (error) {
+    @if (error()) {
 
       <div class="mensaje-error" role="alert">
-        {{ error }}
+        {{ error() }}
       </div>
 
     }
 
     <!-- Confirmación de respuestas -->
-    @if (mostrarConfirmacion) {
+    @if (mostrarConfirmacion()) {
 
       <section
         class="confirmacion"
@@ -142,10 +142,10 @@
           <button
             type="button"
             class="boton-principal"
-            [disabled]="enviando"
+            [disabled]="enviando()"
             (click)="confirmarRespuestas()">
 
-            {{ enviando ? 'Enviando...' : 'Confirmar y continuar' }}
+            {{ enviando() ? 'Enviando...' : 'Confirmar y continuar' }}
 
           </button>
 
@@ -156,14 +156,14 @@
     }
 
     <!-- Botón de envío -->
-    @if (!mostrarConfirmacion) {
+    @if (!mostrarConfirmacion()) {
 
       <button
         type="submit"
         class="boton-principal boton-enviar"
-        [disabled]="enviando">
+        [disabled]="enviando()">
 
-        {{ enviando ? 'Guardando evaluación...' : 'Enviar evaluación' }}
+        {{ enviando() ? 'Guardando evaluación...' : 'Enviar evaluación' }}
 
       </button>
 

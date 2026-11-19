@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -16,72 +16,75 @@ export class Historial implements OnInit {
 
   private readonly evaluacionService = inject(EvaluacionService);
 
-  evaluaciones: ResumenEvaluacionResponse[] = [];
+  // Signals: la app no usa zone.js, y un campo normal cambiado dentro de un subscribe no repinta la pantalla.
+  readonly evaluaciones = signal<ResumenEvaluacionResponse[]>([]);
 
-  cargando = true;
-  eliminandoId: number | null = null;
-  evaluacionSeleccionada: number | null = null;
-  error = '';
-  mensaje = '';
+  readonly cargando = signal(true);
+  readonly eliminandoId = signal<number | null>(null);
+  readonly evaluacionSeleccionada = signal<number | null>(null);
+  readonly error = signal('');
+  readonly mensaje = signal('');
 
   ngOnInit(): void {
     this.cargarHistorial();
   }
 
   cargarHistorial(): void {
-    this.cargando = true;
-    this.error = '';
+    this.cargando.set(true);
+    this.error.set('');
 
     this.evaluacionService.listar().subscribe({
       next: evaluaciones => {
-        this.evaluaciones = evaluaciones;
-        this.cargando = false;
+        this.evaluaciones.set(evaluaciones);
+        this.cargando.set(false);
       },
       error: err => {
-        this.cargando = false;
-        this.error =
+        this.cargando.set(false);
+        this.error.set(
           err?.error?.mensaje ||
           err?.error?.message ||
-          'No se pudo cargar el historial de evaluaciones.';
+          'No se pudo cargar el historial de evaluaciones.'
+        );
       }
     });
   }
 
   confirmarEliminacion(id: number): void {
-    this.evaluacionSeleccionada = id;
-    this.mensaje = '';
+    this.evaluacionSeleccionada.set(id);
+    this.mensaje.set('');
   }
 
   cancelarEliminacion(): void {
-    this.evaluacionSeleccionada = null;
+    this.evaluacionSeleccionada.set(null);
   }
 
   eliminarEvaluacion(): void {
-    const id = this.evaluacionSeleccionada;
+    const id = this.evaluacionSeleccionada();
 
-    if (id === null || this.eliminandoId !== null) {
+    if (id === null || this.eliminandoId() !== null) {
       return;
     }
 
-    this.eliminandoId = id;
-    this.error = '';
+    this.eliminandoId.set(id);
+    this.error.set('');
 
     this.evaluacionService.eliminar(id).subscribe({
       next: () => {
-        this.evaluaciones = this.evaluaciones.filter(
-          evaluacion => evaluacion.id !== id
+        this.evaluaciones.update(lista =>
+          lista.filter(evaluacion => evaluacion.id !== id)
         );
 
-        this.evaluacionSeleccionada = null;
-        this.eliminandoId = null;
-        this.mensaje = 'La evaluación se eliminó correctamente.';
+        this.evaluacionSeleccionada.set(null);
+        this.eliminandoId.set(null);
+        this.mensaje.set('La evaluación se eliminó correctamente.');
       },
       error: err => {
-        this.eliminandoId = null;
-        this.error =
+        this.eliminandoId.set(null);
+        this.error.set(
           err?.error?.mensaje ||
           err?.error?.message ||
-          'No se pudo eliminar la evaluación. Inténtalo nuevamente.';
+          'No se pudo eliminar la evaluación. Inténtalo nuevamente.'
+        );
       }
     });
   }

@@ -12,16 +12,16 @@
   </header>
 
   <!-- Estado de carga -->
-  @if (cargando) {
+  @if (cargando()) {
     <div class="estado-carga" role="status">
       Cargando resultado de tu evaluación...
     </div>
   }
 
   <!-- Mensaje de error -->
-  @if (error) {
+  @if (error()) {
     <div class="mensaje-error" role="alert">
-      {{ error }}
+      {{ error() }}
     </div>
 
     <a routerLink="/evaluacion" class="boton-secundario">
@@ -30,7 +30,7 @@
   }
 
   <!-- Resultado -->
-  @if (!cargando && resultado) {
+  @if (!cargando() && resultado(); as resultado) {
 
     <article class="resultado-card">
 

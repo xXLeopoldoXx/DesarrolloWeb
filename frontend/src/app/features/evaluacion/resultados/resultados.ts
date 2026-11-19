@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
@@ -17,17 +17,17 @@ export class Resultados implements OnInit {
   private readonly evaluacionService = inject(EvaluacionService);
   private readonly route = inject(ActivatedRoute);
 
-  resultado: ResultadoResponse | null = null;
-
-  cargando = true;
-  error = '';
+  // Signals: la app no usa zone.js, y un campo normal cambiado dentro de un subscribe no repinta la pantalla.
+  readonly resultado = signal<ResultadoResponse | null>(null);
+  readonly cargando = signal(true);
+  readonly error = signal('');
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
     if (!Number.isInteger(id) || id <= 0) {
-      this.cargando = false;
-      this.error = 'El identificador de la evaluación no es válido.';
+      this.cargando.set(false);
+      this.error.set('El identificador de la evaluación no es válido.');
       return;
     }
 
@@ -35,26 +35,27 @@ export class Resultados implements OnInit {
   }
 
   private cargarResultado(id: number): void {
-    this.cargando = true;
-    this.error = '';
+    this.cargando.set(true);
+    this.error.set('');
 
     this.evaluacionService.obtener(id).subscribe({
       next: resultado => {
-        this.resultado = resultado;
-        this.cargando = false;
+        this.resultado.set(resultado);
+        this.cargando.set(false);
       },
       error: err => {
-        this.cargando = false;
-        this.error =
+        this.cargando.set(false);
+        this.error.set(
           err?.error?.mensaje ||
           err?.error?.message ||
-          'No se pudo cargar el resultado de la evaluación.';
+          'No se pudo cargar el resultado de la evaluación.'
+        );
       }
     });
   }
 
   get claseNivel(): string {
-    const nivel = this.resultado?.nivel
+    const nivel = this.resultado()?.nivel
       ?.trim()
       .toUpperCase()
       .normalize('NFD')
@@ -78,6 +79,6 @@ export class Resultados implements OnInit {
   }
 
   get nombreNivel(): string {
-    return this.resultado?.nivel || 'No disponible';
+    return this.resultado()?.nivel || 'No disponible';
   }
 }

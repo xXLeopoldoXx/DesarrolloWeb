@@ -8,15 +8,15 @@
     </p>
   </header>
 
-  @if (cargando) {
+  @if (cargando()) {
     <div class="estado-carga" role="status">
       Cargando historial...
     </div>
   }
 
-  @if (error) {
+  @if (error()) {
     <div class="mensaje-error" role="alert">
-      {{ error }}
+      {{ error() }}
     </div>
 
     <button
@@ -27,7 +27,7 @@
     </button>
   }
 
-  @if (!cargando && !error && evaluaciones.length === 0) {
+  @if (!cargando() && !error() && evaluaciones().length === 0) {
     <div class="sin-resultados">
       <h2>Aún no tienes evaluaciones</h2>
       <p>
@@ -41,12 +41,12 @@
     </div>
   }
 
-  @if (!cargando && evaluaciones.length > 0) {
+  @if (!cargando() && evaluaciones().length > 0) {
 
     <div class="resumen">
-      <strong>{{ evaluaciones.length }}</strong>
+      <strong>{{ evaluaciones().length }}</strong>
       <span>
-        {{ evaluaciones.length === 1
+        {{ evaluaciones().length === 1
           ? 'evaluación registrada'
           : 'evaluaciones registradas' }}
       </span>
@@ -54,7 +54,7 @@
 
     <div class="lista-evaluaciones">
 
-      @for (evaluacion of evaluaciones; track evaluacion.id) {
+      @for (evaluacion of evaluaciones(); track evaluacion.id) {
 
         <article class="evaluacion-card">
 
@@ -79,7 +79,7 @@
             <button
               type="button"
               class="boton-eliminar"
-              [disabled]="eliminandoId !== null"
+              [disabled]="eliminandoId() !== null"
               (click)="confirmarEliminacion(evaluacion.id)">
               Eliminar
             </button>
@@ -93,13 +93,13 @@
     </div>
   }
 
-  @if (mensaje) {
+  @if (mensaje()) {
     <div class="mensaje-exito" role="status">
-      {{ mensaje }}
+      {{ mensaje() }}
     </div>
   }
 
-  @if (evaluacionSeleccionada !== null) {
+  @if (evaluacionSeleccionada() !== null) {
 
     <div class="fondo-modal">
 
@@ -123,7 +123,7 @@
           <button
             type="button"
             class="boton-secundario"
-            [disabled]="eliminandoId !== null"
+            [disabled]="eliminandoId() !== null"
             (click)="cancelarEliminacion()">
             Cancelar
           </button>
@@ -131,9 +131,9 @@
           <button
             type="button"
             class="boton-peligro"
-            [disabled]="eliminandoId !== null"
+            [disabled]="eliminandoId() !== null"
             (click)="eliminarEvaluacion()">
-            {{ eliminandoId !== null ? 'Eliminando...' : 'Sí, eliminar' }}
+            {{ eliminandoId() !== null ? 'Eliminando...' : 'Sí, eliminar' }}
           </button>
 
         </div>

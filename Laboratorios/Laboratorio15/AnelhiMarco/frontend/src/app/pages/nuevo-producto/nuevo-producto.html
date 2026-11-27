@@ -1,0 +1,24 @@
+<a class="enlace-volver" routerLink="/productos">← Volver al catálogo</a>
+<section class="tarjeta formulario" aria-labelledby="titulo-nuevo">
+  <h1 id="titulo-nuevo">Nuevo producto</h1>
+  <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+    <label for="nombre">Nombre del producto</label>
+    <input id="nombre" formControlName="nombre" required>
+    <label for="categoria">Categoría</label>
+    <input id="categoria" formControlName="categoria" required>
+    <div class="campos">
+      <div>
+        <label for="precio">Precio (S/)</label>
+        <input id="precio" formControlName="precio" type="number" min="0.01" step="0.01" required>
+      </div>
+      <div>
+        <label for="stock">Stock inicial</label>
+        <input id="stock" formControlName="stock" type="number" inputmode="numeric" min="0" step="1" required>
+      </div>
+    </div>
+    @if (errorCampo() || error()) {
+      <p class="aviso aviso--error" role="alert">{{ errorCampo() || error() }}</p>
+    }
+    <button class="boton" [disabled]="guardando()">{{ guardando() ? 'Guardando…' : 'Crear producto' }}</button>
+  </form>
+</section>

@@ -1,0 +1,17 @@
+<section class="tarjeta formulario acceso" aria-labelledby="titulo-login">
+  <h1 id="titulo-login">Inicia sesión</h1>
+  <p class="atenuado">Consulta el catálogo y gestiona el inventario de Tienda UTP según tu rol.</p>
+  @if (sesionVencida) {
+    <p class="aviso" role="status">Tu sesión venció. Ingresa de nuevo para continuar.</p>
+  }
+  <form [formGroup]="formulario" (ngSubmit)="entrar()" novalidate>
+    <label for="usuario">Usuario</label>
+    <input id="usuario" formControlName="username" autocomplete="username" required>
+    <label for="clave">Contraseña</label>
+    <input id="clave" type="password" formControlName="password" autocomplete="current-password" required>
+    @if (error()) {
+      <p class="aviso aviso--error" role="alert">{{ error() }}</p>
+    }
+    <button class="boton" [disabled]="buscando()">{{ buscando() ? 'Ingresando…' : 'Entrar' }}</button>
+  </form>
+</section>

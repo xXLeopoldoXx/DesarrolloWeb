@@ -1,0 +1,64 @@
+<div class="titulo-pagina">
+  <div>
+    <h1>Catálogo</h1>
+    <p class="atenuado">Consulta productos, precios y unidades disponibles.</p>
+  </div>
+  @if (esAdmin()) {
+    <a class="boton" routerLink="/productos/nuevo">Nuevo producto</a>
+  }
+</div>
+
+@if (accesoRestringido()) {
+  <p class="aviso aviso--error" role="alert">Esta operación está reservada a administradores.</p>
+}
+@if (estado?.['salida']) {
+  <p class="aviso aviso--exito" role="status">Salida registrada. Stock restante: {{ estado['stock'] }}.</p>
+} @else if (estado?.['alta']) {
+  <p class="aviso aviso--exito" role="status">Producto creado correctamente.</p>
+}
+
+<form class="tarjeta filtros" [formGroup]="filtro" (ngSubmit)="filtrar()" novalidate>
+  <div>
+    <label for="precio-min">Precio mínimo (S/)</label>
+    <input id="precio-min" type="number" formControlName="min" min="0" step="0.01">
+  </div>
+  <div>
+    <label for="precio-max">Precio máximo (S/)</label>
+    <input id="precio-max" type="number" formControlName="max" min="0" step="0.01">
+  </div>
+  <div class="acciones">
+    <button class="boton" type="submit">Filtrar</button>
+    <button class="boton boton--secundario" type="button" (click)="limpiar()">Limpiar</button>
+  </div>
+  @if (errorFiltro()) {
+    <p class="aviso aviso--error filtro-error" role="alert">{{ errorFiltro() }}</p>
+  }
+</form>
+
+<section aria-label="Productos" [attr.aria-busy]="cargando()">
+  @if (cargando()) {
+    <p class="aviso" role="status">Cargando productos…</p>
+  } @else if (error()) {
+    <p class="aviso aviso--error" role="alert">{{ error() }}</p>
+    <button class="boton boton--secundario" type="button" (click)="reintentar()">Reintentar</button>
+  } @else {
+    <div class="productos">
+      @for (producto of productos(); track producto.id) {
+        <article class="tarjeta producto">
+          <p class="categoria">{{ producto.categoria }}</p>
+          <h2>{{ producto.nombre }}</h2>
+          <dl>
+            <div><dt>Precio</dt><dd>{{ producto.precio | currency: 'PEN':'S/ ':'1.2-2':'es-PE' }}</dd></div>
+            <div><dt>Stock</dt><dd>{{ producto.stock }} uds.</dd></div>
+          </dl>
+          @if (esAdmin() && producto.stock > 0) {
+            <a class="boton boton--secundario" [routerLink]="['/inventario/salida', producto.id]"
+              [attr.aria-label]="'Registrar salida de ' + producto.nombre">Registrar salida</a>
+          }
+        </article>
+      } @empty {
+        <p class="aviso" role="status">No hay productos para mostrar.</p>
+      }
+    </div>
+  }
+</section>

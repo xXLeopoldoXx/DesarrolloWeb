@@ -1,0 +1,38 @@
+<a class="enlace-volver" routerLink="/productos">← Volver al catálogo</a>
+<section class="tarjeta formulario" aria-labelledby="titulo-salida" [attr.aria-busy]="cargando()">
+  <h1 id="titulo-salida">Registrar salida de stock</h1>
+  @if (error()) {
+    <p class="aviso aviso--error" role="alert">{{ error() }}</p>
+  }
+  @if (cargando()) {
+    <p role="status">Cargando producto…</p>
+  } @else if (producto(); as item) {
+    <dl class="datos-producto">
+      <div><dt>Producto</dt><dd>{{ item.nombre }}</dd></div>
+      <div><dt>Stock disponible</dt><dd>{{ item.stock }} uds.</dd></div>
+    </dl>
+    @if (item.stock > 0) {
+      <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+        <label for="cantidad">Cantidad a retirar</label>
+        <input id="cantidad" type="number" formControlName="cantidad" min="1" step="1" [max]="item.stock"
+          required inputmode="numeric" [attr.aria-invalid]="errorCantidad() ? 'true' : null"
+          [attr.aria-describedby]="errorCantidad() ? 'ayuda-cantidad error-cantidad' : 'ayuda-cantidad'">
+        <p id="ayuda-cantidad" class="ayuda">Ingresa entre 1 y {{ item.stock }} unidades.</p>
+        @if (errorCantidad()) {
+          <p id="error-cantidad" class="aviso aviso--error" role="alert">{{ errorCantidad() }}</p>
+        }
+        <div class="acciones">
+          <button class="boton" [disabled]="enviando()">{{ enviando() ? 'Registrando…' : 'Confirmar salida' }}</button>
+          <a class="boton boton--secundario" routerLink="/productos">Cancelar</a>
+        </div>
+      </form>
+    } @else {
+      <p class="aviso" role="status">Este producto está agotado.</p>
+    }
+    @if (error() && !enviando()) {
+      <button type="button" class="boton boton--secundario recargar" (click)="cargar()">Consultar stock actual</button>
+    }
+  } @else if (recargable()) {
+    <button type="button" class="boton boton--secundario" (click)="cargar()">Reintentar</button>
+  }
+</section>

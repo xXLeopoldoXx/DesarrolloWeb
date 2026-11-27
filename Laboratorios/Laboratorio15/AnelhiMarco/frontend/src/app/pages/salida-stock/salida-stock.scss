@@ -1,0 +1,15 @@
+.datos-producto {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  padding: 1rem;
+  margin: 1.25rem 0;
+  border-radius: 0.6rem;
+  background: var(--superficie-suave);
+}
+
+.recargar { margin-top: 1rem; }
+
+@media (max-width: 30rem) {
+  .datos-producto { grid-template-columns: 1fr; }
+}

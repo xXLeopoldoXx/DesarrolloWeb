@@ -1,0 +1,13 @@
+<h1>Indicadores</h1>
+@if (cargando()) {
+  <p class="aviso" role="status">Cargando indicadores…</p>
+} @else if (error()) {
+  <p class="aviso aviso--error" role="alert">{{ error() }}</p>
+  <button class="boton boton--secundario" (click)="cargar()" type="button">Reintentar</button>
+} @else if (resumen(); as datos) {
+  <dl class="indicadores">
+    <div class="tarjeta indicador"><dt>Productos registrados</dt><dd>{{ datos.totalProductos }}</dd></div>
+    <div class="tarjeta indicador"><dt>Productos con stock bajo</dt><dd>{{ datos.productosStockBajo }}</dd></div>
+    <div class="tarjeta indicador"><dt>Movimientos de stock</dt><dd>{{ datos.totalMovimientos }}</dd></div>
+  </dl>
+}

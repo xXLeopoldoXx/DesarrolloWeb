@@ -1,0 +1,23 @@
+<button class="salto" type="button" (click)="contenido.focus()">Saltar al contenido</button>
+<header class="cabecera">
+  <div class="contenedor cabecera__interior">
+    <a class="marca" routerLink="/">Tienda <span>UTP</span></a>
+    @if (auth.perfil(); as perfil) {
+      <nav class="navegacion" aria-label="Navegación principal">
+        <a routerLink="/productos" routerLinkActive="activo" ariaCurrentWhenActive="page"
+          [routerLinkActiveOptions]="{ exact: true }">Catálogo</a>
+        @if (auth.esAdmin()) {
+          <a routerLink="/admin" routerLinkActive="activo" ariaCurrentWhenActive="page">Indicadores</a>
+        }
+      </nav>
+      <div class="sesion">
+        <span>{{ perfil.username }} <small>{{ auth.esAdmin() ? 'ADMIN' : 'USER' }}</small></span>
+        <button class="boton boton--secundario" type="button" (click)="cerrarSesion()">Cerrar sesión</button>
+      </div>
+    }
+  </div>
+</header>
+
+<main #contenido id="contenido" class="contenedor contenido" tabindex="-1">
+  <router-outlet />
+</main>

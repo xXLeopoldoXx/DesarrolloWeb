@@ -1,8 +1,14 @@
 # Laboratorio 15 · Tienda UTP · Anelhi Marco
 
-La base del backend proviene de la entrega de [Maria Ramos del Laboratorio 14](../../Laboratorio14/Maria_Ramos). Este laboratorio conserva PostgreSQL por indicación de Anelhi y aplica en PostgreSQL las comprobaciones de persistencia y transacciones planteadas en la guía.
+Tienda UTP permite consultar productos y filtrar por precio. Las cuentas administradoras también pueden crear productos, registrar salidas de stock y consultar indicadores. El laboratorio usa PostgreSQL para las comprobaciones de persistencia y transacciones de la guía.
 
-**Estado de la entrega:** el backend y sus pruebas de integración están disponibles. El formulario Angular y las evidencias de la integración completa quedan para la siguiente etapa.
+El backend parte de la entrega de [Maria Ramos del Laboratorio 14](../../Laboratorio14/Maria_Ramos). La configuración de herramientas de Angular 22 toma como referencia la [entrega de Brito Ruiz](../../Laboratorio14/Brito_Ruiz/frontend).
+
+## Arquitectura
+
+Angular envía solicitudes HTTP al prefijo `/api`. El proxy de desarrollo las reenvía a Spring Boot, que autentica con JWT y aplica los permisos antes de llamar a los servicios. JPA accede a PostgreSQL y ejecuta la consulta de precios mediante JPQL. El token vive en memoria y la recarga completa pide volver a iniciar sesión.
+
+Entorno de verificación: Angular 22.2.6, Angular CLI 22.2.7, TypeScript 6.0.3, Node.js 24.22.0, Vitest 4.1.12, Java 25.0.4, Maven Wrapper, Spring Boot 4.1.1 y PostgreSQL 18.6.
 
 ## Ejecutar el backend local
 
@@ -29,7 +35,19 @@ $env:LAB15_DEMO_ADMIN_PASSWORD = Read-Host 'Contraseña de la cuenta ficticia ad
 
 Spring Boot escucha en `127.0.0.1:8080` y conecta a PostgreSQL en `127.0.0.1:5432`. Puedes configurar `LAB15_API_PORT` y `LAB15_DB_PORT` si usas otros puertos. Hibernate crea o actualiza las tablas dentro de la base dedicada. El perfil `demo` crea las cuentas ficticias `usuario` y `admin` si todavía no existen. Cada ejecución con una clave JWT nueva requiere iniciar sesión de nuevo.
 
-## Rutas que usará Angular
+### Ejecutar Angular
+
+En otra terminal de VS Code, desde la carpeta de esta entrega, ejecuta:
+
+```powershell
+Set-Location frontend
+npm.cmd ci
+npm.cmd start
+```
+
+Abre [Tienda UTP](http://localhost:4200). Usa `usuario` para consultar y `admin` para administrar, con las contraseñas ficticias que configuraste en el perfil `demo`. Si la API se ejecuta en un puerto distinto a `8080`, ajusta el destino de `frontend/proxy.conf.json` antes de iniciar Angular.
+
+## Rutas de la API
 
 | Operación | Ruta | Acceso |
 | --- | --- | --- |
@@ -43,12 +61,44 @@ Spring Boot escucha en `127.0.0.1:8080` y conecta a PostgreSQL en `127.0.0.1:543
 
 La salida devuelve el producto actualizado. Spring Security valida el token y el rol. Dentro de la transacción, el servicio bloquea la fila del producto para validar el stock y registrar el movimiento. Si falla la transacción, se revierte el cambio completo.
 
-## Pruebas del backend
+Ejemplo de cuerpo para `POST /api/productos`.
 
-```powershell
-& './mvnw.cmd' test
+```json
+{"nombre":"Monitor de laboratorio","categoria":"Tecnología","precio":450,"stock":10}
 ```
 
-La suite completa pasó 16 pruebas. Usa H2 en memoria para comprobar la API, los permisos y el rollback desde Maven sin requerir credenciales de PostgreSQL.
+Ejemplo de respuesta posterior a una salida de 2 unidades.
 
-En esta etapa también se ejecutaron seis pruebas de integración contra un clúster temporal de PostgreSQL 18.6. Pasaron las comprobaciones de autorización JWT, validación de cantidad, persistencia de la salida y rollback. La instancia temporal se detuvo al terminar.
+```json
+{"id":1,"nombre":"Monitor de laboratorio","categoria":"Tecnología","precio":450,"stock":8}
+```
+
+## Pruebas y compilaciones
+
+Desde la carpeta del laboratorio, ejecuta Maven. `package` también pasa por la fase `test`.
+
+```powershell
+& './mvnw.cmd' clean package
+```
+
+Desde `frontend`, ejecuta las pruebas de Angular y genera la compilación de producción.
+
+```powershell
+npm.cmd test -- --watch=false
+npm.cmd run build
+```
+
+La suite habitual de Maven usa una base en memoria. Las verificaciones de persistencia en PostgreSQL se ejecutan en una base dedicada con datos ficticios.
+
+La [matriz de pruebas y capturas](evidencias/README.md) detalla los resultados observados. El entorno está pensado para ejecución local y las cuentas del perfil `demo` son de laboratorio.
+
+## Preguntas de discusión
+
+1. **¿Dónde se aplica el permiso real?** El guard orienta la navegación de Angular. Spring Security evalúa cada solicitud, incluso si llega desde Postman.
+2. **¿Qué se revisa ante un 403?** Primero el método y la URL en Network. Luego el perfil de `/api/auth/me`, los roles y la regla de Spring Security.
+3. **¿Por qué puede variar el stock?** Otro administrador puede registrar un movimiento mientras el formulario está abierto. El servidor vuelve a leer el stock con un bloqueo de escritura.
+4. **¿Qué significan 0, 401 y 409?** Angular usa 0 si no recibe respuesta. Un 401 indica que la autenticación falta o fue rechazada. Un 409 indica un conflicto con el estado actual, como stock insuficiente.
+5. **¿Dónde se adapta un cambio de tablas?** El mapeo JPA y los repositorios encapsulan la persistencia. Las pantallas pueden seguir usando el mismo contrato HTTP.
+6. **¿Qué prueba `HttpTestingController`?** Método, URL, parámetros, cabeceras y manejo de respuestas simuladas. Las llamadas reales y la persistencia se prueban por separado.
+7. **¿Para qué probar un fallo transaccional?** Para comprobar que un error posterior a la escritura revierte tanto la cantidad del producto como el movimiento.
+8. **¿Cómo se reproduce la entrega?** A partir del código, archivos de dependencias, variables documentadas, cuentas ficticias, comandos de compilación y evidencias de los resultados.

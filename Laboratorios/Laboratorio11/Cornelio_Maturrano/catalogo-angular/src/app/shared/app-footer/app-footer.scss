@@ -1,0 +1,18 @@
+$navy: #0d2042;
+
+.footer {
+  background: $navy;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  border-radius: 14px;
+
+  p {
+    margin: 0 0 8px;
+    font-weight: 700;
+  }
+
+  span {
+    font-size: 0.9rem;
+  }
+}

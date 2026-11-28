@@ -1,0 +1,22 @@
+$teal: #008491;
+$navy: #0d2042;
+
+.summary {
+  margin-top: 24px;
+  padding: 20px;
+  background: white;
+  border-left: 5px solid $teal;
+  border-radius: 14px;
+  box-shadow: 0 10px 26px rgba(13, 32, 66, 0.10);
+
+  h2 {
+    margin: 0 0 10px;
+    color: $navy;
+  }
+
+  p {
+    margin: 0;
+    color: $teal;
+    font-weight: 700;
+  }
+}
